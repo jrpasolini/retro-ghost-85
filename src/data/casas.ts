@@ -1,0 +1,66 @@
+import type { Casa } from "../types";
+
+const detalhes: Array<[string, Casa["tipo"], string]> = [
+  ["A revista na banca", "marco", "+10 projeto"],
+  ["Digitar a listagem", "evento", "+5 projeto"],
+  ["O erro de digitação", "fatalidade", "−1 energia, −5 projeto"],
+  ["RUN e a tela azul", "marco", "+10 projeto"],
+  ["Salvar no cassete", "evento", "Ganha item cassete"],
+  ["O cassete que não carrega", "fatalidade", "−5 projeto"],
+  ["Fitas virgens do camelô", "evento", "+3 projeto"],
+  ["O joystick emprestado", "evento", "Ganha item joystick"],
+  ["O cartucho do amigo", "evento", "+8 projeto"],
+  ["Primeiro programa que funciona", "marco", "+15 projeto"],
+  ["O drive de disquete", "marco", "Ganha drive, +5 projeto"],
+  ["Formatar o disco", "evento", "+3 projeto"],
+  ["Prompt pela primeira vez", "marco", "+10 projeto"],
+  ["O assembler", "evento", "+10 projeto"],
+  ["Sprite fora do lugar", "fatalidade", "−5 projeto"],
+  ["Mapa de memória e VRAM", "evento", "+8 projeto"],
+  ["Colisão que não colide", "fatalidade", "−1 energia"],
+  ["Música em PSG", "evento", "+6 projeto"],
+  ["O bug de scroll", "fatalidade", "−8 projeto"],
+  ["O jogo roda liso", "marco", "+15 projeto"],
+  ["O modem acústico", "marco", "Ganha modem, +5 projeto"],
+  ["Discar para a BBS", "evento", "+10 projeto"],
+  ["Linha ocupada", "fatalidade", "Perde o turno"],
+  ["O grupo de usuários", "marco", "Ganha contato, +8 projeto"],
+  ["Disquete com vírus", "fatalidade", "−1 energia, perde 1 item"],
+  ["Cópia de software: o dilema", "escolha", "+6 projeto ou +1 energia"],
+  ["Feira de informática", "evento", "+8 projeto"],
+  ["Revista especializada", "evento", "+5 projeto"],
+  ["Concurso de programas", "evento", "+12 projeto ou −1 energia"],
+  ["Primeiro freelance", "marco", "+15 projeto, ganha contrato"],
+  ["O contrato", "marco", "+10 projeto"],
+  ["O prazo", "fatalidade", "−1 energia"],
+  ["O manual", "evento", "+6 projeto"],
+  ["A capa", "evento", "+5 projeto"],
+  ["Duplicação em série", "evento", "+8 projeto"],
+  ["Distribuição", "evento", "+6 projeto"],
+  ["A crítica na revista", "evento", "+10 ou −10 projeto"],
+  ["A errata", "fatalidade", "−6 projeto"],
+  ["O segundo jogo", "evento", "+10 projeto"],
+  ["Seu nome no catálogo", "final", "Vitória"],
+];
+
+const caixas: Array<[number, number, number, number]> = [
+  [17.6, 11.5, 6.6, 9.9], [24.2, 11.4, 6.0, 9.9], [30.4, 11.5, 6.0, 9.9],
+  [36.5, 11.5, 6.0, 9.9], [42.6, 11.5, 6.0, 9.9], [48.7, 11.5, 6.0, 9.9],
+  [54.8, 11.5, 6.0, 9.9], [60.9, 11.5, 6.0, 9.9], [67.0, 11.5, 8.0, 9.9],
+  [75.0, 11.2, 10.2, 10.6], [78.5, 22.8, 9.5, 6.2], [80.4, 28.8, 9.5, 6.3],
+  [82.0, 35.0, 9.5, 6.5], [83.8, 41.8, 9.5, 6.5], [85.4, 48.7, 9.5, 6.5],
+  [86.9, 55.5, 9.5, 6.5], [87.8, 62.4, 9.0, 6.5], [86.8, 69.3, 9.2, 6.5],
+  [84.6, 76.1, 10.3, 9.9], [82.8, 77.0, 11.2, 10.0], [73.7, 77.1, 9.2, 9.8],
+  [64.5, 77.1, 9.2, 9.8], [55.2, 77.1, 9.2, 9.8], [46.0, 77.1, 9.2, 9.8],
+  [36.8, 77.1, 9.2, 9.8], [30.4, 77.1, 6.4, 9.8], [26.4, 77.1, 4.0, 9.8],
+  [22.5, 77.1, 4.0, 9.8], [18.7, 77.1, 3.9, 9.8], [8.7, 76.8, 10.0, 10.5],
+  [9.2, 69.7, 9.3, 6.8], [9.2, 62.8, 9.3, 6.8], [9.2, 56.0, 9.3, 6.8],
+  [9.2, 49.2, 9.3, 6.8], [9.2, 42.4, 9.3, 6.8], [9.2, 35.6, 9.3, 6.8],
+  [9.2, 28.8, 9.3, 6.8], [9.2, 22.0, 9.3, 6.8], [9.2, 15.2, 9.3, 6.8],
+  [7.3, 10.8, 10.4, 11.2],
+];
+
+export const casas: Casa[] = detalhes.map(([titulo, tipo, efeito], index) => {
+  const [x, y, width, height] = caixas[index];
+  return { id: index + 1, titulo, tipo, efeito, x, y, width, height };
+});

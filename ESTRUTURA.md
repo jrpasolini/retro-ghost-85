@@ -385,3 +385,28 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 6. Aprovação dos wireframes e da identidade visual.
 
 > **26/10/2026 — revisão anterior Bruna (SUPERADA):** foi considerada uma arquitetura com mestre agêntico e multiplayer online via Durable Objects. **26/10/2026 — decisão posterior do Junior (VIGENTE):** retomar a solução enxuta da Melissa: pass-and-play local, Gemma apenas como apresentadora narrativa de conteúdos prontos em ocasiões econômicas, RNG e regras no navegador. Sem Durable Objects no MVP.
+
+
+---
+
+## 16. Logbook de implementação
+
+### 26/10/2026 — Etapa 1: fundação visual interativa do tabuleiro
+
+**Status:** concluída e validada no navegador.
+
+- Criado o esqueleto Vite + TypeScript, sem framework de UI e sem backend.
+- Integrada a arte 16:9 aprovada como cenário original do tabuleiro.
+- Mapeadas as 40 casas como botões semânticos sobre a arte, com seleção por clique/teclado e painel de inspeção.
+- Inseridos os quatro jogadores locais, selecionáveis no tabuleiro e no console inferior; todos começam na casa 1.
+- Os nomes, tipos e efeitos atuais vêm da proposta preliminar da seção 9 e continuam sujeitos à revisão de conteúdo e balanceamento.
+- A casa 24 preserva visualmente o prompt BASIC inspirado, sem logotipo ou marca MSX na identidade do produto.
+- A arte usa apenas a identidade original Retro-Ghost-85; a fotografia pixelada de Einstein aparece como referência histórica/decorativa na composição aprovada.
+- Fontes foram incorporadas ao bundle para evitar dependência de CDN em execução.
+- Adicionados foco visível, link de salto, rótulos acessíveis, região viva do inspetor e suporte a movimento reduzido.
+- Build de produção executado com sucesso: `npm run build`.
+- QA visual documentado em `design-qa.md` com resultado aprovado.
+
+**Fronteira desta etapa:** não foram implementados dado, turnos, movimento, aplicação de efeitos, save/load, Worker ou Gemma. O botão de jogabilidade permanece propositalmente desativado.
+
+**Contrato para o Antigravity/Gemini:** implementar a jogabilidade sobre a estrutura existente; usar `src/data/casas.ts` como fonte inicial; preservar as coordenadas e acessibilidade dos hotspots; mover as quatro peças atualizando o estado em vez de redesenhar o tabuleiro; não introduzir multiplayer remoto, serviços Google Cloud ou dependência obrigatória de IA.
