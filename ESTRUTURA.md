@@ -2,7 +2,8 @@
 
 > Documento vivo. Toda decisão tomada entra aqui, com data.
 > Criado em **26/10/2026** por Melissa, a pedido do Junior.
-> Status: **estrutura aprovada para começar**.
+> Status: **arquitetura em consolidação; mecânicas e 40 casas são propostas, ainda não aprovadas**.
+> Integração de decisões revisada em **26/10/2026**. A auditoria da infraestrutura precede a implementação.
 
 ---
 
@@ -16,35 +17,29 @@ O caminho é feito de **40 casas**, cada uma um marco real daquele mundo: casset
 não carrega, disco que corrompe, modem acústico, BBS, grupo de usuários, contrato
 com revista.
 
-Um modelo de linguagem (**Gemma**) atua como **mestre narrador**: ele não decide nada.
-Ele **conta** o que o dado já decidiu.
+**Gemma 4 é o mestre do jogo**, conduz a sessão, narra, propõe desafios e solicita ações por ferramentas autorizadas. O motor determinístico valida dados, efeitos e turnos; a IA não altera o estado livremente.
 
-**Nome de trabalho:** Retro Ghost 85. Ver §3 — o nome está sob revisão.
+**Nome decidido:** **Retro-Ghost-85**. Referências a MSX são históricas, não fazem parte da marca do produto.
 
 ---
 
-## 2. Princípios de design (não negociáveis)
+## 2. Princípios e requisitos acordados
 
-1. **O dado decide. A IA narra.** O código rola o dado, move a peça e aplica o efeito.
-   O modelo recebe o resultado pronto e devolve texto. O modelo **nunca** devolve
-   "avance 4 casas".
-2. **O modelo não raciocina.** Prompt curto, temperatura baixa, saída limitada a
-   narração. Nada de cadeia de pensamento, nada de decisão. Isso protege custo,
-   rate limit e justiça do jogo.
-3. **Narração é cacheada.** Cada casa tem texto-base escrito à mão. O modelo gera
-   variações e é opcional: se a API falhar, o jogo continua com o texto-base.
-4. **Save é um arquivo.** O estado da partida é um `.md` legível, baixável e
-   recarregável. Sem banco de dados, sem login, sem servidor de estado.
-5. **Pass-and-play.** Os 4 jogadores compartilham um aparelho. Multiplayer em rede
-   está fora do escopo da v1.
-6. **Autenticidade acima de polimento.** Tabuleiro tipográfico, verde-fósforo,
-   sem ilustração sofisticada. O que convence é a precisão histórica, não a arte.
+1. **Gemma 4 como mestre do jogo.** O modelo conduz, narra, propõe desafios e aciona ferramentas; o backend verifica permissões, resultados de dados, movimentos e regras. Sorteios são realizados por RNG verificável, solicitado pela Gemma via ferramenta e apresentado igualmente a todos os participantes.
+2. **Resiliência e orçamento.** Respostas curtas, contexto resumido, cache quando apropriado, limitação de requisições e fallback de texto-base. Não remover a participação central da Gemma por padrão: eventual modo offline é degradação funcional claramente sinalizada.
+3. **Salvamento portátil em Markdown.** Exportação/importação `.md` com estado estruturado, esquema versionado e diário narrativo legível; validação rigorosa, limites de tamanho e isolamento de instruções inseridas em arquivos importados.
+4. **Até 4 jogadores.** Modo local (pass-and-play) e modo online por sala, com identidade de participante, turnos serializados, reconexão e sincronização por Cloudflare Durable Objects. Priorizar um recorte funcional mínimo para a Week 4.
+5. **Arquitetura de operação definida.** Render Static para frontend; Cloudflare Workers + Durable Objects para sala, estado compartilhado e proxy seguro da Gemma 4 via Workers AI. Google Antigravity/Gemini são candidatos a *ferramentas de desenvolvimento*, condicionados a auditoria financeira.
+6. **Autenticidade e identidade própria.** Visual inspirado em 1985, com legibilidade e acessibilidade; sem logos MSX oficiais, ROMs, BIOS ou ativos de terceiros sem licença.
+7. **Sem saltar etapas.** Antes de definir detalhes finais de casas e gameplay: confirmar integração GitHub, elegibilidade dos créditos Google, protótipos de acesso a Gemma/Workers AI, hospedagem e limites de custo.
+
+> **Distinção de escopo:** o modo pass-and-play e a narração exclusivamente passiva aparecem em versões anteriores como estratégias de contingência, **não** como substitutos das decisões atuais do projeto.
 
 ---
 
 ## 3. Nome e marca — decidido
 
-**Nome do projeto: Retro Ghost 85.** Decidido em 26/10/2026.
+**Nome do projeto: Retro-Ghost-85.** Decidido em 26/10/2026.
 
 - **`MSX` não entra no nome** do repositório, do jogo, do domínio ou do título.
 - A referência ao MSX fica na **narrativa** — ambientação, cenários, diálogos.
@@ -55,41 +50,33 @@ Ele **conta** o que o dado já decidiu.
 - **Nada de BIOS ou ROM** no pacote. O jogo é web, roda em texto e DOM, e não emula
   hardware.
 
-## 4. Arquitetura
+## 4. Arquitetura de execução e construção
 
-Três camadas, cada uma com um papel único. Nenhuma delas tem lógica de jogo.
+```text
+Jogadores (1–4) ── HTTPS ── Render Static (frontend web)
+                                  │
+                                  │ HTTPS / WebSocket autenticado por sala
+                                  ▼
+                     Cloudflare Worker (API gateway)
+                                  │
+                 ┌────────────────┴────────────────┐
+                 ▼                                 ▼
+       Durable Object por sala              Workers AI: Gemma 4
+       turnos, eventos, estado               mestre/narração/ferramentas
+                 │                                 │
+                 └────── ações validadas ──────────┘
 
-```
-                 jrpasolini.tech/retro-ghost-85
-                            │
-                    ┌───────┴────────┐
-                    │  Render        │  site estático (canônico, sob o domínio)
-                    │  static site   │  espelha o build do GitHub
-                    └───────┬────────┘
-                            │  fetch JSON
-                    ┌───────┴────────┐
-                    │ Cloudflare     │  UM Worker: proxy do Gemma
-                    │ Worker         │  guarda a chave, aplica rate limit,
-                    └───────┬────────┘  devolve narração
-                            │
-                     Google AI / Gemma
-
-     GitHub Pages ────── espelho público e redundante do mesmo build
+GitHub privado (fonte canônica) -> build -> Render Static
+Antigravity/Gemini (desenvolvimento, sujeito a validação financeira)
 ```
 
-**Por que o Render entra (e com que papel):** o domínio `jrpasolini.tech` vive lá, e
-queremos `jrpasolini.tech/retro-ghost-85`. Então o Render é **hospedagem estática sob o
-domínio** — não é backend. Ele serve `dist/`, e nada mais.
+**Responsabilidades.** Render serve arquivos estáticos. Worker autentica e limita chamadas e controla origens permitidas; Durable Object é a autoridade da sala e executa regras e sorteios; Gemma 4 solicita ferramentas e recebe resultados, sem escrever estado diretamente. Credenciais ficam no backend. WebSocket deve lidar com reconexão, duplicação de ações e retomada de estado. Proteção CORS não substitui autenticação, autorização ou rate limiting.
 
-**Atenção ao base path:** servir em subpasta exige `base` configurado no build
-(`/retro-ghost-85/`) e caminhos de asset relativos. Erro clássico: página abre, CSS e JS
-404 porque foram pedidos na raiz do domínio. Resolver isso **no primeiro dia**, não no
-último.
+**Hospedagem e domínio.** Caminho `jrpasolini.tech/retro-ghost-85` é **intenção a validar**, não pressuposto: confirmar quem responde pelo domínio e se o host permite servir esta subpasta. `base` de Vite e rotas de assets devem refletir o deployment efetivo. GitHub Pages pode ser espelho **somente após a liberação pública**; não configurar espelho público do repositório privado antes da submissão.
 
-**GitHub Pages** é espelho, não fonte. Mesmo build, `base` correspondente.
+**Google Cloud.** O saldo promocional informado de R$ 5.677,28 é específico de *Trial credit for GenAI App Builder* (validade informada: 27/05/2027). A elegibilidade de Antigravity empresarial, AI Studio Build, API ou SKUs relacionados **não está confirmada**. Nenhuma despesa/ativação até conferir escopo, tarifação e abatimento real do crédito. Não utilizar o crédito como justificativa para provisionar recursos desnecessários.
 
-**Worker** é o único com segredo. Ele expõe `POST /narrate` e nada mais. Sem CORS
-aberto para o mundo: allowlist do domínio.
+**Ordem técnica:** auditar créditos e acesso às ferramentas -> protótipo privado de build -> Cloudflare Durable Object mínimo (sala e reconexão) -> Gemma via Workers AI com limite/fallback -> integração -> deploy e revisão. Documentar contratos de mensagens antes do desenvolvimento.
 
 ---
 
@@ -98,13 +85,13 @@ aberto para o mundo: allowlist do domínio.
 | Camada | Escolha | Motivo |
 |---|---|---|
 | Build | Vite + TypeScript | simples, saída estática, funciona nos dois hosts |
-| UI | DOM puro (ou Preact se doer) | tabuleiro é texto e movimento, não precisa de framework |
-| Estado | objeto JS + serialização para `.md` | ver §7 |
+| UI | Vite + TypeScript; avaliar DOM/Preact após wireframe | preservar desempenho, acessibilidade e complexidade mínima |
+| Estado | estado autoritativo no Durable Object para salas online; serialização `.md` | modo local pode operar isolado; sincronizar por eventos versionados |
 | Dados | JSON versionado no repo (`data/casas.json`) | casas são conteúdo, não código |
-| Narrativa | Worker + Gemma | ver §8 |
+| Mestre | Workers AI Gemma 4 + ferramentas validadas pelo Worker/DO | checar id, capacidades, limites e quotas |
 | Testes | Vitest para o motor de regras | a parte que precisa ser confiável |
 
-**Sem biblioteca de jogo.** O motor é pequeno: dado, movimento, efeitos, turnos.
+**Escolha da biblioteca visual e do motor ainda pendente.** Priorizar simplicidade e compartilhar regras entre modo local e online. Para o modo online, RNG/turnos e estado ficam sob autoridade do Durable Object.
 
 ---
 
@@ -125,7 +112,7 @@ retro-ghost-85/
 ├── src/
 │   ├── main.ts             # boot, roteamento entre telas
 │   ├── motor/
-│   │   ├── dado.ts         # RNG (semente salva no save)
+│   │   ├── dado.ts         # RNG determinístico local/testes; sorteios online no servidor
 │   │   ├── tabuleiro.ts    # movimento, voltas, vitória
 │   │   ├── efeitos.ts      # aplica efeito da casa ao estado
 │   │   └── turnos.ts       # ordem, pass-and-play
@@ -142,7 +129,9 @@ retro-ghost-85/
 │       ├── ficha.ts        # cartela de cada jogador
 │       └── log.ts          # diário da partida
 └── worker/
-    ├── src/index.ts        # POST /narrate
+    ├── src/index.ts        # API + autenticação e proxy para Workers AI
+    ├── src/sala.ts         # Durable Object: estado, WebSockets, turnos
+    ├── src/mestre.ts       # ferramentas e validação da Gemma
     └── wrangler.toml
 ```
 
@@ -166,11 +155,11 @@ type Jogador = {
 type GameState = {
   schema: 1;
   versaoJogo: string;
-  semente: number;       // RNG determinístico, salvo
+  semente: number;       // somente se RNG determinístico for adotado
   turno: number;         // índice do jogador da vez
   rodada: number;
   jogadores: Jogador[];
-  log: EntradaLog[];     // narrativa acumulada
+  log: EntradaLog[];     // eventos e narrativa acumulada
   iniciadoEm: string;    // ISO
   atualizadoEm: string;
 };
@@ -209,40 +198,28 @@ O programa rodou. Ele não sabia por quê, e isso foi o começo.
 ```
 
 **Regras do save:**
-- Carregar = ler front matter, reconstruir estado, continuar.
-- Log é **append-only**: carregar não reescreve a história.
-- `semente` garante que recarregar não muda o futuro da partida.
-- O arquivo é editável de propósito. Trapacear é permitido e é temático.
+- Arquivo `.md` contém front matter estruturado e histórico narrativo. Validar schema, quantidade de jogadores, intervalos, tipos, referências e tamanho; escapar texto exibido e impedir injeção de prompt via histórico.
+- Reconstruir estado sem confiar em comandos contidos no diário. Importação online exige permissão do anfitrião e substituição atômica do estado da sala.
+- Histórico narrativo preservado; eventos estruturados permitem reconstrução consistente.
+- Save editável é aceitável para partida local; em sala online, adulterações e conflitos devem ser identificados/validados, sem presumir integridade criptográfica de um Markdown.
 
 ---
 
-## 8. Contrato do narrador
+## 8. Contrato da Gemma 4 como mestre — a validar com protótipo
 
-**Entrada (o Worker monta, o cliente envia):**
-```json
-{
-  "casa": 12,
-  "titulo": "A listagem da revista",
-  "tipo": "marco",
-  "resultado": "sucesso",
-  "jogador": "Junior",
-  "contexto": { "energia": 2, "projeto": 34, "itens": ["cassete"] }
-}
-```
+**Entrada controlada pelo backend:** resumo conciso de estado/participantes, histórico relevante, casa/evento, ferramentas permitidas e limites de saída. O cliente não fornece instruções de sistema nem chaves.
 
-**Saída:** apenas `{ "texto": "..." }`.
-- 2 a 4 frases.
-- Sem números de regra, sem instrução de movimento, sem pergunta ao jogador.
-- Temperatura baixa (0.4–0.6). `max_tokens` curto.
+**Ferramentas propostas:** `roll_dice`, `get_game_state`, `propose_challenge`, `evaluate_challenge`, `apply_event`, `end_turn`. O Worker/DO valida a autorização da vez, resultados dos dados, regras, idempotência e eventos; o modelo não atribui livremente posições, recompensas ou vitória.
 
-**Regra de ouro:** o Worker **valida** a saída. Se vier com número de casa, comando
-ou JSON inválido, descarta e usa o texto-base. O jogo nunca quebra por causa do modelo.
+**Saída:** narrativa breve em português ou inglês, opcionalmente acompanhada por chamadas de ferramentas estruturadas. Se a Gemma falhar, preservar a partida e oferecer narração-base, com indicação clara do modo degradado.
+
+**Pontos pendentes:** confirmar identificador do modelo no Workers AI, formato real de function calling/JSON, custos em Neurons, limites no Free e comportamento sob concorrência. Fixar orçamento de tokens, timeout, cache, limites por sala/IP e testes adversariais.
 
 ---
 
-## 9. O tabuleiro — 40 casas
+## 9. Proposta preliminar de tabuleiro — 40 casas (não aprovada)
 
-Quatro atos de dez casas. A ordem é a carreira real de um dev brasileiro em 1985.
+**Rascunho elaborado previamente.** Quatro atos de dez casas; revisar época, equilíbrio e plausibilidade histórica **depois** da aprovação de infraestrutura. Os efeitos abaixo não são contrato fechado.
 
 | # | Casa | Tipo | Efeito |
 |---|---|---|---|
@@ -294,20 +271,19 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 ---
 
-## 10. Roadmap da semana 4
+## 10. Roteiro por gates — semana 4
 
-| Dia | Entrega |
+| Etapa | Entrega e critério de saída |
 |---|---|
-| 1 | Repo, Vite, tabuleiro tipográfico na tela, dado e movimento funcionando |
-| 2 | As 40 casas em JSON, motor de efeitos, turnos, pass-and-play |
-| 3 | Save/load `.md` + testes do motor |
-| 4 | Worker + Gemma + cache + fallback |
-| 5 | Deploy no Render sob `/retro-ghost-85`, espelho no Pages, chaves e CORS |
-| 6 | Polimento, textos-base das 40 casas, README, prints |
-| 7 | Post de submissão + vídeo/GIF de 30s |
+| G0 — FinOps / ferramentas | Verificar elegibilidade do crédito GenAI App Builder para agentes de desenvolvimento Google, SKU, limites e gastos; nenhuma criação paga sem aceite |
+| G1 — Contratos técnicos | Validar Render Static, Cloudflare Worker, Durable Object, Workers AI Gemma 4, acesso, rate limits, autenticação e diagrama de mensagens |
+| G2 — POC isolada | Build estático acessível de teste + sala com 2 clientes, turno serializado, reconexão e chamada Gemma com fallback |
+| G3 — Núcleo e persistência | Estado versionado, exportação/importação Markdown validada, testes do motor, modo local |
+| G4 — Experiência e visual | Wireframes e identidade retrô originais, tabuleiro, peças, responsividade, acessibilidade, efeitos leves |
+| G5 — Conteúdo e integração | Somente agora ratificar as 40 casas, desafios, balanceamento, textos e história; integração ponta a ponta |
+| G6 — Auditoria e publicação | Testes multiusuário, segurança, custo, licenças, revisão de créditos, documentação, deploy e publicação no prazo oficial |
 
-**Se atrasar:** corta o Gemma, não o jogo. O jogo funciona com texto-base; a narração
-é o tempero, não a carne.
+**Política de redução de escopo:** priorizar funcionamento completo da partida, acesso ao mestre Gemma e save; se multiplayer online ficar instável, manter modo local como contingência sem afirmar que multiplayer foi entregue. Não tornar público repositório ou espelho sem autorização explícita do Junior.
 
 ---
 
@@ -320,7 +296,11 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 | Base path no Render (`/retro-ghost-85`) | conhecido | resolver no dia 1 |
 | Rate limit da API | controlado | cache + validação + fallback |
 | Artigos 1 e 2 citam jogos e nomes | **bloqueado** | revisão de direitos antes de publicar |
-| Prazo | real | corte do Gemma se necessário |
+| Prazo | crítico | reduzir polimento ou multiplayer antes de descartar Gemma, que é central ao desafio |
+| Créditos Google | aberto | validar SKU/eligibilidade para agentes desenvolvedores, sem gastos sem autorização |
+| Repositório privado | decidido | manter privado até autorização explícita de publicação |
+| Render subpasta + domínio | não verificado | testar roteamento e configurações reais antes de prometer URL |
+| Durable Objects | pendente | validar cota, persistência, fluxo online e reconexão |
 
 ---
 
@@ -333,3 +313,30 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
   citados). Não publicar antes disso. Revisão da recomendação anterior de publicar a
   Parte A durante a semana 4.
 - **26/10/2026 — nome decidido: Retro Ghost 85.** MSX fora do título, presente só na narrativa e nos créditos.
+
+---
+
+## 13. Direção visual — responsabilidade da Bruna
+
+**Objetivo:** criar identidade original de terminal doméstico de 1985 com atmosfera Halloween leve, sem confundir com emulador ou reproduzir ROMs/logotipos. Entregáveis sujeitos à aprovação: (a) moodboard e referências; (b) paleta/tipografia com licenças verificadas; (c) wireframe desktop e mobile; (d) componentes visuais de tabuleiro, peças, dado, ficha e log do mestre; (e) estados de carregamento/reconexão/erro e tela de créditos; (f) checklist de contraste, teclado, toque e movimento reduzido.
+
+**Diretrizes iniciais:** verde-fósforo/âmbar e CRT como inspiração, não obrigação de monocromia; texto legível; animações não bloqueantes; sons opcionais; nada de assets oficiais do MSX ou de terceiros sem licença. Produzir imagens e recursos originais e entregar especificação/código/assets ao repositório mediante revisão. Separar direção visual de mecânica ainda não decidida.
+
+## 14. Papéis e integração entre agentes
+
+- **Junior:** product owner, aprovação das decisões de escopo, gastos, merges e publicação.
+- **Google Antigravity + Gemini:** implementação incremental sob tarefas pequenas, preferencialmente em branches/PRs; devem respeitar esta estrutura e não assumir elegibilidade do crédito.
+- **Bruna:** direção visual, revisão de arquitetura, coerência dos requisitos e auditoria de UX, segurança e entregas antes da aprovação do Junior.
+- **Codex / Grok Bot / Cursor Pro:** apoio opcional em revisão independente, testes e auditoria; evitar agentes sobrescrevendo os mesmos arquivos simultaneamente.
+- **GitHub:** fonte canônica; `master` protegida por revisão humana quando possível; segredos e dados privados fora do código/commits.
+
+## 15. Decisões pendentes de aprovação
+
+1. Verificação do escopo do crédito promocional de desenvolvimento agêntico e o primeiro teste controlado.
+2. Contrato detalhado do modo online (convites, autenticação efêmera, reconexão e persistência).
+3. Conjunto exato de ferramentas da Gemma 4 e suas limitações reais no Workers AI.
+4. Regras de cooperação/competição, condições de vitória, conteúdo das 40 casas e progressão.
+5. Endereço público, espelhamento GitHub Pages e estratégia de lançamento ao final do desafio.
+6. Aprovação dos wireframes e da identidade visual.
+
+> **26/10/2026 — revisão Bruna:** foram reconciliados os requisitos de mestre Gemma 4, multiplayer online via Durable Objects, privacidade do repositório, auditoria de créditos e divisão de responsabilidades. Conteúdo anterior preservado como proposta, não como obrigação.
