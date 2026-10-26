@@ -32,9 +32,9 @@ com revista.
 5. **Limite conceitual.** Um modelo generativo **sempre consome inferência/tokens quando responde**, mesmo copiando ou reformulando um template. Repetir texto sem transformação deve ocorrer inteiramente no navegador. Não prometer custo zero quando Gemma é consultada; medir uso real em Neurons.
 6. **Resiliência.** API indisponível/429/timeout -> texto-base imediatamente, sem travar tabuleiro ou perder turno. Indicar quando a voz de IA está indisponível e permitir modo econômico/desativado.
 7. **Save portátil.** Exportação/importação `.md` (front matter estruturado + diário legível) sem conta nem backend para estado; validar campos, limites de tamanho e sanear exibição e histórico.
-8. **Infraestrutura mínima.** Render Static serve o frontend; um Cloudflare Worker invoca Workers AI com controle de acesso/abuso, orçamento e fallback. **Sem Durable Objects, banco ou WebSockets na v1.** Google Antigravity/Gemini podem desenvolver o projeto após auditoria da elegibilidade dos créditos Google.
+8. **Infraestrutura mínima.** Render Static serve o frontend; um Cloudflare Worker invoca Workers AI com controle de acesso/abuso, orçamento e fallback. **Sem Durable Objects, banco ou WebSockets na v1.** Gemini pode auxiliar a escrever/revisar código, mas **nenhum serviço Google Cloud será usado como runtime ou financiador do projeto**.
 9. **Identidade original e precisão histórica.** Referências ao MSX somente na ambientação, sem ROMs/BIOS/logos oficiais sem licença. Conteúdo das 40 casas ainda é proposta, não requisito fechado.
-10. **Etapas obrigatórias.** Validar o uso dos créditos de desenvolvimento e realizar prova de inferência mínima antes de fixar mecânicas e arte finais.
+10. **Etapas obrigatórias.** Validar a disponibilidade e o custo real da Gemma 4 no Workers AI, realizar prova mínima de integração e conferir a hospedagem estática antes de fixar mecânicas e arte finais.
 
 > **Escopo aprovado em 26/10/2026 (revisão):** pass-and-play local e narrador baseado em templates substituem a proposta anterior de mestre agêntico com ferramentas e multiplayer em rede.
 
@@ -83,7 +83,7 @@ com revista.
            UI ou fallback pronto localmente
 
 GitHub PRIVADO (fonte) -> build -> Render Static
-Antigravity/Gemini (DESENVOLVIMENTO; cobertura do crédito Google a verificar)
+Gemini (ferramenta auxiliar de codificação, sem integração financeira ao Google Cloud)
 ```
 
 **Sem multiplayer em rede na v1:** eliminar sala, WebSocket, Durable Objects, sincronização de turnos, login e banco de estado. Caso um dia haja multiplayer remoto, criar documento e orçamento próprios. A restrição não impede 4 jogadores locais.
@@ -92,11 +92,11 @@ Antigravity/Gemini (DESENVOLVIMENTO; cobertura do crédito Google a verificar)
 
 **Hospedagem e domínio:** Render Static é a escolha. O caminho `jrpasolini.tech/retro-ghost-85` é intenção sujeita a confirmação do roteamento da subpasta. Ajustar `base` e URLs de assets conforme URL efetivamente servida. GitHub Pages poderá ser espelho **apenas após autorização explícita de publicação**.
 
-**Créditos Google Cloud:** o benefício informado como *Trial credit for GenAI App Builder* (R$ 5.677,28 disponíveis, validade 27/05/2027) destina-se potencialmente ao fluxo de **construção por agentes**, não à inferência do jogo. A elegibilidade de Antigravity empresarial/AI Studio Build/SKUs ainda precisa ser comprovada antes de qualquer gasto.
+**Google Cloud / GenAI App Builder — FORA DO ESCOPO:** por decisão do Junior em 26/10/2026, ficam descartadas a utilização dos créditos promocionais Google Cloud, a criação de agentes GenAI gerenciados e a implantação de serviços Google Cloud neste projeto. Não é necessário investigar a elegibilidade de SKUs ou gastar créditos para concluir o Retro-Ghost-85. **Gemini é permitido exclusivamente como ferramenta externa de apoio à programação**, sem dependência de API ou de serviços pagos Google na aplicação. Dados de saldo, faturamento e benefício promocional não devem constar em documentação pública do jogo.
 
 **Cloudflare Free (fontes oficiais consultadas em 26/10/2026):** Workers Free tem 100.000 requisições/dia; Workers AI oferece 10.000 Neurons/dia grátis (orçamento distinto de requisições e **diferente** de tokens). Modelo catalogado: `@cf/google/gemma-4-26b-a4b-it`. Medir consumo real no painel e confirmar acesso da conta. Fontes: https://developers.cloudflare.com/workers/platform/limits/ ; https://developers.cloudflare.com/workers-ai/platform/pricing/ ; https://developers.cloudflare.com/workers-ai/models/gemma-4-26b-a4b-it/ .
 
-**Ordem técnica:** auditoria dos créditos Google -> esqueleto Vite privado -> motor local com testes -> save/load .md -> Worker/Gemma com quotas e fallback -> integração visual -> deploy e auditoria.
+**Ordem técnica:** confirmar Workers AI Free/Gemma e Render Static -> esqueleto Vite privado -> motor local com testes -> save/load .md -> Worker/Gemma com quotas e fallback -> integração visual -> deploy e auditoria.
 
 ---
 
@@ -318,7 +318,7 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 | Etapa | Entrega / critério de saída |
 |---|---|
-| G0 — FinOps e agentes | Auditar elegibilidade do crédito Google para construir código via Antigravity/Gemini; sem gasto não aprovado |
+| G0 — Confirmação de escopo | Google Cloud/GenAI App Builder e créditos removidos. Gemini é apenas assistente de codificação. Verificar disponibilidade da Gemma 4 e limites do Workers AI Free |
 | G1 — Stack e viabilidade | Confirmar Render Static, Worker, acesso ao Gemma 4 Free, orçamento de Neurons e design de fallback |
 | G2 — Núcleo offline | POC local: tabuleiro, dado de RNG local, regras e turnos até 4 no mesmo dispositivo; testes |
 | G3 — Persistência | Exportar/importar `.md` com validação, histórico e testes de regressão |
@@ -341,7 +341,7 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 | Render em subpasta | pendente | validar URL/base path e roteamento efetivo |
 | Segurança do Worker público | pendente | rate limit, limites de payload e orçamento diário; CORS não basta |
 | Artigos MSX | pendente | revisão de direitos antes da publicação |
-| Crédito Google | pendente | verificar SKU/uso com agentes, não presumir elegibilidade |
+| Google Cloud e créditos | **retirados do escopo** | não criar agentes Google Cloud, não provisionar recursos nem gastar créditos neste projeto |
 | Repositório GitHub | privado | não publicar sem aprovação |
 | Multiplayer remoto | **fora do escopo v1** | repensar em versão futura, se houver demanda |
 
@@ -353,6 +353,7 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
   `jrpasolini.tech`. Decisão do Junior; corrige a recomendação anterior de cortar.
 - **26/10/2026 — o modelo não raciocina.** Ele narra template pronto. Decisão do Junior.
 - **26/10/2026 — simplificação consolidada.** Junior ratificou 1–4 jogadores locais, sem multiplayer remoto; dado e efeitos 100% locais; Gemma 4 só para apresentação eventual de templates e nunca para controle de regras. Limites Free e resiliência priorizados.
+- **26/10/2026 — Google Cloud cancelado no Retro-Ghost-85.** Junior descartou o uso do GenAI App Builder, agentes hospedados no Google Cloud e créditos promocionais. A Gemma 4 via Cloudflare Workers AI Free permanece como narradora; Gemini pode apoiar a escrita de código, sem ser componente de produção do jogo. Motivo: manter a arquitetura enxuta e concentrar a demonstração de IA aberta na Gemma.
 - **26/10/2026 — artigos ficam para depois.** Precisam de revisão de direitos (jogos
   citados). Não publicar antes disso. Revisão da recomendação anterior de publicar a
   Parte A durante a semana 4.
@@ -369,14 +370,14 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 ## 14. Papéis e integração entre agentes
 
 - **Junior:** product owner, aprovação das decisões de escopo, gastos, merges e publicação.
-- **Google Antigravity + Gemini:** implementação incremental sob tarefas pequenas, preferencialmente em branches/PRs; devem respeitar esta estrutura e não assumir elegibilidade do crédito.
+- **Gemini:** ferramenta auxiliar de codificação e revisão, com tarefas incrementais e mudanças rastreadas em branches/PRs quando possível. Não usar GenAI App Builder, créditos promocionais ou runtime no Google Cloud. Antigravity não é dependência ou requisito do projeto.
 - **Bruna:** direção visual, revisão de arquitetura, coerência dos requisitos e auditoria de UX, segurança e entregas antes da aprovação do Junior.
 - **Codex / Grok Bot / Cursor Pro:** apoio opcional em revisão independente, testes e auditoria; evitar agentes sobrescrevendo os mesmos arquivos simultaneamente.
 - **GitHub:** fonte canônica; `master` protegida por revisão humana quando possível; segredos e dados privados fora do código/commits.
 
 ## 15. Decisões pendentes de aprovação
 
-1. Verificação do escopo do crédito promocional de desenvolvimento agêntico e o primeiro teste controlado.
+1. Prova controlada de acesso à Gemma 4 pelo Cloudflare Workers AI Free, com medição de Neurons e fallback.
 2. Política de economia da Gemma (quais marcos acionam IA, limites por partida, cache, métricas de Neurons).
 3. Teste real do contrato de narração da Gemma 4 no Workers AI; sem ferramentas de jogo.
 4. Regras de cooperação/competição **local**, condições de vitória, conteúdo das 40 casas e progressão.
