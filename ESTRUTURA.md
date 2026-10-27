@@ -415,15 +415,18 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 **Contrato para o Antigravity/Gemini:** implementar a jogabilidade sobre a estrutura existente; usar `src/data/casas.ts` como fonte inicial; preservar as coordenadas e acessibilidade dos hotspots; mover as quatro peças atualizando o estado em vez de redesenhar o tabuleiro; não introduzir multiplayer remoto, serviços Google Cloud ou dependência obrigatória de IA.
 
-### 26/10/2026 — Etapa 2: sorteio de dados local (RNG 1d6)
+### 26/10/2026 — Etapa 2: motor local de dados, movimento e turnos (RNG 2d6)
 
 **Status:** concluída e validada com testes automatizados e build.
 
-- Criado o módulo `src/motor/dado.ts` para sorteio de dados local (1d6) sem chamadas de rede ou inferência de IA.
+- Criado o módulo `src/motor/dado.ts` para sorteio de dois dados locais (2d6) sem chamadas de rede ou inferência de IA.
 - Implementado suporte à Crypto API do navegador (`crypto.getRandomValues`) com fallback seguro para `Math.random`.
 - Adicionado gerador determinístico por semente Mulberry32 (`criarRngSemente`) para viabilizar testes unitários e futuras reproduções de partidas (`semente`).
 - Criada suíte de testes unitários com o test runner nativo do Node.js (`src/motor/dado.test.ts`), integrada ao script `npm test`.
-- Integrado o painel interativo de rolagem no console lateral (`src/main.ts` e `src/style.css`), com botão temático "ROLAR DADO [1D6]", animação retrô de rolagem (com suporte a `prefers-reduced-motion`) e anúncio acessível para leitores de tela (`aria-live="polite"`).
+- Integrado o painel interativo de rolagem no console lateral (`src/main.ts` e `src/style.css`), com botão temático "ROLAR DADOS [2D6]", animação retrô de rolagem (com suporte a `prefers-reduced-motion`) e anúncio acessível para leitores de tela (`aria-live="polite"`).
 - O sorteio identifica o jogador atualmente selecionado/ativo e exibe o feedback visual e textual imediato do resultado.
+- Implementados movimento, efeitos determinísticos, alternância entre quatro jogadores locais, jogadas extras, turnos perdidos, condição de vitória e retorno à casa 30 quando o projeto ainda não alcançou 100.
+- Extraída a rotação de turnos para `src/motor/turnos.ts`, com testes para rotação completa, jogadores pulados e bloqueio de jogada após encerramento.
 
-**Fronteira desta etapa:** as peças ainda não se movem automaticamente pelo tabuleiro ao rolar o dado; a alternância de turnos e aplicação de efeitos serão integradas nos próximos passos.
+**Fronteira desta etapa:** save/load em Markdown, Worker/Gemma e integração de narrativa opcional ainda serão implementados nas próximas etapas.
+
