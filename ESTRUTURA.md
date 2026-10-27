@@ -17,7 +17,7 @@ O caminho é feito de **40 casas**, cada uma um marco real daquele mundo: casset
 não carrega, disco que corrompe, modem acústico, BBS, grupo de usuários, contrato
 com revista.
 
-**Gemma 4 é a voz/persona do mestre narrador, não o motor do jogo.** O navegador sorteia os dados, move as peças e aplica eventos conforme regras e textos-base predefinidos. A Gemma pode apresentar, dar tom e realizar pequenas variações supervisionadas de textos prontos em momentos selecionados, respeitando orçamento rígido. Nenhuma jogada depende de inferência.
+**Gemma 4 é a voz/persona do mestre narrador, não o motor do jogo.** O navegador sorteia o dado, move as peças e aplica eventos conforme regras e textos-base predefinidos. A Gemma pode apresentar, dar tom e realizar pequenas variações supervisionadas de textos prontos em momentos selecionados, respeitando orçamento rígido. Nenhuma jogada depende de inferência.
 
 **Nome decidido:** **Retro-Ghost-85**. Referências a MSX são históricas, não fazem parte da marca do produto.
 
@@ -28,7 +28,7 @@ com revista.
 1. **Offline-first e pass-and-play (MVP).** Uma partida para 1 a 4 pessoas **no mesmo dispositivo**, cada uma na sua vez. **Multiplayer remoto não faz parte da v1**. Possível extensão futura somente mediante nova aprovação.
 2. **Código decide; Gemma narra.** Sorteio por função local de RNG, movimento, bônus, penalidades, inventário, desafios e vitória são definidos por código/JSON. Gemma **não joga dados, não escolhe resultados, não raciocina sobre regras, não cria desafios do zero e não altera o estado**.
 3. **Conteúdo pré-escrito como fonte de verdade.** Cada casa possui título, efeito, texto-base e, se necessário, variações aprovadas. O jogador recebe imediatamente esse conteúdo mesmo sem IA. A Gemma é uma camada *opcional* de apresentação/estilo do mestre em acontecimentos marcantes, jamais condição para prosseguir.
-4. **Economia máxima de Workers AI.** Não chamar modelo para rolar dados, trocar turno, calcular regras, mostrar casas repetidas ou recontar textos já cacheados. Usar gatilhos esparsos, entradas curtas, cache por chave estável, saídas curtas, limite por sessão/dia e interrupção automática ao se aproximar da cota.
+4. **Economia máxima de Workers AI.** Não chamar modelo para rolar o dado, trocar turno, calcular regras, mostrar casas repetidas ou recontar textos já cacheados. Usar gatilhos esparsos, entradas curtas, cache por chave estável, saídas curtas, limite por sessão/dia e interrupção automática ao se aproximar da cota.
 5. **Limite conceitual.** Um modelo generativo **sempre consome inferência/tokens quando responde**, mesmo copiando ou reformulando um template. Repetir texto sem transformação deve ocorrer inteiramente no navegador. Não prometer custo zero quando Gemma é consultada; medir uso real em Neurons.
 6. **Resiliência.** API indisponível/429/timeout -> texto-base imediatamente, sem travar tabuleiro ou perder turno. Indicar quando a voz de IA está indisponível e permitir modo econômico/desativado.
 7. **Save portátil.** Exportação/importação `.md` (front matter estruturado + diário legível) sem conta nem backend para estado; validar campos, limites de tamanho e sanear exibição e histórico.
@@ -313,9 +313,9 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 
 **Energia:** 0 = volta 3 casas e recupera 1. Nunca elimina jogador.
 
-**Atualização de 26/10/2026:** a tabela acima permanece como registro da proposta inicial e foi substituída pelas 40 histórias e consequências em [`src/data/casas.ts`](src/data/casas.ts). As regras atuais, as mudanças das casas 2, 25 e 27 e as fontes de época estão em [`HISTORICO_NARRATIVO.md`](HISTORICO_NARRATIVO.md). A implementação atual usa projeto de 0 a 100 e 2d6; a antiga energia desta proposta não é aplicada.
+**Atualização de 26/10/2026:** a tabela acima permanece como registro da proposta inicial e foi substituída pelas 40 histórias e consequências em [`src/data/casas.ts`](src/data/casas.ts). As regras atuais, as mudanças das casas 2, 25 e 27 e as fontes de época estão em [`HISTORICO_NARRATIVO.md`](HISTORICO_NARRATIVO.md). A implementação atual usa projeto de 0 a 100 e 1d6; a antiga energia desta proposta não é aplicada.
 
-**Easter egg e partida atual:** os jogadores partem da casa 1, o **prólogo**. O movimento usa normalmente a soma de 2d6. No tabuleiro, a casa 10 é o **Ato 2**, a 20 o **Ato 3**, a 30 o **Ato 4** e a 40 é exclusivamente **ENDGAME · PUBLICAÇÃO**. O troféu de cada ato vai a quem entra primeiro naquela região; a casa 1 não premia. As visitas musicais e o retrato de Einstein continuam ligados às casas 1, 10, 20 e 30. Quando um mesmo jogador visita as quatro, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
+**Easter egg e partida atual:** os jogadores partem da casa 1, o **prólogo**. O movimento usa normalmente o resultado de 1d6. No tabuleiro, a casa 10 é o **Ato 2**, a 20 o **Ato 3**, a 30 o **Ato 4** e a 40 é exclusivamente **ENDGAME · PUBLICAÇÃO**. O troféu de cada ato vai a quem entra primeiro naquela região; a casa 1 não premia. As visitas musicais e o retrato de Einstein continuam ligados às casas 1, 10, 20 e 30. Quando um mesmo jogador visita as quatro, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
 
 ---
 
@@ -416,15 +416,15 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 
 **Contrato para o Antigravity/Gemini:** implementar a jogabilidade sobre a estrutura existente; usar `src/data/casas.ts` como fonte inicial; preservar as coordenadas e acessibilidade dos hotspots; mover as quatro peças atualizando o estado em vez de redesenhar o tabuleiro; não introduzir multiplayer remoto, serviços Google Cloud ou dependência obrigatória de IA.
 
-### 26/10/2026 — Etapa 2: motor local de dados, movimento e turnos (RNG 2d6)
+### 26/10/2026 — Etapa 2: motor local de dado, movimento e turnos (RNG 1d6)
 
 **Status:** concluída e validada com testes automatizados e build.
 
-- Criado o módulo `src/motor/dado.ts` para sorteio de dois dados locais (2d6) sem chamadas de rede ou inferência de IA.
+- Criado o módulo `src/motor/dado.ts` para sorteio de um dado local (1d6) sem chamadas de rede ou inferência de IA.
 - Implementado suporte à Crypto API do navegador (`crypto.getRandomValues`) com fallback seguro para `Math.random`.
 - Adicionado gerador determinístico por semente Mulberry32 (`criarRngSemente`) para viabilizar testes unitários e futuras reproduções de partidas (`semente`).
 - Criada suíte de testes unitários com o test runner nativo do Node.js (`src/motor/dado.test.ts`), integrada ao script `npm test`.
-- Integrado o painel interativo de rolagem no console lateral (`src/main.ts` e `src/style.css`), com botão temático "ROLAR DADOS [2D6]", animação retrô de rolagem (com suporte a `prefers-reduced-motion`) e anúncio acessível para leitores de tela (`aria-live="polite"`).
+- Integrado o painel interativo de rolagem no console lateral (`src/main.ts` e `src/style.css`), com botão temático "ROLAR DADO", animação retrô de rolagem (com suporte a `prefers-reduced-motion`) e anúncio acessível para leitores de tela (`aria-live="polite"`).
 - O sorteio identifica o jogador atualmente selecionado/ativo e exibe o feedback visual e textual imediato do resultado.
 - Implementados movimento, efeitos determinísticos, alternância entre quatro jogadores locais, jogadas extras, turnos perdidos, condição de vitória e retorno à casa 30 quando o projeto ainda não alcançou 100.
 - Extraída a rotação de turnos para `src/motor/turnos.ts`, com testes para rotação completa, jogadores pulados e bloqueio de jogada após encerramento.
@@ -439,7 +439,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 - A música é global para a mesa e avança quando o primeiro jogador alcança um novo ACT; nunca retrocede quando outro jogador permanece em um ato anterior.
 - A introdução toca antes da primeira jogada, o ACT 1 assume no início da partida e a faixa `endgame` substitui a trilha do tabuleiro quando há vitória.
 - Adicionados controle de áudio, faixa atual e volume, respeitando a exigência de interação do navegador antes da reprodução.
-- Os dados funcionais permanecem no painel direito. Os dados decorativos da barra inferior foram cobertos por um gravador de dados original inspirado em equipamentos de 1985, sem marca ou logotipo de terceiros.
+- O dado funcional permanece no painel direito. Os dados decorativos da barra inferior foram cobertos por um gravador de dados original inspirado em equipamentos de 1985, sem marca ou logotipo de terceiros.
 - A tecla `REC / SAVE` exporta a partida como Markdown e a tecla `PLAY / LOAD` importa o arquivo `.md`.
 - O save contém somente estado estruturado validado; nomes, imagens e HTML não são aceitos do arquivo importado, reduzindo risco de injeção.
 - Adicionados testes para progressão musical global, faixa de vitória, serialização Markdown e rejeição de saves inválidos.
@@ -455,7 +455,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 - O popup inicial ganhou uma etapa para configurar de 1 a 4 participantes.
 - Cada slot pode ser humano ou CPU local; partidas exigem ao menos um humano e CPU só faz sentido com dois ou mais participantes.
 - Jogadores humanos aceitam nomes personalizados; CPUs recebem nomes sequenciais automáticos.
-- A CPU não possui dificuldade nem personalidade: usa o mesmo RNG 2d6 e as mesmas regras, chamando diretamente o motor na própria vez.
+- A CPU não possui dificuldade nem personalidade: usa o mesmo RNG 1d6 e as mesmas regras, chamando diretamente o motor na própria vez.
 - O botão de dados permanece bloqueado durante turnos automáticos; jogadas extras e turnos perdidos continuam respeitados.
 - Nome e tipo de controle foram incorporados ao save Markdown, mantendo migração para saves anteriores.
 - Entradas de nome são normalizadas, limitadas e escapadas antes de aparecerem no DOM.
@@ -468,7 +468,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 **Status:** concluída em implementação; validada com simulação determinística, 36 testes e build.
 
 - Corrigido o ciclo das trilhas: introdução e ACTS 1–4 reiniciam ao terminar; `CONGRATULATIONS` permanece sem loop.
-- O avanço musical agora acontece quando o primeiro jogador entra na faixa de um novo ato, mesmo que o resultado de 2D6 pule exatamente as casas 10, 20 ou 30.
+- O avanço musical agora acontece quando o primeiro jogador entra na faixa de um novo ato, mesmo que o resultado de 1D6 pule exatamente as casas 10, 20 ou 30.
 - O gamelog ganhou uma versão compacta sobre a área `GAME LOG` da arte, posicionada depois do prompt `>`; o painel lateral mantém a mensagem completa.
 - As duas mensagens são derivadas da mesma estrutura de dados da jogada, evitando divergência de nome, dados, destino, efeito, projeto e próximo turno.
 - As peças ficam centralizadas quando estão sozinhas e só se distribuem quando compartilham uma casa. As posições foram verificadas programaticamente contra os limites das 40 casas.
@@ -488,7 +488,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 - A área “O Mestre narra” mostra um resumo local determinístico da trajetória. “Ouvir o Mestre” e “Baixar troféu (MP3)” existem, ficam desabilitados e apontam para `src/narrador/narrador.ts`, que responde `unavailable` / “narração em breve”. Nenhuma chamada de rede.
 - Troféus exclusivos nas casas 10, 20 e 30 e no endgame: o primeiro a entrar no ato (passar pela casa conta) leva o troféu com id, turno e caminho naquele instante. Quem chega depois não leva. O endgame pode ir para quem não tem nenhum troféu de ato. A casa 1 ficou, nesta etapa, marcada como troféu de abertura; a etapa seguinte retirou essa premiação.
 - O painel GAME LOG ao lado do cassete lista todos os lances desde o início (turno, jogador, dados, origem→destino, casas passadas, efeito, delta de projeto, troféus, vitória), com a entrada mais nova visível, rolagem por mouse e teclado e uma marca na cor do jogador. Esse log é a fonte da verdade do Markdown: seção “Game Log” e uma trajetória por jogador, restauradas no setup e no PLAY. `getPlayerTrajectory(log, jogadorId)` devolve os lances daquele jogador, da casa 1 até agora, e é o que a narração futura do Mestre consome.
-- O save também grava o cursor do RNG. Carregar a partida e continuar produz a mesma sequência de 2d6. O resumo do boot e o elenco saem da mesma lista de assentos confirmada na tela; “Ajustar jogadores” devolve essa lista.
+- O save também grava o cursor do RNG. Carregar a partida e continuar produz a mesma sequência de 1d6. O resumo do boot e o elenco saem da mesma lista de assentos confirmada na tela; “Ajustar jogadores” devolve essa lista.
 - A casa 40 ganhou a ilustração `public/assets/casa-40-endgame.webp`, no mesmo encaixe das artes de ato (rótulo ENDGAME · PUBLICAÇÃO: prateleira de 1985, caixa, disquete e troféu). O Ato 4 permanece na casa 30. O caminho é relativo (`./`), como o restante do bundle.
 
 **Validação:** `npm test` e `npm run build`.

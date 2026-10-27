@@ -1,7 +1,6 @@
 export type DadosDoGamelog = {
   jogador: string;
-  dado1: number;
-  dado2: number;
+  dado: number;
   casaDestino: number;
   casaFinal: number;
   projeto: number;
@@ -13,7 +12,6 @@ export type DadosDoGamelog = {
 };
 
 export function formatarGamelog(dados: DadosDoGamelog): { completo: string; compacto: string } {
-  const total = dados.dado1 + dados.dado2;
   const movimento = dados.casaDestino === dados.casaFinal
     ? `casa ${dados.casaFinal}`
     : `casa ${dados.casaDestino} e ficou na casa ${dados.casaFinal}`;
@@ -36,7 +34,7 @@ export function formatarGamelog(dados: DadosDoGamelog): { completo: string; comp
         : "";
 
   return {
-    completo: `${dados.jogador} tirou ${dados.dado1} + ${dados.dado2} = ${total}, caiu na ${movimento}. Projeto: ${dados.projeto}/100.${desfecho}${pulados}${easterEgg}`,
-    compacto: `${dados.jogador}: ${dados.dado1}+${dados.dado2}=${total} · CASA ${seta} · ${dados.projeto}/100${sufixo}`,
+    completo: `${dados.jogador} tirou ${dados.dado}, caiu na ${movimento}. Projeto: ${dados.projeto}/100.${desfecho}${pulados}${easterEgg}`,
+    compacto: `${dados.jogador}: DADO ${dados.dado} · CASA ${seta} · ${dados.projeto}/100${sufixo}`,
   };
 }

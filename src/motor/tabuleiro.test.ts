@@ -9,7 +9,7 @@ const jogador = (casa: number, projeto = 0): Jogador => ({
   id: 1, nome: "Teste", controle: "humano", cor: "#fff", imagem: "", casa, projeto, turnosPerdidos: 0, actsVisitados: [1],
 });
 
-test("jogadores partem da casa 1 e avançam normalmente com 2d6", () => {
+test("jogadores partem da casa 1 e avançam normalmente com 1d6", () => {
   const r = aplicarJogada(jogador(1), 2, casas);
   assert.equal(r.casa.id, 3);
   assert.equal(r.jogador.casa, 2);

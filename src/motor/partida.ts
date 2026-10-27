@@ -32,7 +32,7 @@ export type EstadoPartida = {
   rng: EstadoRng;
 };
 
-export type DadosJogada = { dado1: number; dado2: number };
+export type DadosJogada = { dado: number };
 
 export type ResultadoRegistro = {
   estado: EstadoPartida;
@@ -88,13 +88,12 @@ export function iniciarPartida(assentos: ConfiguracaoJogador[], rng: EstadoRng):
 
 export function registrarJogada(estado: EstadoPartida, dados: DadosJogada, casas: Casa[]): ResultadoRegistro {
   if (!estado.partidaIniciada || estado.partidaEncerrada) throw new Error("A partida não aceita jogadas");
-  if (!Number.isInteger(dados.dado1) || !Number.isInteger(dados.dado2) || dados.dado1 < 1 || dados.dado2 < 1 || dados.dado1 > 6 || dados.dado2 > 6) {
-    throw new Error("Dados inválidos");
+  if (!Number.isInteger(dados.dado) || dados.dado < 1 || dados.dado > 6) {
+    throw new Error("Dado inválido");
   }
   const atual = estado.jogadores[estado.jogadorAtivo - 1];
   if (!atual) throw new Error("Jogador ativo inválido");
-  const total = dados.dado1 + dados.dado2;
-  const resultado = aplicarJogada(atual, total, casas);
+  const resultado = aplicarJogada(atual, dados.dado, casas);
   const destino = resultado.casa.id;
   const casaFinal = resultado.jogador.casa;
   const percursoDado = casasNoTrajeto(atual.casa, destino);
@@ -108,8 +107,8 @@ export function registrarJogada(estado: EstadoPartida, dados: DadosJogada, casas
     jogador: atual.nome,
     controle: atual.controle,
     cor: atual.cor,
-    dado1: dados.dado1,
-    dado2: dados.dado2,
+    dado1: dados.dado,
+    dado2: null,
     casaOrigem: atual.casa,
     casaDestino: destino,
     casaFinal,

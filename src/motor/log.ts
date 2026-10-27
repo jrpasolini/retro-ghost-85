@@ -69,7 +69,9 @@ export function getPlayerTrajectory(log: readonly EntradaLog[], jogadorId: numbe
 export function formatarLinhaLog(entrada: EntradaLog): string {
   const trofeus = entrada.trofeus.length ? ` · troféu ${entrada.trofeus.map((chave) => NOME_TROFEU[chave]).join(", ")}` : "";
   if (entrada.turno === 0) return `T0 · ${entrada.jogador} · início · casa 1 · ${entrada.efeito}${trofeus}`;
-  const total = (entrada.dado1 ?? 0) + (entrada.dado2 ?? 0);
+  const dados = entrada.dado2 === null
+    ? String(entrada.dado1)
+    : `${entrada.dado1}+${entrada.dado2}=${(entrada.dado1 ?? 0) + entrada.dado2}`;
   const destino = entrada.casaDestino === entrada.casaFinal
     ? `${entrada.casaOrigem}→${entrada.casaFinal}`
     : `${entrada.casaOrigem}→${entrada.casaDestino}→${entrada.casaFinal}`;
@@ -81,7 +83,7 @@ export function formatarLinhaLog(entrada: EntradaLog): string {
   const extra = entrada.jogadaExtra ? " · jogue outra" : entrada.perdeTurno ? " · perde turno" : "";
   const pulados = entrada.perderamVez.length ? ` · pulou ${entrada.perderamVez.join(", ")}` : "";
   const vitoria = entrada.vitoria ? " · VITÓRIA" : "";
-  return `T${entrada.turno} · ${entrada.jogador} · ${entrada.dado1}+${entrada.dado2}=${total} · ${destino}${passou}${atos} · ${entrada.efeito} · ${sinal} pts · ${entrada.projeto}/100${extra}${pulados}${trofeus}${vitoria}`;
+  return `T${entrada.turno} · ${entrada.jogador} · DADO ${dados} · ${destino}${passou}${atos} · ${entrada.efeito} · ${sinal} pts · ${entrada.projeto}/100${extra}${pulados}${trofeus}${vitoria}`;
 }
 
 export function textoMestre(trajetoria: readonly EntradaLog[], nome: string): string {
@@ -103,7 +105,10 @@ export function textoMestre(trajetoria: readonly EntradaLog[], nome: string): st
       entrada.vitoria ? "publicou o jogo" : "",
     ].filter(Boolean);
     const complemento = notas.length ? ` ${notas.join("; ")}.` : "";
-    return `No turno ${entrada.turno} tirou ${entrada.dado1} e ${entrada.dado2}, ${paradeiro} (${entrada.efeito}); ${sinal} e ficou com ${entrada.projeto}/100.${complemento}`;
+    const rolagem = entrada.dado2 === null
+      ? `${entrada.dado1}`
+      : `${entrada.dado1} e ${entrada.dado2}`;
+    return `No turno ${entrada.turno} tirou ${rolagem}, ${paradeiro} (${entrada.efeito}); ${sinal} e ficou com ${entrada.projeto}/100.${complemento}`;
   });
   return `${nome} percorreu o tabuleiro desde a casa 1. ${passos.join(" ")}`;
 }

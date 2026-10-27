@@ -325,8 +325,7 @@ h1 span { color: var(--amber); }
 .house-hotspot span { position: absolute; width: 1px; height: 1px; overflow: hidden; }
 
 .house-hotspot:hover,
-.house-hotspot:focus-visible,
-.house-hotspot.is-active {
+.house-hotspot:focus-visible {
   outline: none;
   border-color: #fff0ad;
   background: rgba(255, 191, 31, .11);
@@ -517,8 +516,6 @@ h1 span { color: var(--amber); }
   animation: dice-shake .11s infinite alternate;
   box-shadow: inset 0 0 18px rgba(255, 181, 28, .25), 0 0 18px rgba(255, 181, 28, .65);
 }
-.dice-face[data-die="2"].rolling { animation-direction: alternate-reverse; }
-
 .dice-face.is-result {
   animation: dice-result .45s ease-out;
 }

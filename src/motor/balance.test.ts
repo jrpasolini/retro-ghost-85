@@ -15,8 +15,8 @@ test("partidas simuladas chegam à publicação sem ficar presas no trecho final
       id: 1, nome: "Teste", controle: "humano", cor: "", imagem: "", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1],
     };
     for (let turno = 1; turno <= 30; turno++) {
-      const dados = 2 + Math.floor(rng() * 6) + Math.floor(rng() * 6);
-      const resultado = aplicarJogada(jogador, dados, casas);
+      const dado = 1 + Math.floor(rng() * 6);
+      const resultado = aplicarJogada(jogador, dado, casas);
       jogador = resultado.jogador;
       if (resultado.venceu) {
         vitoriasAte30++;
