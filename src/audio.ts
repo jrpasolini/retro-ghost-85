@@ -1,4 +1,4 @@
-import type { TrilhaId } from "./motor/trilha";
+import { trilhaDeveRepetir, type TrilhaId } from "./motor/trilha.ts";
 
 const arquivos: Record<TrilhaId, string> = {
   intro: "./audio/intro.mp3",
@@ -20,26 +20,39 @@ const nomes: Record<TrilhaId, string> = {
 
 export class ControleDeAudio {
   private readonly audio = new Audio();
+  private readonly aoAtualizar: (ligado: boolean, nome: string) => void;
   private desbloqueado = false;
   private ligado = true;
   private trilha: TrilhaId = "intro";
 
-  constructor(private readonly aoAtualizar: (ligado: boolean, nome: string) => void) {
+  constructor(aoAtualizar: (ligado: boolean, nome: string) => void) {
+    this.aoAtualizar = aoAtualizar;
     this.audio.preload = "metadata";
     this.audio.volume = 0.55;
-    this.audio.loop = true;
+    // O reinício é controlado pelo evento `ended`. Isso evita que alguns
+    // navegadores interrompam silenciosamente faixas longas após o primeiro ciclo.
+    this.audio.loop = false;
     this.audio.src = arquivos.intro;
+    this.audio.addEventListener("ended", () => {
+      if (!this.ligado || !this.desbloqueado || !trilhaDeveRepetir(this.trilha)) return;
+      this.audio.currentTime = 0;
+      void this.reproduzir();
+    });
     this.aoAtualizar(this.ligado, nomes[this.trilha]);
   }
 
-  async desbloquear(): Promise<void> {
-    this.desbloqueado = true;
-    if (!this.ligado) return;
+  private async reproduzir(): Promise<void> {
     try {
       await this.audio.play();
     } catch {
       this.desbloqueado = false;
     }
+  }
+
+  async desbloquear(): Promise<void> {
+    this.desbloqueado = true;
+    if (!this.ligado) return;
+    await this.reproduzir();
   }
 
   async tocar(trilha: TrilhaId): Promise<void> {
@@ -48,10 +61,10 @@ export class ControleDeAudio {
     this.audio.pause();
     this.audio.src = arquivos[trilha];
     this.audio.currentTime = 0;
-    this.audio.loop = trilha !== "endgame";
+    this.audio.loop = false;
     this.aoAtualizar(this.ligado, nomes[trilha]);
     if (this.desbloqueado && this.ligado) {
-      try { await this.audio.play(); } catch { /* o controle permanece disponível */ }
+      await this.reproduzir();
     }
   }
 

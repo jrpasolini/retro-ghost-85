@@ -462,3 +462,17 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 **Fronteira desta etapa:** Gemma continua somente como narradora opcional; não controla CPU, dados ou decisões do jogo.
 
+### 27/10/2026 — Etapa 5: auditoria de partida completa, trilhas e gamelog
+
+**Status:** concluída em implementação; validada com simulação determinística, 36 testes e build.
+
+- Corrigido o ciclo das trilhas: introdução e ACTS 1–4 reiniciam ao terminar; `CONGRATULATIONS` permanece sem loop.
+- O avanço musical agora acontece quando o primeiro jogador entra na faixa de um novo ato, mesmo que o resultado de 2D6 pule exatamente as casas 10, 20 ou 30.
+- O gamelog ganhou uma versão compacta sobre a área `GAME LOG` da arte, posicionada depois do prompt `>`; o painel lateral mantém a mensagem completa.
+- As duas mensagens são derivadas da mesma estrutura de dados da jogada, evitando divergência de nome, dados, destino, efeito, projeto e próximo turno.
+- As peças ficam centralizadas quando estão sozinhas e só se distribuem quando compartilham uma casa. As posições foram verificadas programaticamente contra os limites das 40 casas.
+- Simulada uma partida humano × CPU com o nome fictício `Alex`: Alex venceu a CPU-1 em 19 jogadas, na casa 40, com 100/100 de projeto; os dois alcançaram os quatro atos.
+- A suíte cobre reinício das músicas, não repetição do endgame, salto de marcos, consistência do gamelog, posição das sprites e partida completa humano × CPU.
+
+**Validação:** `npm test` com 36 testes aprovados e `npm run build` concluído sem erros.
+

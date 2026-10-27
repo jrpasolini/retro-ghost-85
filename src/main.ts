@@ -11,6 +11,8 @@ import { aplicarJogada } from "./motor/tabuleiro";
 import { avancarTurno, podeIniciarJogada } from "./motor/turnos";
 import { maiorAtoAlcancado, proximaTrilha } from "./motor/trilha";
 import { criarJogadores, turnoDaCpu, type ConfiguracaoJogador } from "./motor/jogadores";
+import { formatarGamelog } from "./motor/gamelog";
+import { posicaoDaPeca } from "./motor/posicao";
 import { ControleDeAudio } from "./audio";
 import { desserializarSave, serializarSave, type EstadoSalvo } from "./estado/save";
 
@@ -25,7 +27,6 @@ let partidaIniciada = false;
 let partidaEncerrada = false;
 let atoMusical = 0;
 let timerCpu: number | undefined;
-let gameLog: string[] = [];
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Elemento #app não encontrado");
@@ -63,15 +64,7 @@ app.innerHTML = `
             <input id="input-load" type="file" accept=".md,text/markdown,text/plain" hidden />
             <span id="tape-feedback" class="tape-feedback" aria-live="polite"></span>
           </div>
-          <section class="game-logbook" aria-labelledby="game-log-title">
-            <div class="game-logbook-header">
-              <span id="game-log-title" class="prompt">&gt; GAME_LOG</span>
-              <span class="game-log-count">0/4</span>
-            </div>
-            <div class="game-log-viewport">
-              <ol class="game-log-list" aria-live="polite" aria-relevant="additions"></ol>
-            </div>
-          </section>
+          <p id="board-game-log" class="board-game-log" aria-live="polite">SISTEMA PRONTO · CONFIGURE A PARTIDA</p>
           <div class="houses" aria-label="Casas interativas"></div>
           <div class="tokens" aria-label="Peças dos quatro jogadores"></div>
         </div>
@@ -154,6 +147,7 @@ app.innerHTML = `
         <h2 id="intro-title">BOOT · A revista na banca</h2>
         <p id="intro-copy">${atos[1].narrativa}</p>
         <div class="intro-actions">
+          <button id="btn-ouvir-intro" class="intro-secondary" type="button">OUVIR INTRO</button>
           <button id="btn-iniciar-jornada" class="intro-primary" type="button">INICIAR JORNADA</button>
         </div>
         <small id="intro-summary">A partida começa na casa 1 · 1 participante · 2D6</small>
@@ -173,6 +167,7 @@ const btnSave = document.querySelector<HTMLButtonElement>("#btn-save")!;
 const btnLoad = document.querySelector<HTMLButtonElement>("#btn-load")!;
 const inputLoad = document.querySelector<HTMLInputElement>("#input-load")!;
 const tapeFeedback = document.querySelector<HTMLElement>("#tape-feedback")!;
+const boardGameLog = document.querySelector<HTMLElement>("#board-game-log")!;
 const introDialog = document.querySelector<HTMLDialogElement>("#intro-dialog")!;
 const setupStep = document.querySelector<HTMLElement>("#setup-step")!;
 const introStep = document.querySelector<HTMLElement>("#intro-step")!;
@@ -184,6 +179,7 @@ const btnMaisPlayer = document.querySelector<HTMLButtonElement>("#btn-mais-playe
 const btnContinuar = document.querySelector<HTMLButtonElement>("#btn-continuar")!;
 const btnLoadSetup = document.querySelector<HTMLButtonElement>("#btn-load-setup")!;
 const btnVoltarConfig = document.querySelector<HTMLButtonElement>("#btn-voltar-config")!;
+const btnOuvirIntro = document.querySelector<HTMLButtonElement>("#btn-ouvir-intro")!;
 const btnIniciarJornada = document.querySelector<HTMLButtonElement>("#btn-iniciar-jornada")!;
 const introSummary = document.querySelector<HTMLElement>("#intro-summary")!;
 
@@ -241,7 +237,7 @@ function lerConfiguracao(): ConfiguracaoJogador[] {
 function mostrarIntro() {
   setupStep.hidden = true;
   introStep.hidden = false;
-  btnIniciarJornada.focus();
+  btnOuvirIntro.focus();
 }
 
 function mostrarSetup() {
@@ -277,26 +273,6 @@ function mostrarFeedbackCassete(mensagem: string, erro = false) {
   window.setTimeout(() => { if (tapeFeedback.textContent === mensagem) tapeFeedback.textContent = ""; }, 4500);
 }
 
-function renderGameLog() {
-  const list = document.querySelector<HTMLOListElement>(".game-log-list");
-  const count = document.querySelector<HTMLElement>(".game-log-count");
-  if (!list || !count) return;
-
-  count.textContent = `${gameLog.length}/4`;
-  list.innerHTML = "";
-  gameLog.forEach((mensagem, index) => {
-    const item = document.createElement("li");
-    item.textContent = mensagem;
-    if (index === 0) item.classList.add("is-latest");
-    list.append(item);
-  });
-}
-
-function registrarAcoes(mensagens: string[]) {
-  gameLog = [...mensagens, ...gameLog].filter(Boolean).slice(0, 4);
-  renderGameLog();
-}
-
 function salvarPartida() {
   const arquivo = new Blob([serializarSave(estadoAtual())], { type: "text/markdown;charset=utf-8" });
   const link = document.createElement("a");
@@ -321,12 +297,10 @@ async function carregarPartida(arquivo: File) {
     atoMusical = salvo.atoMusical;
     partidaIniciada = salvo.partidaIniciada;
     partidaEncerrada = salvo.partidaEncerrada;
-    gameLog = [];
     btnRolarDado.disabled = partidaEncerrada || !partidaIniciada;
     document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = !jogadores.some((jogador) => jogador.actsVisitados.length === 4);
     renderHouses();
     renderPlayers();
-    renderGameLog();
     updateInspector(casas[casaAtiva - 1]);
     bindHouseEvents();
     bindPlayerEvents();
@@ -336,6 +310,9 @@ async function carregarPartida(arquivo: File) {
       mostrarIntro();
     }
     atualizarTrilha(partidaEncerrada);
+    boardGameLog.textContent = partidaEncerrada
+      ? "SAVE CARREGADO · PARTIDA ENCERRADA"
+      : `SAVE CARREGADO · VEZ: ${jogadores[jogadorAtivo - 1].nome.toUpperCase()}`;
     mostrarFeedbackCassete("PLAY · PARTIDA CARREGADA");
     agendarTurnoCpu();
   } catch (erro) {
@@ -382,10 +359,6 @@ function renderHouses() {
 }
 
 function renderPlayers() {
-  const deslocamentos = [
-    { x: -1, y: -1.7 }, { x: 1, y: -1.7 },
-    { x: -1, y: 1.7 }, { x: 1, y: 1.7 },
-  ];
   playerListElement.innerHTML = jogadores.map((jogador) => {
     const nome = escaparHtml(jogador.nome);
     return `
@@ -397,12 +370,18 @@ function renderPlayers() {
   `;
   }).join("");
 
-  tokensElement.innerHTML = jogadores.map((jogador, index) => `
-    <button class="player-token ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${escaparHtml(jogador.nome)}, ${jogador.controle === "cpu" ? "CPU local" : "humano"}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4" style="--player-color:${jogador.cor};--tx:${casas[jogador.casa - 1].x + casas[jogador.casa - 1].width / 2 + deslocamentos[index].x}%;--ty:${casas[jogador.casa - 1].y + casas[jogador.casa - 1].height / 2 + deslocamentos[index].y}%">
+  tokensElement.innerHTML = jogadores.map((jogador) => {
+    const casa = casas[jogador.casa - 1];
+    const ocupantes = jogadores.filter((item) => item.casa === jogador.casa);
+    const indiceNaCasa = ocupantes.findIndex((item) => item.id === jogador.id);
+    const { x, y } = posicaoDaPeca(casa, indiceNaCasa, ocupantes.length);
+    return `
+    <button class="player-token ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${escaparHtml(jogador.nome)}, ${jogador.controle === "cpu" ? "CPU local" : "humano"}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4" style="--player-color:${jogador.cor};--tx:${x}%;--ty:${y}%">
       <img src="${jogador.imagem}" alt="" />
       <span>P${jogador.id}</span>
     </button>
-  `).join("");
+  `;
+  }).join("");
   const selecionado = jogadores[jogadorSelecionado - 1];
   document.querySelector<HTMLElement>(".act-progress")!.textContent = `ACTS do ${selecionado.nome}: ${selecionado.actsVisitados.length}/4`;
 }
@@ -461,7 +440,6 @@ async function executarSorteioDado(automatico = false) {
   faceElements.forEach((face) => face.classList.add("rolling"));
 
   const jogador = jogadores[jogadorAtivo - 1];
-  const casaAnterior = jogador.casa;
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (!prefersReducedMotion) {
@@ -501,33 +479,25 @@ async function executarSorteioDado(automatico = false) {
   jogadores = turno.jogadores;
   jogadorAtivo = turno.jogadorAtivo;
   const ignorados = turno.ignorados;
-  const movimentoRealizado = resultado.jogador.casa - casaAnterior;
-  const mensagemJogada = resultado.venceu
-    ? `${jogador.nome} chegou ao fim e publicou o jogo`
-    : resultado.recusouFinal
-      ? `${jogador.nome} voltou para a casa 30`
-      : movimentoRealizado > 0
-        ? `${jogador.nome} avançou ${movimentoRealizado} ${movimentoRealizado === 1 ? "casa" : "casas"}`
-        : movimentoRealizado < 0
-          ? `${jogador.nome} regrediu ${Math.abs(movimentoRealizado)} ${Math.abs(movimentoRealizado) === 1 ? "casa" : "casas"}`
-          : `${jogador.nome} permaneceu na casa ${resultado.jogador.casa}`;
-  registrarAcoes([
-    ...ignorados.map((nome) => `${nome} perdeu a jogada`),
-    mensagemJogada,
-  ]);
   renderPlayers();
   bindPlayerEvents();
   selectHouse(resultado.casa.id);
-  if (statusEl) {
-    const desfecho = resultado.venceu
-      ? ` Vitória! ${jogador.nome} publicou o jogo.`
-      : resultado.recusouFinal
-        ? " Projeto abaixo de 100: volte à casa 30."
-        : resultado.jogadaExtra
-          ? " Jogue outra vez."
-          : ` Próxima vez: ${jogadores[jogadorAtivo - 1].nome}.`;
-    statusEl.textContent = `${jogador.nome} tirou ${dados[0].valor} + ${dados[1].valor} = ${total}, caiu na casa ${resultado.casa.id} e ficou na casa ${resultado.jogador.casa}. Projeto: ${resultado.jogador.projeto}/100.${desfecho}${ignorados.length ? ` Perderam a vez: ${ignorados.join(", ")}.` : ""}${resultado.easterEggDesbloqueado ? " Easter egg: Einstein apareceu sorrindo no monitor!" : ""}`;
-  }
+  const log = formatarGamelog({
+    jogador: jogador.nome,
+    dado1: dados[0].valor,
+    dado2: dados[1].valor,
+    casaDestino: resultado.casa.id,
+    casaFinal: resultado.jogador.casa,
+    projeto: resultado.jogador.projeto,
+    venceu: resultado.venceu,
+    recusouFinal: resultado.recusouFinal,
+    jogadaExtra: resultado.jogadaExtra,
+    proximoJogador: resultado.venceu || resultado.jogadaExtra ? undefined : jogadores[jogadorAtivo - 1].nome,
+    ignorados,
+    easterEgg: resultado.easterEggDesbloqueado,
+  });
+  if (statusEl) statusEl.textContent = log.completo;
+  boardGameLog.textContent = log.compacto;
 
   rolandoDado = false;
   agendarTurnoCpu();
@@ -563,14 +533,13 @@ function aplicarConfiguracao() {
     jogadorAtivo = 1;
     jogadorSelecionado = 1;
     atoMusical = 0;
-    gameLog = [];
     partidaIniciada = false;
     partidaEncerrada = false;
     setupError.textContent = "";
     renderHouses();
     renderPlayers();
     updateInspector(casas[0]);
-    renderGameLog();
+    boardGameLog.textContent = "SISTEMA PRONTO · AGUARDANDO INÍCIO";
     bindHouseEvents();
     bindPlayerEvents();
     const cpus = jogadores.filter((jogador) => jogador.controle === "cpu").length;
@@ -586,6 +555,7 @@ function iniciarJornada() {
   atoMusical = 1;
   introDialog.close();
   document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `Vez de <strong>${escaparHtml(jogadores[0].nome)}</strong>. Clique para rolar os dados.`;
+  boardGameLog.textContent = `PARTIDA INICIADA · VEZ: ${jogadores[0].nome.toUpperCase()}`;
   void trilha.desbloquear().then(() => atualizarTrilha());
   agendarTurnoCpu();
 }
@@ -612,6 +582,11 @@ inputLoad.addEventListener("change", () => {
   const arquivo = inputLoad.files?.[0];
   if (arquivo) void carregarPartida(arquivo);
 });
+btnOuvirIntro.addEventListener("click", () => {
+  void trilha.desbloquear();
+  btnOuvirIntro.textContent = "INTRO TOCANDO";
+  btnOuvirIntro.disabled = true;
+});
 btnIniciarJornada.addEventListener("click", iniciarJornada);
 btnContinuar.addEventListener("click", aplicarConfiguracao);
 btnVoltarConfig.addEventListener("click", mostrarSetup);
@@ -625,3 +600,4 @@ btnMaisPlayer.addEventListener("click", () => {
   if (configuracoes.length < 4) configuracoes.push({ controle: "cpu" });
   renderSetup();
 });
+

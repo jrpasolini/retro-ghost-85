@@ -25,14 +25,23 @@ test("Einstein aparece só quando um mesmo jogador completa os quatro ACTs", () 
   assert.deepEqual(segundo.jogador.actsVisitados, [1, 10, 20]);
   assert.equal(segundo.easterEggDesbloqueado, false);
 
-  const outroJogador = aplicarJogada({ ...jogador(29), id: 2 }, 1, casas);
-  assert.deepEqual(outroJogador.jogador.actsVisitados, [1, 30]);
+  const outroJogador = aplicarJogada({ ...jogador(18), id: 2 }, 2, casas);
+  assert.deepEqual(outroJogador.jogador.actsVisitados, [1, 10, 20]);
   assert.equal(outroJogador.easterEggDesbloqueado, false);
 
   const terceiro = aplicarJogada({ ...segundo.jogador, casa: 29 }, 1, casas);
   assert.deepEqual(terceiro.jogador.actsVisitados, [1, 10, 20, 30]);
   assert.equal(terceiro.easterEggDesbloqueado, true);
   assert.equal(aplicarJogada({ ...terceiro.jogador, casa: 29 }, 1, casas).easterEggDesbloqueado, false);
+});
+
+test("pular a casa de marco ainda registra a entrada no novo ato", () => {
+  const act2 = aplicarJogada(jogador(8), 4, casas);
+  assert.equal(act2.jogador.casa, 12);
+  assert.deepEqual(act2.jogador.actsVisitados, [1, 10]);
+
+  const act3 = aplicarJogada({ ...act2.jogador, casa: 18 }, 4, casas);
+  assert.deepEqual(act3.jogador.actsVisitados, [1, 10, 20]);
 });
 
 test("disquete bom da casa 2 avança e pontua; efeito não encadeia", () => {

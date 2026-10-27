@@ -259,6 +259,24 @@ h1 span { color: var(--amber); }
 .tape-feedback:empty { display: none; }
 .tape-feedback.is-error { color: #ff75a1; }
 
+.board-game-log {
+  position: absolute;
+  left: 62.2%;
+  top: 92.55%;
+  z-index: 7;
+  width: 32.6%;
+  height: 4.9%;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  color: #a7fff0;
+  font: 600 clamp(.32rem, .58vw, .66rem)/1.25 "Chakra Petch", sans-serif;
+  letter-spacing: .025em;
+  text-shadow: 0 0 6px rgba(16, 242, 223, .65);
+  pointer-events: none;
+}
+
 .houses, .tokens { position: absolute; inset: 0; }
 
 .house-hotspot {
@@ -724,6 +742,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .board-art, .houses, .tokens, .scanlines { width: 694px; height: 390px; inset: 0 auto auto 0; }
   .endgame-cover { left: 51px; top: 42px; width: 72px; height: 44px; padding: 4px; }
   .cassette-deck { left: 272px; top: 345px; width: 95px; }
+  .board-game-log { left: 432px; top: 361px; width: 226px; height: 20px; font-size: .36rem; }
   .easter-egg-screen { left: 294px; top: 133px; width: 95px; height: 66px; }
   .player-list { grid-template-columns: repeat(2, 1fr); }
   .console-note { display: none; }

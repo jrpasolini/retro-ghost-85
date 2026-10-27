@@ -1,4 +1,5 @@
 import type { Casa, Jogador } from "../types";
+import { atoDaPosicao } from "./trilha.ts";
 
 export const META_PROJETO = 100;
 export const ULTIMA_CASA = 40;
@@ -26,8 +27,8 @@ export function aplicarJogada(jogador: Jogador, passos: number, casas: Casa[]): 
     ? 30
     : Math.max(1, Math.min(ULTIMA_CASA, destino + (casa.consequencia.movimento ?? 0)));
   const visitas = new Set(jogador.actsVisitados);
-  if (CASAS_ACT.some((act) => act === destino)) visitas.add(destino);
-  if (CASAS_ACT.some((act) => act === novaCasa)) visitas.add(novaCasa);
+  const maiorAtoAtingido = atoDaPosicao(Math.max(destino, novaCasa));
+  CASAS_ACT.slice(0, maiorAtoAtingido).forEach((act) => visitas.add(act));
   const actsVisitados = CASAS_ACT.filter((act) => visitas.has(act));
 
   return {
