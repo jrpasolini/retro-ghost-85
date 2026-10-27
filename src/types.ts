@@ -21,6 +21,7 @@ export type Casa = {
 export type Jogador = {
   id: number;
   nome: string;
+  controle: "humano" | "cpu";
   cor: string;
   imagem: string;
   casa: number;
@@ -28,3 +29,4 @@ export type Jogador = {
   turnosPerdidos: number;
   actsVisitados: number[];
 };
+

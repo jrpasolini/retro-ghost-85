@@ -10,15 +10,12 @@ import { rolar2D6 } from "./motor/dado";
 import { aplicarJogada } from "./motor/tabuleiro";
 import { avancarTurno, podeIniciarJogada } from "./motor/turnos";
 import { maiorAtoAlcancado, proximaTrilha } from "./motor/trilha";
+import { criarJogadores, turnoDaCpu, type ConfiguracaoJogador } from "./motor/jogadores";
 import { ControleDeAudio } from "./audio";
 import { desserializarSave, serializarSave, type EstadoSalvo } from "./estado/save";
 
-let jogadores: Jogador[] = [
-  { id: 1, nome: "Jogador 1", cor: "#54f5c2", imagem: "./assets/player-1.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
-  { id: 2, nome: "Jogador 2", cor: "#ffd365", imagem: "./assets/player-2.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
-  { id: 3, nome: "Jogador 3", cor: "#48d8ff", imagem: "./assets/player-3.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
-  { id: 4, nome: "Jogador 4", cor: "#ff68bc", imagem: "./assets/player-4.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
-];
+let configuracoes: ConfiguracaoJogador[] = [{ controle: "humano", nome: "Jogador 1" }];
+let jogadores: Jogador[] = criarJogadores(configuracoes);
 
 let casaAtiva = 1;
 let jogadorAtivo = 1;
@@ -27,6 +24,7 @@ let rolandoDado = false;
 let partidaIniciada = false;
 let partidaEncerrada = false;
 let atoMusical = 0;
+let timerCpu: number | undefined;
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Elemento #app não encontrado");
@@ -115,13 +113,33 @@ app.innerHTML = `
     </section>
 
     <footer>
-      <span>BUILD 0.4.0</span>
-      <span>40 CASAS · 4 JOGADORES · 2D6 · SAVE/LOAD · TRILHA DINÂMICA</span>
+      <span>BUILD 0.5.0</span>
+      <span>40 CASAS · 1–4 JOGADORES/CPU · 2D6 · SAVE/LOAD · TRILHA DINÂMICA</span>
     </footer>
 
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
-      <div class="intro-terminal">
+      <div id="setup-step" class="intro-terminal setup-step">
+        <p class="intro-kicker">RETRO-GHOST-85 // NEW GAME</p>
+        <span class="intro-act">CONFIG</span>
+        <h2>Quem vai programar?</h2>
+        <p>Escolha de um a quatro participantes. Humanos dividem o mesmo dispositivo; a CPU apenas rola os dados automaticamente na própria vez.</p>
+        <div class="player-count" aria-label="Quantidade de participantes">
+          <button id="btn-menos-player" type="button" aria-label="Remover participante">−</button>
+          <output id="player-count" aria-live="polite">1</output>
+          <button id="btn-mais-player" type="button" aria-label="Adicionar participante">+</button>
+        </div>
+        <div id="player-config-list" class="player-config-list"></div>
+        <p id="setup-error" class="setup-error" aria-live="polite"></p>
+        <div class="intro-actions">
+          <button id="btn-load-setup" class="intro-secondary" type="button">CARREGAR SAVE</button>
+          <button id="btn-continuar" class="intro-primary" type="button">CONTINUAR</button>
+        </div>
+        <small>CPU local · mesmas regras · mesma sorte · nenhuma chamada ao Gemma</small>
+      </div>
+
+      <div id="intro-step" class="intro-terminal" hidden>
         <p class="intro-kicker">RETRO-GHOST-85 // SYSTEM READY</p>
+        <button id="btn-voltar-config" class="intro-back" type="button">AJUSTAR JOGADORES</button>
         <span class="intro-act">ACT 1</span>
         <h2 id="intro-title">BOOT · A revista na banca</h2>
         <p id="intro-copy">${atos[1].narrativa}</p>
@@ -129,7 +147,7 @@ app.innerHTML = `
           <button id="btn-ouvir-intro" class="intro-secondary" type="button">OUVIR INTRO</button>
           <button id="btn-iniciar-jornada" class="intro-primary" type="button">INICIAR JORNADA</button>
         </div>
-        <small>A partida começa na casa 1 · 4 jogadores locais · 2D6</small>
+        <small id="intro-summary">A partida começa na casa 1 · 1 participante · 2D6</small>
       </div>
     </dialog>
   </main>
@@ -147,8 +165,19 @@ const btnLoad = document.querySelector<HTMLButtonElement>("#btn-load")!;
 const inputLoad = document.querySelector<HTMLInputElement>("#input-load")!;
 const tapeFeedback = document.querySelector<HTMLElement>("#tape-feedback")!;
 const introDialog = document.querySelector<HTMLDialogElement>("#intro-dialog")!;
+const setupStep = document.querySelector<HTMLElement>("#setup-step")!;
+const introStep = document.querySelector<HTMLElement>("#intro-step")!;
+const playerConfigList = document.querySelector<HTMLElement>("#player-config-list")!;
+const playerCount = document.querySelector<HTMLOutputElement>("#player-count")!;
+const setupError = document.querySelector<HTMLElement>("#setup-error")!;
+const btnMenosPlayer = document.querySelector<HTMLButtonElement>("#btn-menos-player")!;
+const btnMaisPlayer = document.querySelector<HTMLButtonElement>("#btn-mais-player")!;
+const btnContinuar = document.querySelector<HTMLButtonElement>("#btn-continuar")!;
+const btnLoadSetup = document.querySelector<HTMLButtonElement>("#btn-load-setup")!;
+const btnVoltarConfig = document.querySelector<HTMLButtonElement>("#btn-voltar-config")!;
 const btnOuvirIntro = document.querySelector<HTMLButtonElement>("#btn-ouvir-intro")!;
 const btnIniciarJornada = document.querySelector<HTMLButtonElement>("#btn-iniciar-jornada")!;
+const introSummary = document.querySelector<HTMLElement>("#intro-summary")!;
 
 const trilha = new ControleDeAudio((ligado, nome) => {
   btnAudio.textContent = ligado ? "AUDIO ON" : "AUDIO OFF";
@@ -156,6 +185,63 @@ const trilha = new ControleDeAudio((ligado, nome) => {
   audioTrack.textContent = nome;
 });
 document.addEventListener("pointerdown", () => { void trilha.desbloquear(); }, { once: true });
+
+function escaparHtml(valor: string): string {
+  return valor.replace(/[&<>'"]/g, (caractere) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
+  })[caractere]!);
+}
+
+function renderSetup() {
+  playerCount.value = String(configuracoes.length);
+  btnMenosPlayer.disabled = configuracoes.length === 1;
+  btnMaisPlayer.disabled = configuracoes.length === 4;
+  let numeroCpu = 0;
+  playerConfigList.innerHTML = configuracoes.map((configuracao, index) => {
+    if (configuracao.controle === "cpu") numeroCpu += 1;
+    const nome = configuracao.controle === "cpu" ? `CPU-${numeroCpu}` : (configuracao.nome ?? `Jogador ${index + 1}`);
+    return `<div class="player-config-row">
+      <b>P${index + 1}</b>
+      <select data-config-control="${index}" aria-label="Controle do participante ${index + 1}">
+        <option value="humano"${configuracao.controle === "humano" ? " selected" : ""}>HUMANO</option>
+        <option value="cpu"${configuracao.controle === "cpu" ? " selected" : ""}>CPU LOCAL</option>
+      </select>
+      <input data-config-name="${index}" value="${escaparHtml(nome)}" maxlength="24" aria-label="Nome do participante ${index + 1}"${configuracao.controle === "cpu" ? " disabled" : ""} />
+    </div>`;
+  }).join("");
+
+  playerConfigList.querySelectorAll<HTMLSelectElement>("[data-config-control]").forEach((select) => {
+    select.addEventListener("change", () => {
+      const indice = Number(select.dataset.configControl);
+      configuracoes[indice].controle = select.value as Jogador["controle"];
+      configuracoes[indice].nome = select.value === "humano" ? `Jogador ${indice + 1}` : undefined;
+      setupError.textContent = "";
+      renderSetup();
+    });
+  });
+}
+
+function lerConfiguracao(): ConfiguracaoJogador[] {
+  return configuracoes.map((configuracao, index) => ({
+    controle: configuracao.controle,
+    nome: configuracao.controle === "humano"
+      ? playerConfigList.querySelector<HTMLInputElement>(`[data-config-name="${index}"]`)?.value
+      : undefined,
+  }));
+}
+
+function mostrarIntro() {
+  setupStep.hidden = true;
+  introStep.hidden = false;
+  btnOuvirIntro.focus();
+}
+
+function mostrarSetup() {
+  introStep.hidden = true;
+  setupStep.hidden = false;
+  renderSetup();
+  btnContinuar.focus();
+}
 
 function atualizarTrilha(venceu = false) {
   const maiorAto = maiorAtoAlcancado(jogadores.map((jogador) => jogador.actsVisitados));
@@ -173,7 +259,7 @@ function estadoAtual(): EstadoSalvo {
     atoMusical,
     partidaIniciada,
     partidaEncerrada,
-    jogadores: jogadores.map(({ id, casa, projeto, turnosPerdidos, actsVisitados }) => ({ id, casa, projeto, turnosPerdidos, actsVisitados })),
+    jogadores: jogadores.map(({ id, nome, controle, casa, projeto, turnosPerdidos, actsVisitados }) => ({ id, nome, controle, casa, projeto, turnosPerdidos, actsVisitados })),
   };
 }
 
@@ -196,7 +282,11 @@ function salvarPartida() {
 async function carregarPartida(arquivo: File) {
   try {
     const salvo = desserializarSave(await arquivo.text());
-    jogadores = jogadores.map((jogador) => ({ ...jogador, ...salvo.jogadores.find((item) => item.id === jogador.id)! }));
+    configuracoes = salvo.jogadores.map((jogador) => ({ controle: jogador.controle ?? "humano", nome: jogador.nome }));
+    jogadores = criarJogadores(configuracoes).map((jogador) => ({
+      ...jogador,
+      ...salvo.jogadores.find((item) => item.id === jogador.id)!,
+    }));
     jogadorAtivo = salvo.jogadorAtivo;
     jogadorSelecionado = salvo.jogadorSelecionado;
     casaAtiva = salvo.casaAtiva;
@@ -211,9 +301,13 @@ async function carregarPartida(arquivo: File) {
     bindHouseEvents();
     bindPlayerEvents();
     if (partidaIniciada && introDialog.open) introDialog.close();
-    if (!partidaIniciada && !introDialog.open) introDialog.showModal();
+    if (!partidaIniciada) {
+      if (!introDialog.open) introDialog.showModal();
+      mostrarIntro();
+    }
     atualizarTrilha(partidaEncerrada);
     mostrarFeedbackCassete("PLAY · PARTIDA CARREGADA");
+    agendarTurnoCpu();
   } catch (erro) {
     mostrarFeedbackCassete(erro instanceof Error ? erro.message : "SAVE INVÁLIDO", true);
   } finally {
@@ -262,16 +356,19 @@ function renderPlayers() {
     { x: -1, y: -1.7 }, { x: 1, y: -1.7 },
     { x: -1, y: 1.7 }, { x: 1, y: 1.7 },
   ];
-  playerListElement.innerHTML = jogadores.map((jogador) => `
-    <button class="player-card ${jogador.id === jogadorAtivo ? "is-active" : ""} ${jogador.id === jogadorSelecionado ? "is-selected" : ""}" type="button" data-player="${jogador.id}" style="--player-color:${jogador.cor}" aria-label="${jogador.nome}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4${jogador.id === jogadorAtivo ? ", sua vez" : ""}">
+  playerListElement.innerHTML = jogadores.map((jogador) => {
+    const nome = escaparHtml(jogador.nome);
+    return `
+    <button class="player-card ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""} ${jogador.id === jogadorSelecionado ? "is-selected" : ""}" type="button" data-player="${jogador.id}" style="--player-color:${jogador.cor}" aria-label="${nome}, ${jogador.controle === "cpu" ? "CPU local" : "humano"}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4${jogador.id === jogadorAtivo ? ", sua vez" : ""}">
       <img src="${jogador.imagem}" alt="" />
-      <span><b>P${jogador.id}</b>${jogador.nome}</span>
-      <small>CASA ${String(jogador.casa).padStart(2, "0")} · ${jogador.projeto}/100</small>
+      <span><b>P${jogador.id}</b>${nome}</span>
+      <small>${jogador.controle === "cpu" ? "CPU" : "HUM"} · CASA ${String(jogador.casa).padStart(2, "0")} · ${jogador.projeto}/100</small>
     </button>
-  `).join("");
+  `;
+  }).join("");
 
   tokensElement.innerHTML = jogadores.map((jogador, index) => `
-    <button class="player-token ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${jogador.nome}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4" style="--player-color:${jogador.cor};--tx:${casas[jogador.casa - 1].x + casas[jogador.casa - 1].width / 2 + deslocamentos[index].x}%;--ty:${casas[jogador.casa - 1].y + casas[jogador.casa - 1].height / 2 + deslocamentos[index].y}%">
+    <button class="player-token ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${escaparHtml(jogador.nome)}, ${jogador.controle === "cpu" ? "CPU local" : "humano"}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4" style="--player-color:${jogador.cor};--tx:${casas[jogador.casa - 1].x + casas[jogador.casa - 1].width / 2 + deslocamentos[index].x}%;--ty:${casas[jogador.casa - 1].y + casas[jogador.casa - 1].height / 2 + deslocamentos[index].y}%">
       <img src="${jogador.imagem}" alt="" />
       <span>P${jogador.id}</span>
     </button>
@@ -318,8 +415,10 @@ function selectPlayer(id: number) {
   selectHouse(jogadores[id - 1].casa);
 }
 
-async function executarSorteioDado() {
+async function executarSorteioDado(automatico = false) {
   if (!partidaIniciada || !podeIniciarJogada(rolandoDado, partidaEncerrada)) return;
+  const cpuAtual = turnoDaCpu(jogadores, jogadorAtivo, partidaIniciada, partidaEncerrada);
+  if ((cpuAtual && !automatico) || (!cpuAtual && automatico)) return;
   await trilha.desbloquear();
   rolandoDado = true;
 
@@ -385,8 +484,8 @@ async function executarSorteioDado() {
     statusEl.textContent = `${jogador.nome} tirou ${dados[0].valor} + ${dados[1].valor} = ${total}, caiu na casa ${resultado.casa.id} e ficou na casa ${resultado.jogador.casa}. Projeto: ${resultado.jogador.projeto}/100.${desfecho}${ignorados.length ? ` Perderam a vez: ${ignorados.join(", ")}.` : ""}${resultado.easterEggDesbloqueado ? " Easter egg: Einstein apareceu sorrindo no monitor!" : ""}`;
   }
 
-  if (btnRolarDado) btnRolarDado.disabled = partidaEncerrada;
   rolandoDado = false;
+  agendarTurnoCpu();
 }
 
 function bindHouseEvents() {
@@ -401,13 +500,47 @@ function bindPlayerEvents() {
   });
 }
 
+function agendarTurnoCpu() {
+  if (timerCpu !== undefined) window.clearTimeout(timerCpu);
+  const cpu = turnoDaCpu(jogadores, jogadorAtivo, partidaIniciada, partidaEncerrada);
+  btnRolarDado.disabled = !partidaIniciada || partidaEncerrada || cpu;
+  if (!cpu) return;
+  const atual = jogadores[jogadorAtivo - 1];
+  document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `<strong>${escaparHtml(atual.nome)}</strong> está preparando a jogada automática...`;
+  timerCpu = window.setTimeout(() => { void executarSorteioDado(true); }, 900);
+}
+
+function aplicarConfiguracao() {
+  try {
+    configuracoes = lerConfiguracao();
+    jogadores = criarJogadores(configuracoes);
+    casaAtiva = 1;
+    jogadorAtivo = 1;
+    jogadorSelecionado = 1;
+    atoMusical = 0;
+    partidaIniciada = false;
+    partidaEncerrada = false;
+    setupError.textContent = "";
+    renderHouses();
+    renderPlayers();
+    updateInspector(casas[0]);
+    bindHouseEvents();
+    bindPlayerEvents();
+    const cpus = jogadores.filter((jogador) => jogador.controle === "cpu").length;
+    introSummary.textContent = `A partida começa na casa 1 · ${jogadores.length} participante${jogadores.length === 1 ? "" : "s"}${cpus ? ` · ${cpus} CPU` : ""} · 2D6`;
+    mostrarIntro();
+  } catch (erro) {
+    setupError.textContent = erro instanceof Error ? erro.message : "Configuração inválida";
+  }
+}
+
 function iniciarJornada() {
   partidaIniciada = true;
   atoMusical = 1;
   introDialog.close();
-  btnRolarDado.disabled = false;
-  document.querySelector<HTMLElement>(".dice-status")!.innerHTML = "Vez de <strong>Jogador 1</strong>. Clique para rolar os dados.";
+  document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `Vez de <strong>${escaparHtml(jogadores[0].nome)}</strong>. Clique para rolar os dados.`;
   void trilha.desbloquear().then(() => atualizarTrilha());
+  agendarTurnoCpu();
 }
 
 renderHouses();
@@ -415,17 +548,19 @@ renderPlayers();
 updateInspector(casas[0]);
 bindHouseEvents();
 bindPlayerEvents();
+renderSetup();
 introDialog.showModal();
 introDialog.addEventListener("cancel", (evento) => evento.preventDefault());
 
 btnRolarDado.addEventListener("click", () => {
-  executarSorteioDado();
+  executarSorteioDado(false);
 });
 
 btnAudio.addEventListener("click", () => { void trilha.alternar(); });
 audioVolume.addEventListener("input", () => trilha.definirVolume(Number(audioVolume.value) / 100));
 btnSave.addEventListener("click", salvarPartida);
 btnLoad.addEventListener("click", () => inputLoad.click());
+btnLoadSetup.addEventListener("click", () => inputLoad.click());
 inputLoad.addEventListener("change", () => {
   const arquivo = inputLoad.files?.[0];
   if (arquivo) void carregarPartida(arquivo);
@@ -436,4 +571,16 @@ btnOuvirIntro.addEventListener("click", () => {
   btnOuvirIntro.disabled = true;
 });
 btnIniciarJornada.addEventListener("click", iniciarJornada);
+btnContinuar.addEventListener("click", aplicarConfiguracao);
+btnVoltarConfig.addEventListener("click", mostrarSetup);
+btnMenosPlayer.addEventListener("click", () => {
+  configuracoes = lerConfiguracao();
+  if (configuracoes.length > 1) configuracoes.pop();
+  renderSetup();
+});
+btnMaisPlayer.addEventListener("click", () => {
+  configuracoes = lerConfiguracao();
+  if (configuracoes.length < 4) configuracoes.push({ controle: "cpu" });
+  renderSetup();
+});
 

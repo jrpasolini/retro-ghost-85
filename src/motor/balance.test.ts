@@ -12,7 +12,7 @@ test("partidas simuladas chegam à publicação sem ficar presas no trecho final
 
   for (let partida = 0; partida < 10_000; partida++) {
     let jogador: Jogador = {
-      id: 1, nome: "Teste", cor: "", imagem: "", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1],
+      id: 1, nome: "Teste", controle: "humano", cor: "", imagem: "", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1],
     };
     for (let turno = 1; turno <= 30; turno++) {
       const dados = 2 + Math.floor(rng() * 6) + Math.floor(rng() * 6);

@@ -346,6 +346,8 @@ h1 span { color: var(--amber); }
 .player-card b { color: var(--player-color); margin-right: .35rem; }
 .player-card small { color: #658b84; font-size: .56rem; }
 .player-card.is-active { border-color: var(--player-color); box-shadow: inset 0 -2px 0 var(--player-color); }
+.player-card.is-cpu small { color: var(--amber); }
+.player-token.is-cpu { border-style: dashed; }
 
 .inspector {
   position: relative;
@@ -573,6 +575,63 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
 .intro-secondary:disabled { border-color: #56726b; color: #79968e; cursor: default; }
 .intro-actions button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
 .intro-terminal > small { color: #678b83; font-size: .68rem; letter-spacing: .05em; }
+.intro-terminal[hidden] { display: none; }
+
+.intro-back {
+  position: relative;
+  z-index: 2;
+  float: right;
+  border: 0;
+  background: transparent;
+  color: #6f9990;
+  font-size: .64rem;
+  cursor: pointer;
+}
+
+.player-count {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 2.5rem 4rem 2.5rem;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  margin: 1.15rem 0;
+}
+
+.player-count button {
+  aspect-ratio: 1;
+  border: 1px solid var(--cyan);
+  background: #071311;
+  color: var(--cyan);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.player-count button:disabled { opacity: .35; cursor: default; }
+.player-count output { color: var(--amber); font: 1.3rem/1 "Press Start 2P", monospace; text-align: center; }
+.player-config-list { position: relative; z-index: 2; display: grid; gap: .55rem; }
+
+.player-config-row {
+  display: grid;
+  grid-template-columns: 2.4rem minmax(7rem, .8fr) minmax(8rem, 1.2fr);
+  align-items: center;
+  gap: .55rem;
+}
+
+.player-config-row b { color: var(--amber); font: .64rem/1 "Press Start 2P", monospace; }
+.player-config-row select, .player-config-row input {
+  min-width: 0;
+  height: 2.4rem;
+  border: 1px solid rgba(16, 242, 223, .55);
+  background: #04100f;
+  color: #d7fff3;
+  padding: 0 .55rem;
+  font: 600 .78rem/1 "Chakra Petch", sans-serif;
+}
+
+.player-config-row input:disabled { color: var(--amber); opacity: .75; }
+.setup-error { min-height: 1.3rem; margin: .65rem 0 0 !important; color: #ff75a1 !important; font-size: .75rem !important; }
 
 @media (max-width: 1050px) {
   .game-layout { grid-template-columns: 1fr; }
@@ -604,6 +663,8 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .house-number { font-size: 3.2rem; }
   footer { flex-direction: column; }
   .intro-actions { flex-direction: column; }
+  .player-config-row { grid-template-columns: 2rem 1fr; }
+  .player-config-row input { grid-column: 2; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -447,3 +447,18 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 **Fronteira desta etapa:** o diário narrativo completo dentro do save, a integração opcional com Gemma e o deploy público permanecem para as próximas etapas.
 
+### 27/10/2026 — Etapa 4: configuração de participantes e CPU local
+
+**Status:** concluída em implementação; validada com testes automatizados, build e navegador.
+
+- O popup inicial ganhou uma etapa para configurar de 1 a 4 participantes.
+- Cada slot pode ser humano ou CPU local; partidas exigem ao menos um humano e CPU só faz sentido com dois ou mais participantes.
+- Jogadores humanos aceitam nomes personalizados; CPUs recebem nomes sequenciais automáticos.
+- A CPU não possui dificuldade nem personalidade: usa o mesmo RNG 2d6 e as mesmas regras, chamando diretamente o motor na própria vez.
+- O botão de dados permanece bloqueado durante turnos automáticos; jogadas extras e turnos perdidos continuam respeitados.
+- Nome e tipo de controle foram incorporados ao save Markdown, mantendo migração para saves anteriores.
+- Entradas de nome são normalizadas, limitadas e escapadas antes de aparecerem no DOM.
+- A estratégia detalhada foi registrada em `estrategia.md`.
+
+**Fronteira desta etapa:** Gemma continua somente como narradora opcional; não controla CPU, dados ou decisões do jogo.
+

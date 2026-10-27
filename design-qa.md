@@ -45,4 +45,16 @@ Build de produção concluído sem erro. Seleção da casa 24, rotação P1 → 
 
 Build de produção e 24 testes automatizados concluídos sem erro em 27/10/2026.
 
+## Etapa 4 — participantes humanos e CPU local
+
+- O popup inicial agora configura de 1 a 4 participantes antes da apresentação de `ACT 1 · BOOT`.
+- Cada posição aceita controle `HUMANO` ou `CPU LOCAL`; partidas exclusivamente com CPU são bloqueadas e CPU exige ao menos dois participantes.
+- Jogadores humanos podem receber nomes personalizados. Jogadores automáticos usam os nomes `CPU-1`, `CPU-2` e `CPU-3`.
+- A CPU usa exatamente o mesmo motor de 2D6, turnos e efeitos dos humanos: não há dificuldade, personalidade ou vantagem oculta.
+- No navegador, foi verificada uma partida com `Junior` e `CPU-1`: o humano jogou, a CPU executou sua vez automaticamente e o controle retornou ao humano.
+- O botão de dados permanece indisponível durante a vez da CPU e volta a ser habilitado quando chega um turno humano.
+- Saves novos preservam nome e tipo de controle; saves anteriores continuam carregando como jogadores humanos.
+
+Build de produção e 28 testes automatizados concluídos sem erro em 27/10/2026.
+
 **final result: passed**

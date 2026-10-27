@@ -6,7 +6,7 @@ import { aplicarJogada } from "./tabuleiro.ts";
 import { avancarTurno, podeIniciarJogada, proximoJogadorId } from "./turnos.ts";
 
 const jogador = (casa: number, projeto = 0): Jogador => ({
-  id: 1, nome: "Teste", cor: "#fff", imagem: "", casa, projeto, turnosPerdidos: 0, actsVisitados: [1],
+  id: 1, nome: "Teste", controle: "humano", cor: "#fff", imagem: "", casa, projeto, turnosPerdidos: 0, actsVisitados: [1],
 });
 
 test("jogadores partem da casa 1 e avançam normalmente com 2d6", () => {

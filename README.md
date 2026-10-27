@@ -57,10 +57,11 @@ Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · ElevenLabs 
   arquitetura, modelo de dados, contrato do narrador, as 40 casas, roadmap e
   registro de decisões.
 - [`HISTORICO_NARRATIVO.md`](./HISTORICO_NARRATIVO.md) — base histórica e regras das 40 casas nesta versão.
+- [`estrategia.md`](./estrategia.md) — decisões sobre modos de partida, participantes humanos e CPU local.
 
 ## Status
 
-Protótipo local com tabuleiro, narrativa das 40 casas, dois dados de seis faces, movimento, consequências determinísticas, save/load em Markdown e trilha dinâmica por ato. As seis faixas originais — introdução, quatro atos e encerramento — foram criadas com a ElevenLabs. A integração com Gemma e a publicação ainda não fazem parte desta versão.
+Protótipo local com tabuleiro, narrativa das 40 casas, configuração de 1 a 4 participantes humanos/CPU, dois dados de seis faces, movimento, consequências determinísticas, save/load em Markdown e trilha dinâmica por ato. As seis faixas originais — introdução, quatro atos e encerramento — foram criadas com a ElevenLabs. A integração com Gemma e a publicação ainda não fazem parte desta versão.
 
 ## Créditos e atribuição
 
