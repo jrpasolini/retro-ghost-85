@@ -5,13 +5,14 @@ import "@fontsource/press-start-2p/latin-400.css";
 import "./style.css";
 import { casas } from "./data/casas";
 import { atos } from "./data/atos";
+import { prologo } from "./data/intro";
 import type { Casa, Jogador } from "./types";
 import { criarRngComEstado, novoEstadoRng, rolar2D6 } from "./motor/dado";
 import { podeIniciarJogada } from "./motor/turnos";
 import { maiorAtoAlcancado, proximaTrilha } from "./motor/trilha";
 import { criarJogadores, turnoDaCpu, type ConfiguracaoJogador } from "./motor/jogadores";
 import { formatarGamelog } from "./motor/gamelog";
-import { formatarLinhaLog, getPlayerTrajectory, NOME_TROFEU, type ChaveTrofeu } from "./motor/log";
+import { formatarLinhaLog, getPlayerTrajectory, NOME_TROFEU, textoMestre, trofeusVazios, type ChaveTrofeu } from "./motor/log";
 import { posicaoDaPeca } from "./motor/posicao";
 import { daEstadoSalvo, iniciarPartida, montarTelaEndgame, paraEstadoSalvo, registrarJogada, type EstadoPartida } from "./motor/partida";
 import { ajustarQuantidade, clonarAssentos, confirmarAssentos } from "./motor/setup";
@@ -59,7 +60,7 @@ app.innerHTML = `
         <div id="tabuleiro" class="board-stage" role="group" aria-label="Tabuleiro com 40 casas">
           <img class="board-art" src="./assets/board-reference-edited.webp" alt="Mesa retrô com computador, cassetes, disquetes, BBS e quarenta casas ao redor" />
           <div class="endgame-cover">
-            <img src="./assets/casa-40-endgame.webp" alt="ATO 4 · ENDGAME · PUBLICAÇÃO" />
+            <img src="./assets/casa-40-endgame.webp" alt="ENDGAME · PUBLICAÇÃO" />
           </div>
           <div id="einstein-easter-egg" class="easter-egg-screen" role="img" aria-label="Albert Einstein sorri na tela do computador" hidden>
             <img src="./assets/einstein-smile.webp" alt="" />
@@ -92,8 +93,8 @@ app.innerHTML = `
           <span class="counter">01/40</span>
         </div>
         <div class="house-number">01</div>
-        <span class="type-chip">ACT 1</span>
-        <h2>Ato 1 · BOOT</h2>
+        <span class="type-chip">PRÓLOGO</span>
+        <h2>Prólogo · Início</h2>
         <p class="effect-label">EFEITO DA CASA</p>
         <p class="effect"></p>
         <p class="narrative"></p>
@@ -133,9 +134,13 @@ app.innerHTML = `
 
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
       <div id="setup-step" class="intro-terminal setup-step">
-        <p class="intro-kicker">RETRO-GHOST-85 // NEW GAME</p>
-        <span class="intro-act">CONFIG</span>
-        <h2>Quem vai programar?</h2>
+        <p class="intro-kicker">${prologo.kicker}</p>
+        <span class="intro-act">${prologo.rotulo}</span>
+        <h2 id="intro-title">${prologo.titulo}</h2>
+        <div id="intro-copy" class="intro-story">
+          ${prologo.paragrafos.map((paragrafo) => `<p>${paragrafo}</p>`).join("")}
+        </div>
+        <h3 class="setup-heading">Quem vai programar?</h3>
         <p>Escolha de um a quatro participantes. Humanos dividem o mesmo dispositivo; a CPU apenas rola os dados automaticamente na própria vez.</p>
         <div class="player-count" aria-label="Quantidade de participantes">
           <button id="btn-menos-player" type="button" aria-label="Remover participante">−</button>
@@ -147,21 +152,9 @@ app.innerHTML = `
         <p id="setup-error" class="setup-error" aria-live="polite"></p>
         <div class="intro-actions">
           <button id="btn-load-setup" class="intro-secondary" type="button">CARREGAR SAVE</button>
-          <button id="btn-continuar" class="intro-primary" type="button">CONTINUAR</button>
-        </div>
-        <small>CPU local · mesmas regras · mesma sorte · nenhuma chamada ao Gemma</small>
-      </div>
-
-      <div id="intro-step" class="intro-terminal" hidden>
-        <p class="intro-kicker">RETRO-GHOST-85 // SYSTEM READY</p>
-        <button id="btn-voltar-config" class="intro-back" type="button">AJUSTAR JOGADORES</button>
-        <span class="intro-act">ACT 1</span>
-        <h2 id="intro-title">BOOT · A revista na banca</h2>
-        <p id="intro-copy">${atos[1].narrativa}</p>
-        <div class="intro-actions">
           <button id="btn-iniciar-jornada" class="intro-primary" type="button">INICIAR JORNADA</button>
         </div>
-        <small id="intro-summary">A partida começa na casa 1 · 1 participante · 1 HUMANO · 2D6</small>
+        <small>CPU local · mesmas regras · mesma sorte · nenhuma chamada ao Gemma</small>
       </div>
     </dialog>
 
@@ -196,14 +189,25 @@ app.innerHTML = `
       </div>
     </dialog>
 
-    <div id="trophy-toast" class="trophy-toast" role="status" aria-live="polite" hidden>
-      <p id="trophy-toast-text"></p>
-      <div class="narration-controls">
-        <button id="btn-ouvir-trofeu" type="button">Ouvir o Mestre</button>
-        <button id="btn-baixar-trofeu-ato" type="button">Baixar troféu (MP3)</button>
+    <dialog id="trophy-dialog" class="intro-dialog endgame-dialog" aria-labelledby="trophy-title" aria-describedby="trophy-narration">
+      <div class="intro-terminal">
+        <p class="intro-kicker">RETRO-GHOST-85 // TROFÉU</p>
+        <span id="trophy-act" class="intro-act">ATO</span>
+        <h2 id="trophy-title" tabindex="-1">Chegou ao ato</h2>
+        <section class="narration-slot" aria-labelledby="trophy-narration-label">
+          <h3 id="trophy-narration-label">O Mestre narra</h3>
+          <p id="trophy-narration"></p>
+          <ol id="trophy-path" class="endgame-path"></ol>
+          <div class="narration-controls">
+            <button id="btn-ouvir-trofeu" type="button">Ouvir o Mestre</button>
+            <button id="btn-baixar-trofeu-ato" type="button">Baixar troféu (MP3)</button>
+          </div>
+        </section>
+        <div class="intro-actions">
+          <button id="btn-continuar-trofeu" class="intro-primary" type="button">CONTINUAR</button>
+        </div>
       </div>
-      <button id="trophy-toast-close" type="button">FECHAR</button>
-    </div>
+    </dialog>
   </main>
 `;
 
@@ -222,26 +226,26 @@ const boardGameLog = document.querySelector<HTMLElement>("#board-game-log")!;
 const gameLogList = document.querySelector<HTMLElement>("#game-log-list")!;
 const introDialog = document.querySelector<HTMLDialogElement>("#intro-dialog")!;
 const endgameDialog = document.querySelector<HTMLDialogElement>("#endgame-dialog")!;
-const setupStep = document.querySelector<HTMLElement>("#setup-step")!;
-const introStep = document.querySelector<HTMLElement>("#intro-step")!;
 const playerConfigList = document.querySelector<HTMLElement>("#player-config-list")!;
 const playerCount = document.querySelector<HTMLOutputElement>("#player-count")!;
 const setupSummary = document.querySelector<HTMLElement>("#setup-summary")!;
 const setupError = document.querySelector<HTMLElement>("#setup-error")!;
 const btnMenosPlayer = document.querySelector<HTMLButtonElement>("#btn-menos-player")!;
 const btnMaisPlayer = document.querySelector<HTMLButtonElement>("#btn-mais-player")!;
-const btnContinuar = document.querySelector<HTMLButtonElement>("#btn-continuar")!;
 const btnLoadSetup = document.querySelector<HTMLButtonElement>("#btn-load-setup")!;
-const btnVoltarConfig = document.querySelector<HTMLButtonElement>("#btn-voltar-config")!;
 const btnIniciarJornada = document.querySelector<HTMLButtonElement>("#btn-iniciar-jornada")!;
-const introSummary = document.querySelector<HTMLElement>("#intro-summary")!;
 const btnReabrirEndgame = document.querySelector<HTMLButtonElement>("#btn-reabrir-endgame")!;
 const btnOuvirMestre = document.querySelector<HTMLButtonElement>("#btn-ouvir-mestre")!;
 const btnBaixarTrofeu = document.querySelector<HTMLButtonElement>("#btn-baixar-trofeu")!;
 const btnOuvirTrofeu = document.querySelector<HTMLButtonElement>("#btn-ouvir-trofeu")!;
 const btnBaixarTrofeuAto = document.querySelector<HTMLButtonElement>("#btn-baixar-trofeu-ato")!;
-const trophyToast = document.querySelector<HTMLElement>("#trophy-toast")!;
-const trophyToastText = document.querySelector<HTMLElement>("#trophy-toast-text")!;
+const trophyDialog = document.querySelector<HTMLDialogElement>("#trophy-dialog")!;
+const trophyTitle = document.querySelector<HTMLElement>("#trophy-title")!;
+const trophyAct = document.querySelector<HTMLElement>("#trophy-act")!;
+const trophyNarration = document.querySelector<HTMLElement>("#trophy-narration")!;
+let filaTrofeus: ChaveTrofeu[] = [];
+let trofeuEmExibicao: ChaveTrofeu | null = null;
+let ignorarFechamentoTrofeu = false;
 
 const trilha = new ControleDeAudio((ligado, nome) => {
   btnAudio.textContent = ligado ? "AUDIO ON" : "AUDIO OFF";
@@ -310,18 +314,10 @@ function lerAssentosDoFormulario(): ConfiguracaoJogador[] {
   });
 }
 
-function mostrarIntro() {
-  setupStep.hidden = true;
-  introStep.hidden = false;
-  btnIniciarJornada.focus();
-}
-
 function mostrarSetup() {
   if (confirmados.length) rascunho = clonarAssentos(confirmados);
-  introStep.hidden = true;
-  setupStep.hidden = false;
   renderSetup();
-  btnContinuar.focus();
+  btnIniciarJornada.focus();
 }
 
 function atualizarTrilha(venceu = false) {
@@ -382,7 +378,7 @@ function estadoParaSalvar(): EstadoPartida {
     partidaEncerrada: false,
     turno: 0,
     log: [],
-    trofeus: { act1: null, act10: null, act20: null, act30: null, endgame: null },
+    trofeus: trofeusVazios(),
     rng: novoEstadoRng(),
   };
 }
@@ -421,21 +417,68 @@ function renderLog() {
   boardGameLog.scrollTop = boardGameLog.scrollHeight;
 }
 
-function mostrarToastTrofeu(chaves: ChaveTrofeu[], nome: string) {
+function fecharTrofeuSemRetomar() {
+  filaTrofeus = [];
+  trofeuEmExibicao = null;
+  if (!trophyDialog.open) return;
+  ignorarFechamentoTrofeu = true;
+  trophyDialog.close();
+  ignorarFechamentoTrofeu = false;
+}
+
+function apresentarTrofeu(chave: ChaveTrofeu, nome: string) {
+  if (!sessao) return;
+  trofeuEmExibicao = chave;
+  const trofeu = sessao.trofeus[chave];
+  const dono = trofeu ? sessao.jogadores.find((jogador) => jogador.id === trofeu.jogadorId)?.nome ?? nome : nome;
+  const trajetoria = getPlayerTrajectory(sessao.log, trofeu?.jogadorId ?? 0);
+  trophyAct.textContent = NOME_TROFEU[chave].toUpperCase();
+  trophyTitle.textContent = `${dono} chegou ao ${NOME_TROFEU[chave]}`;
+  trophyNarration.textContent = textoMestre(trajetoria, dono);
+  document.querySelector<HTMLElement>("#trophy-path")!.innerHTML = trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada))}</li>`).join("");
+  if (timerCpu !== undefined) window.clearTimeout(timerCpu);
+  btnRolarDado.disabled = true;
+  if (!trophyDialog.open) trophyDialog.showModal();
+  trophyTitle.focus();
+}
+
+function enfileirarTrofeus(chaves: ChaveTrofeu[], nome: string): boolean {
   const atos = chaves.filter((chave) => chave !== "endgame");
-  if (!atos.length) {
-    trophyToast.hidden = true;
+  if (!atos.length) return false;
+  filaTrofeus.push(...atos);
+  if (!trophyDialog.open) {
+    const proximo = filaTrofeus.shift();
+    if (proximo) apresentarTrofeu(proximo, nome);
+  }
+  return trophyDialog.open;
+}
+
+function continuarTrofeu() {
+  const proximo = filaTrofeus.shift();
+  if (proximo && sessao) {
+    const dono = sessao.jogadores.find((jogador) => jogador.id === sessao?.trofeus[proximo]?.jogadorId)?.nome ?? "";
+    apresentarTrofeu(proximo, dono);
     return;
   }
-  trophyToastText.textContent = atos.map((chave) => `Troféu do ${NOME_TROFEU[chave]} conquistado por ${nome}`).join(" · ");
-  trophyToast.hidden = false;
+  trophyDialog.close();
+}
+
+function retomarDepoisDoTrofeu() {
+  if (ignorarFechamentoTrofeu) return;
+  trofeuEmExibicao = null;
+  if (sessao?.partidaEncerrada) {
+    btnRolarDado.disabled = true;
+    abrirEndgame();
+    return;
+  }
+  agendarTurnoCpu();
 }
 
 function abrirEndgame() {
   if (!sessao) return;
   const tela = montarTelaEndgame(sessao);
   if (!tela) return;
-  document.querySelector<HTMLElement>("#endgame-winner")!.textContent = `CONGRATULATIONS, ${tela.vencedorNome}! Você publicou o jogo.`;
+  document.querySelector<HTMLElement>("#endgame-winner")!.textContent = `CONGRATULATIONS, ${tela.vencedorNome}! Você chegou ao Endgame e publicou o jogo.`;
   document.querySelector<HTMLElement>("#endgame-score")!.textContent = `Projeto final: ${tela.projeto}/100 · Rolagens de ${tela.vencedorNome}: ${tela.rolamentosVencedor} · Rolagens da mesa: ${tela.rolamentosMesa}`;
   document.querySelector<HTMLElement>("#endgame-narration")!.textContent = tela.narracao;
   document.querySelector<HTMLElement>("#endgame-path")!.innerHTML = tela.trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada))}</li>`).join("");
@@ -449,6 +492,7 @@ function abrirEndgame() {
 }
 
 function assumirSessao(partida: EstadoPartida) {
+  fecharTrofeuSemRetomar();
   sessao = partida;
   confirmados = clonarAssentos(partida.assentos);
   rascunho = clonarAssentos(partida.assentos);
@@ -564,7 +608,7 @@ function updateInspector(casa: Casa) {
   narrative.classList.toggle("is-act", casa.id === 10 || casa.id === 20 || casa.id === 30 || inicioAct1);
   if (inicioAct1) {
     document.querySelector<HTMLElement>(".inspector h2")!.textContent = atos[1].titulo;
-    chip.textContent = "ACT 1";
+    chip.textContent = "PRÓLOGO";
     chip.dataset.type = "marco";
     effect.textContent = "Ponto de partida · sem efeito";
     effect.dataset.type = "marco";
@@ -588,7 +632,12 @@ function selectPlayer(id: number) {
   selectHouse(jogadores[id - 1].casa);
 }
 
+function jogoPausado(): boolean {
+  return trophyDialog.open;
+}
+
 async function executarSorteioDado(automatico = false) {
+  if (jogoPausado()) return;
   if (!partidaIniciada || !podeIniciarJogada(rolandoDado, partidaEncerrada)) return;
   const cpuAtual = turnoDaCpu(jogadores, jogadorAtivo, partidaIniciada, partidaEncerrada);
   if ((cpuAtual && !automatico) || (!cpuAtual && automatico)) return;
@@ -665,10 +714,10 @@ async function executarSorteioDado(automatico = false) {
     easterEgg: registro.easterEggDesbloqueado,
   });
   if (statusEl) statusEl.textContent = log.completo;
-  mostrarToastTrofeu(registro.novosTrofeus, jogador.nome);
-  if (registro.entrada.vitoria) abrirEndgame();
-
+  const pausa = enfileirarTrofeus(registro.novosTrofeus, jogador.nome);
   rolandoDado = false;
+  if (pausa) return;
+  if (registro.entrada.vitoria) abrirEndgame();
   agendarTurnoCpu();
 }
 
@@ -686,6 +735,10 @@ function bindPlayerEvents() {
 
 function agendarTurnoCpu() {
   if (timerCpu !== undefined) window.clearTimeout(timerCpu);
+  if (jogoPausado()) {
+    btnRolarDado.disabled = true;
+    return;
+  }
   const cpu = turnoDaCpu(jogadores, jogadorAtivo, partidaIniciada, partidaEncerrada);
   btnRolarDado.disabled = !partidaIniciada || partidaEncerrada || cpu;
   if (!cpu) return;
@@ -694,43 +747,29 @@ function agendarTurnoCpu() {
   timerCpu = window.setTimeout(() => { void executarSorteioDado(true); }, 900);
 }
 
-function aplicarConfiguracao() {
+function iniciarJornada() {
   try {
     const confirmacao = confirmarAssentos(lerAssentosDoFormulario());
     confirmados = confirmacao.assentos;
     rascunho = clonarAssentos(confirmacao.assentos);
-    sessao = null;
-    jogadores = confirmacao.jogadores;
-    casaAtiva = 1;
-    jogadorAtivo = 1;
-    jogadorSelecionado = 1;
-    atoMusical = 0;
-    partidaIniciada = false;
-    partidaEncerrada = false;
     setupError.textContent = "";
-    introSummary.textContent = confirmacao.resumo;
+    sessao = iniciarPartida(confirmados, novoEstadoRng());
+    sincronizarVista();
+    introDialog.close();
     renderHouses();
     renderPlayers();
     updateInspector(casas[0]);
-    renderLog();
     bindHouseEvents();
     bindPlayerEvents();
-    mostrarIntro();
+    renderLog();
+    void trilha.desbloquear().then(() => atualizarTrilha());
+    const nome = jogadores[0]?.nome ?? "Jogador 1";
+    document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `Vez de <strong>${escaparHtml(nome)}</strong>. Clique para rolar os dados.`;
+    agendarTurnoCpu();
+    if (!btnRolarDado.disabled) btnRolarDado.focus();
   } catch (erro) {
     setupError.textContent = erro instanceof Error ? erro.message : "Configuração inválida";
   }
-}
-
-function iniciarJornada() {
-  if (!confirmados.length) return;
-  sessao = iniciarPartida(confirmados, novoEstadoRng());
-  sincronizarVista();
-  introDialog.close();
-  document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `Vez de <strong>${escaparHtml(jogadores[0].nome)}</strong>. Clique para rolar os dados.`;
-  renderLog();
-  mostrarToastTrofeu(["act1"], jogadores[0].nome);
-  void trilha.desbloquear().then(() => atualizarTrilha());
-  agendarTurnoCpu();
 }
 
 function novaPartida() {
@@ -747,7 +786,7 @@ function novaPartida() {
   partidaEncerrada = false;
   rolandoDado = false;
   if (timerCpu !== undefined) window.clearTimeout(timerCpu);
-  trophyToast.hidden = true;
+  fecharTrofeuSemRetomar();
   btnReabrirEndgame.hidden = true;
   if (endgameDialog.open) endgameDialog.close();
   document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = true;
@@ -801,22 +840,19 @@ inputLoad.addEventListener("change", () => {
   if (arquivo) void carregarPartida(arquivo);
 });
 btnIniciarJornada.addEventListener("click", iniciarJornada);
-btnContinuar.addEventListener("click", aplicarConfiguracao);
-btnVoltarConfig.addEventListener("click", mostrarSetup);
 btnReabrirEndgame.addEventListener("click", abrirEndgame);
 document.querySelector<HTMLButtonElement>("#btn-ver-tabuleiro")!.addEventListener("click", () => endgameDialog.close());
 document.querySelector<HTMLButtonElement>("#btn-nova-partida")!.addEventListener("click", novaPartida);
-document.querySelector<HTMLButtonElement>("#trophy-toast-close")!.addEventListener("click", () => { trophyToast.hidden = true; });
+document.querySelector<HTMLButtonElement>("#btn-continuar-trofeu")!.addEventListener("click", continuarTrofeu);
+trophyDialog.addEventListener("cancel", (evento) => {
+  evento.preventDefault();
+  continuarTrofeu();
+});
+trophyDialog.addEventListener("close", retomarDepoisDoTrofeu);
 btnOuvirMestre.addEventListener("click", () => { void acionarNarrador("endgame", "ouvir"); });
 btnBaixarTrofeu.addEventListener("click", () => { void acionarNarrador("endgame", "baixar"); });
-btnOuvirTrofeu.addEventListener("click", () => {
-  const chave = sessao ? (["act1", "act10", "act20", "act30"] as const).find((item) => sessao?.trofeus[item]) : undefined;
-  if (chave) void acionarNarrador(chave, "ouvir");
-});
-btnBaixarTrofeuAto.addEventListener("click", () => {
-  const chave = sessao ? (["act1", "act10", "act20", "act30"] as const).find((item) => sessao?.trofeus[item]) : undefined;
-  if (chave) void acionarNarrador(chave, "baixar");
-});
+btnOuvirTrofeu.addEventListener("click", () => { if (trofeuEmExibicao) void acionarNarrador(trofeuEmExibicao, "ouvir"); });
+btnBaixarTrofeuAto.addEventListener("click", () => { if (trofeuEmExibicao) void acionarNarrador(trofeuEmExibicao, "baixar"); });
 btnMenosPlayer.addEventListener("click", () => {
   const atuais = lerAssentosDoFormulario();
   rascunho = ajustarQuantidade(atuais, atuais.length - 1);

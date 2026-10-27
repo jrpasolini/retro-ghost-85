@@ -669,6 +669,8 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
 
 .intro-dialog {
   width: min(680px, calc(100% - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
   padding: 0;
   border: 1px solid var(--cyan);
   background: #020908;
@@ -692,7 +694,16 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
 .intro-terminal > small, .setup-summary { color: #678b83; font-size: .68rem; letter-spacing: .05em; }
 .setup-summary { position: relative; z-index: 2; min-height: 1.2rem; margin: .8rem 0 0; }
 
-.endgame-dialog { width: min(760px, calc(100% - 2rem)); max-height: calc(100vh - 2rem); overflow: auto; }
+.endgame-dialog { width: min(760px, calc(100% - 2rem)); }
+.intro-story { position: relative; z-index: 2; }
+.intro-story p { margin: .75rem 0 0; color: #a5c9c0; font-size: .95rem; line-height: 1.55; }
+.setup-heading {
+  position: relative;
+  z-index: 2;
+  margin: 1.4rem 0 .55rem;
+  color: var(--amber);
+  font: .68rem/1.3 "Press Start 2P", monospace;
+}
 .endgame-dialog h3 { margin: 1.1rem 0 .45rem; color: var(--amber); font: .68rem/1.3 "Press Start 2P", monospace; }
 .narration-slot {
   position: relative;
@@ -705,7 +716,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
 .narration-slot p, .endgame-path, .endgame-ranking { color: #c5e6dc; font-size: .92rem; line-height: 1.45; }
 .endgame-path, .endgame-ranking { max-height: 9.5rem; overflow: auto; margin: 0; padding-left: 1.1rem; }
 .narration-controls { display: flex; gap: .5rem; margin-top: .7rem; }
-.narration-controls button, .trophy-toast button {
+.narration-controls button {
   border: 1px solid var(--cyan);
   background: #071311;
   color: var(--cyan);
@@ -713,35 +724,10 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   font: .58rem/1.3 "Press Start 2P", monospace;
   cursor: pointer;
 }
-.narration-controls button:disabled, .trophy-toast button:disabled { border-color: #56726b; color: #79968e; cursor: not-allowed; }
-
-.trophy-toast {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 40;
-  width: min(420px, calc(100% - 2rem));
-  padding: .9rem 1rem;
-  border: 1px solid var(--amber);
-  background: rgba(8, 6, 2, .94);
-  color: #ffe7ad;
-  box-shadow: 0 0 24px rgba(255, 181, 28, .25);
-}
-.trophy-toast p { margin: 0 0 .7rem; font-size: .95rem; }
-.trophy-toast[hidden] { display: none; }
+.narration-controls button:disabled { border-color: #56726b; color: #79968e; cursor: not-allowed; }
+.narration-controls button:focus-visible, #btn-continuar-trofeu:focus-visible { outline: 3px solid white; outline-offset: 3px; }
 .endgame-reopen { margin-top: .7rem; }
 .intro-terminal[hidden] { display: none; }
-
-.intro-back {
-  position: relative;
-  z-index: 2;
-  float: right;
-  border: 0;
-  background: transparent;
-  color: #6f9990;
-  font-size: .64rem;
-  cursor: pointer;
-}
 
 .player-count {
   position: relative;

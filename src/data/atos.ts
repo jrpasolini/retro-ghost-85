@@ -1,7 +1,7 @@
-// Prólogos dos quatro atos. O ACT 1 começa na casa 1 e a casa 40 é o encerramento.
+// Casa 1 é o prólogo. Os atos premiados começam na casa 10; a casa 40 é o endgame.
 export const atos = {
   1: {
-    titulo: "Ato 1 · BOOT",
+    titulo: "Prólogo · Início",
     narrativa: "É 1985. Você liga o micro, ajusta o brilho do monitor e espera o cursor aparecer. Na mesa há uma revista de programação, um gravador de cassete e a vontade de criar um jogo seu. Sem atalhos prontos, cada linha de BASIC será escrita, testada e guardada por você. A primeira missão é simples e enorme ao mesmo tempo: fazer uma ideia sair do papel e responder ao comando RUN.",
   },
   10: {

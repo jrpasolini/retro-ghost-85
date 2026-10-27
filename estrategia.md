@@ -6,7 +6,7 @@
 
 ### Decisão
 
-O jogo permite configurar de **1 a 4 participantes** antes do prólogo do ACT 1.
+O jogo permite configurar de **1 a 4 participantes** na mesma tela em que a introdução da jornada já está escrita.
 
 - Uma partida pode ter apenas um humano, no modo solo.
 - Com dois ou mais participantes, cada slot pode ser definido como `HUMANO` ou `CPU LOCAL`.
@@ -46,17 +46,17 @@ A narração falada entra na **segunda etapa**, depois do MVP fechado. Ela não 
 O Mestre fala em momentos rituais, não a cada casa. A narração é **premiação por conquista**: quem chega primeiro
 naquele ato ganha; quem chega depois não escuta nada.
 
-1. **Entrada em ato novo** (casas 1, 10, 20 e 30): o **primeiro participante** a alcançar aquele ato recebe a
+1. **Entrada em ato novo** (casa 10 = Ato 2, casa 20 = Ato 3, casa 30 = Ato 4): o **primeiro participante** a entrar na região daquele ato — pousando na primeira casa ou passando além dela — recebe a
 narração do **seu próprio caminho, desde o início da partida até ali**. Os concorrentes que chegarem depois naquele
-mesmo ato **não escutam narração nenhuma** — ela já foi conquistada.
+mesmo ato **não escutam narração nenhuma** — ela já foi conquistada. A casa 1 é o prólogo: a história fica na tela de configuração, sem troféu e sem narração. Iniciar a partida coloca todos na casa 1 com os dados livres.
 2. **Endgame (casa 40)**: o primeiro a chegar — pousando ou passando, com a peça limitada à casa 40 — vence e recebe a narrativa histórica de fechamento, montada pelo Worker com
 **todo o histórico dele**, casa a casa. O projeto (0 a 100) é placar e desempate, não portão: uma volta à casa 30 abaixo de 100 foi considerada e rejeitada porque esticava o final.
 
 Consequências diretas:
 
-- atos diferentes podem ser conquistados por **participantes diferentes** — um ganha o ato 1, outro o ato 3;
+- atos diferentes podem ser conquistados por **participantes diferentes** — um ganha o ato 2, outro o ato 4;
 - a narração cobre **sempre o caminho completo** do vencedor daquele ato, não só o trecho desde o ato anterior;
-- o total é **fixo: 5 narrações por partida** (quatro atos + endgame), independentemente de haver um ou quatro
+- o total é **fixo: 4 narrações por partida** (atos das casas 10, 20 e 30, mais o endgame), independentemente de haver um ou quatro
   jogadores. É por isso que há folga para usar o modelo com prompt rico e tom de narração trabalhado, sem medo de
   estourar crédito.
 

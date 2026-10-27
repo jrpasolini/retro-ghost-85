@@ -11,7 +11,7 @@ const arquivos: Record<TrilhaId, string> = {
 
 const nomes: Record<TrilhaId, string> = {
   intro: "INTRO",
-  "act-1": "ACT 1 · BOOT",
+  "act-1": "PRÓLOGO",
   "act-2": "ACT 2 · BBS",
   "act-3": "ACT 3 · DEBUG",
   "act-4": "ACT 4 · FINAL",

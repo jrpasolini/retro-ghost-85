@@ -70,13 +70,6 @@ function entradaInicial(jogador: Jogador): EntradaLog {
 export function iniciarPartida(assentos: ConfiguracaoJogador[], rng: EstadoRng): EstadoPartida {
   const jogadores = criarJogadores(assentos);
   const log = jogadores.map(entradaInicial);
-  const trofeus = trofeusVazios();
-  log[0].trofeus = ["act1"];
-  trofeus.act1 = {
-    jogadorId: jogadores[0].id,
-    turno: 0,
-    caminho: getPlayerTrajectory(log, jogadores[0].id).slice(),
-  };
   return {
     assentos: clonarAssentos(assentos),
     jogadores,
@@ -88,7 +81,7 @@ export function iniciarPartida(assentos: ConfiguracaoJogador[], rng: EstadoRng):
     partidaEncerrada: false,
     turno: 0,
     log,
-    trofeus,
+    trofeus: trofeusVazios(),
     rng: { ...rng },
   };
 }
@@ -239,7 +232,6 @@ export function paraEstadoSalvo(estado: EstadoPartida): EstadoSalvo {
     rng: { ...estado.rng },
     log: estado.log.map((entrada) => ({ ...entrada, casasPassadas: [...entrada.casasPassadas], atosEntrados: [...entrada.atosEntrados], perderamVez: [...entrada.perderamVez], trofeus: [...entrada.trofeus] })),
     trofeus: {
-      act1: clonarTrofeu(estado.trofeus.act1),
       act10: clonarTrofeu(estado.trofeus.act10),
       act20: clonarTrofeu(estado.trofeus.act20),
       act30: clonarTrofeu(estado.trofeus.act30),
@@ -251,7 +243,7 @@ export function paraEstadoSalvo(estado: EstadoPartida): EstadoSalvo {
   };
 }
 
-function clonarTrofeu(trofeu: EstadoPartida["trofeus"]["act1"]) {
+function clonarTrofeu(trofeu: EstadoPartida["trofeus"]["act10"]) {
   if (!trofeu) return null;
   return {
     jogadorId: trofeu.jogadorId,
@@ -296,7 +288,6 @@ export function daEstadoSalvo(salvo: EstadoSalvo): EstadoPartida {
     turno: salvo.turno ?? 0,
     log: (salvo.log ?? []).map((entrada) => ({ ...entrada })),
     trofeus: {
-      act1: salvo.trofeus?.act1 ?? null,
       act10: salvo.trofeus?.act10 ?? null,
       act20: salvo.trofeus?.act20 ?? null,
       act30: salvo.trofeus?.act30 ?? null,
