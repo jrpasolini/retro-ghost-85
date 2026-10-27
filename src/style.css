@@ -262,12 +262,16 @@ h1 span { color: var(--amber); }
 .effect[data-type="fatalidade"] { color: #ff75a1; }
 .effect[data-type="final"] { color: var(--amber); }
 .narrative, .tip { color: #7ca49b; line-height: 1.5; font-size: .84rem; }
-.narrative.is-act { margin-top: 1rem; padding: .7rem .85rem; border-left: 3px solid var(--amber); background: rgba(255, 181, 28, .065); color: #c9dfd3; }
+.narrative { max-height: 7.5rem; overflow: auto; scrollbar-color: var(--cyan) #04100f; }
+.narrative.is-act { max-height: 10rem; margin-top: 1rem; padding: .7rem .85rem; border-left: 3px solid var(--amber); background: rgba(255, 181, 28, .065); color: #c9dfd3; }
 .act-progress { margin: .85rem 0 0; color: var(--amber); font-size: .72rem; font-weight: 700; letter-spacing: .05em; }
 .divider { height: 1px; margin: 1.25rem 0; background: linear-gradient(90deg, var(--cyan), transparent); opacity: .4; }
 
 /* Controles e painel de rolagem do Dado Retrô */
 .dice-panel {
+  position: sticky;
+  top: .75rem;
+  z-index: 5;
   margin-top: .75rem;
   padding: .85rem;
   border: 1px solid rgba(16, 242, 223, .45);
@@ -463,3 +467,4 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .dice-face.rolling, .dice-face.is-result { animation: none !important; }
   .easter-egg-screen { animation: none !important; }
 }
+
