@@ -49,8 +49,8 @@ naquele ato ganha; quem chega depois não escuta nada.
 1. **Entrada em ato novo** (casas 1, 10, 20 e 30): o **primeiro participante** a alcançar aquele ato recebe a
 narração do **seu próprio caminho, desde o início da partida até ali**. Os concorrentes que chegarem depois naquele
 mesmo ato **não escutam narração nenhuma** — ela já foi conquistada.
-2. **Endgame (casa 40)**: o primeiro a chegar recebe a narrativa histórica de fechamento, montada pelo Worker com
-**todo o histórico dele**, casa a casa.
+2. **Endgame (casa 40)**: o primeiro a chegar — pousando ou passando, com a peça limitada à casa 40 — vence e recebe a narrativa histórica de fechamento, montada pelo Worker com
+**todo o histórico dele**, casa a casa. O projeto (0 a 100) é placar e desempate, não portão: uma volta à casa 30 abaixo de 100 foi considerada e rejeitada porque esticava o final.
 
 Consequências diretas:
 

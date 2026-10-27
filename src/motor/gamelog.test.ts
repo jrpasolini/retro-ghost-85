@@ -11,7 +11,6 @@ test("gamelog usa os mesmos dados da jogada no painel e no tabuleiro", () => {
     casaFinal: 4,
     projeto: 0,
     venceu: false,
-    recusouFinal: false,
     jogadaExtra: false,
     proximoJogador: "CPU-1",
   });

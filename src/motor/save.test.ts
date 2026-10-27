@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { desserializarSave, serializarSave, type EstadoSalvo } from "../estado/save.ts";
+import { trofeusVazios } from "./log.ts";
 
 const estado: EstadoSalvo = {
   schema: 1,
@@ -10,6 +11,10 @@ const estado: EstadoSalvo = {
   atoMusical: 2,
   partidaIniciada: true,
   partidaEncerrada: false,
+  turno: 4,
+  rng: { semente: 1985, estado: 1985 },
+  log: [],
+  trofeus: trofeusVazios(),
   jogadores: [1, 2, 3, 4].map((id) => ({ id, casa: id + 10, projeto: id * 10, turnosPerdidos: 0, actsVisitados: [1, 10] })),
 };
 

@@ -1,4 +1,6 @@
 import type { Jogador } from "../types";
+import { formatarGameLogMarkdown, formatarTrajetoriaMarkdown, getPlayerTrajectory, trofeusVazios, CHAVES_TROFEU, type ChaveTrofeu, type EntradaLog, type Trofeu, type Trofeus } from "../motor/log.ts";
+import type { EstadoRng } from "../motor/dado.ts";
 
 export const SAVE_SCHEMA = 1;
 
@@ -13,11 +15,62 @@ export type EstadoSalvo = {
   atoMusical: number;
   partidaIniciada: boolean;
   partidaEncerrada: boolean;
+  turno: number;
+  rng: EstadoRng | null;
+  log: EntradaLog[];
+  trofeus: Trofeus;
   jogadores: JogadorSalvo[];
 };
 
 function inteiroEntre(valor: unknown, minimo: number, maximo: number): valor is number {
   return Number.isInteger(valor) && Number(valor) >= minimo && Number(valor) <= maximo;
+}
+
+function validarEntrada(valor: unknown): EntradaLog {
+  if (!valor || typeof valor !== "object") throw new Error("Lance do game log inválido");
+  const entrada = valor as Partial<EntradaLog>;
+  if (!inteiroEntre(entrada.turno, 0, 999) || !inteiroEntre(entrada.jogadorId, 1, 4)) throw new Error("Lance do game log inválido");
+  if (typeof entrada.jogador !== "string" || !entrada.jogador.trim()) throw new Error("Lance do game log inválido");
+  if (entrada.controle !== "humano" && entrada.controle !== "cpu") throw new Error("Lance do game log inválido");
+  if (typeof entrada.cor !== "string") throw new Error("Lance do game log inválido");
+  if (entrada.dado1 !== null && !inteiroEntre(entrada.dado1, 1, 6)) throw new Error("Lance do game log inválido");
+  if (entrada.dado2 !== null && !inteiroEntre(entrada.dado2, 1, 6)) throw new Error("Lance do game log inválido");
+  if (!inteiroEntre(entrada.casaOrigem, 1, 40) || !inteiroEntre(entrada.casaDestino, 1, 40) || !inteiroEntre(entrada.casaFinal, 1, 40)) throw new Error("Lance do game log inválido");
+  if (!Array.isArray(entrada.casasPassadas) || !Array.isArray(entrada.atosEntrados) || !Array.isArray(entrada.perderamVez) || !Array.isArray(entrada.trofeus)) throw new Error("Lance do game log inválido");
+  if (typeof entrada.efeito !== "string" || !inteiroEntre(entrada.deltaProjeto, -100, 100) || !inteiroEntre(entrada.projeto, 0, 100)) throw new Error("Lance do game log inválido");
+  if (typeof entrada.jogadaExtra !== "boolean" || typeof entrada.perdeTurno !== "boolean" || typeof entrada.vitoria !== "boolean") throw new Error("Lance do game log inválido");
+  const trofeus = entrada.trofeus.filter((chave): chave is ChaveTrofeu => (CHAVES_TROFEU as readonly string[]).includes(chave));
+  if (trofeus.length !== entrada.trofeus.length) throw new Error("Troféu inválido no game log");
+  return {
+    turno: entrada.turno,
+    jogadorId: entrada.jogadorId,
+    jogador: entrada.jogador.trim().replace(/\s+/g, " ").slice(0, 24),
+    controle: entrada.controle,
+    cor: entrada.cor.slice(0, 32),
+    dado1: entrada.dado1 ?? null,
+    dado2: entrada.dado2 ?? null,
+    casaOrigem: entrada.casaOrigem,
+    casaDestino: entrada.casaDestino,
+    casaFinal: entrada.casaFinal,
+    casasPassadas: entrada.casasPassadas.filter((casa) => inteiroEntre(casa, 1, 40)),
+    atosEntrados: entrada.atosEntrados.filter((casa) => [1, 10, 20, 30].includes(casa)),
+    efeito: entrada.efeito.slice(0, 180),
+    deltaProjeto: entrada.deltaProjeto,
+    projeto: entrada.projeto,
+    jogadaExtra: entrada.jogadaExtra,
+    perdeTurno: entrada.perdeTurno,
+    perderamVez: entrada.perderamVez.filter((nome): nome is string => typeof nome === "string").map((nome) => nome.slice(0, 24)),
+    trofeus,
+    vitoria: entrada.vitoria,
+  };
+}
+
+function validarTrofeu(valor: unknown): Trofeu | null {
+  if (valor === null || valor === undefined) return null;
+  if (!valor || typeof valor !== "object") throw new Error("Troféu inválido");
+  const trofeu = valor as Partial<Trofeu>;
+  if (!inteiroEntre(trofeu.jogadorId, 1, 4) || !inteiroEntre(trofeu.turno, 0, 999) || !Array.isArray(trofeu.caminho)) throw new Error("Troféu inválido");
+  return { jogadorId: trofeu.jogadorId, turno: trofeu.turno, caminho: trofeu.caminho.map(validarEntrada) };
 }
 
 export function validarEstadoSalvo(valor: unknown): EstadoSalvo {
@@ -29,6 +82,8 @@ export function validarEstadoSalvo(valor: unknown): EstadoSalvo {
   if (!inteiroEntre(estado.casaAtiva, 1, 40) || !inteiroEntre(estado.atoMusical, 0, 4)) throw new Error("Posição inválida no save");
   if (estado.partidaIniciada === undefined) estado.partidaIniciada = true;
   if (typeof estado.partidaIniciada !== "boolean" || typeof estado.partidaEncerrada !== "boolean") throw new Error("Estado da partida inválido");
+  if (estado.turno === undefined) estado.turno = 0;
+  if (!inteiroEntre(estado.turno, 0, 999)) throw new Error("Turno inválido no save");
 
   const ids = new Set<number>();
   for (const jogador of estado.jogadores) {
@@ -44,17 +99,51 @@ export function validarEstadoSalvo(valor: unknown): EstadoSalvo {
     jogador.actsVisitados = jogador.actsVisitados.map((casa) => casa === 40 ? 1 : casa);
     if (jogador.actsVisitados.some((casa) => ![1, 10, 20, 30].includes(casa))) throw new Error("ACTS inválidos");
   }
-  return estado as EstadoSalvo;
+
+  const log = Array.isArray(estado.log) ? estado.log.map(validarEntrada) : [];
+  const trofeus = estado.trofeus ? {
+    act1: validarTrofeu(estado.trofeus.act1),
+    act10: validarTrofeu(estado.trofeus.act10),
+    act20: validarTrofeu(estado.trofeus.act20),
+    act30: validarTrofeu(estado.trofeus.act30),
+    endgame: validarTrofeu(estado.trofeus.endgame),
+  } : trofeusVazios();
+  let rng: EstadoRng | null = null;
+  if (estado.rng) {
+    if (!inteiroEntre(estado.rng.semente, 0, 0xffffffff) || typeof estado.rng.estado !== "number" || !Number.isSafeInteger(estado.rng.estado) || estado.rng.estado < 0) {
+      throw new Error("Estado do RNG inválido");
+    }
+    rng = { semente: estado.rng.semente, estado: estado.rng.estado };
+  }
+
+  return {
+    schema: SAVE_SCHEMA,
+    jogadorAtivo: estado.jogadorAtivo,
+    jogadorSelecionado: estado.jogadorSelecionado,
+    casaAtiva: estado.casaAtiva,
+    atoMusical: estado.atoMusical,
+    partidaIniciada: estado.partidaIniciada,
+    partidaEncerrada: estado.partidaEncerrada,
+    turno: estado.turno,
+    rng,
+    log,
+    trofeus,
+    jogadores: estado.jogadores,
+  };
 }
 
 export function serializarSave(estado: EstadoSalvo): string {
   const validado = validarEstadoSalvo(estado);
   const salvoEm = new Date().toISOString();
-  return `---\nschema: ${SAVE_SCHEMA}\njogo: retro-ghost-85\nversao: 0.5.0\nsalvo_em: ${salvoEm}\n---\n\n# Retro Ghost 85 — save da partida\n\nEste arquivo pode ser carregado pelo botão PLAY do gravador no tabuleiro.\n\n\`\`\`json\n${JSON.stringify(validado, null, 2)}\n\`\`\`\n`;
+  const trajetos = validado.jogadores.map((jogador) => formatarTrajetoriaMarkdown(
+    jogador.nome ?? `Jogador ${jogador.id}`,
+    getPlayerTrajectory(validado.log, jogador.id),
+  )).join("\n\n");
+  return `---\nschema: ${SAVE_SCHEMA}\njogo: retro-ghost-85\nversao: 0.6.0\nsalvo_em: ${salvoEm}\n---\n\n# Retro Ghost 85 — save da partida\n\nO bloco JSON é a fonte da verdade. O Game Log e as trajetórias abaixo são a leitura humana do mesmo histórico.\n\n## Game Log\n\n${formatarGameLogMarkdown(validado.log)}\n\n${trajetos}\n\n\`\`\`json\n${JSON.stringify(validado, null, 2)}\n\`\`\`\n`;
 }
 
 export function desserializarSave(markdown: string): EstadoSalvo {
-  if (markdown.length > 100_000) throw new Error("Arquivo de save muito grande");
+  if (markdown.length > 500_000) throw new Error("Arquivo de save muito grande");
   const bloco = markdown.match(/```json\s*([\s\S]*?)\s*```/i);
   if (!bloco) throw new Error("Bloco JSON do save não encontrado");
   try {
@@ -64,4 +153,3 @@ export function desserializarSave(markdown: string): EstadoSalvo {
     throw new Error("Não foi possível ler o save");
   }
 }
-

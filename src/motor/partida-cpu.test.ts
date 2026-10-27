@@ -46,7 +46,6 @@ test("Alex e CPU-1 alternam naturalmente até um deles finalizar o jogo", () => 
       casaFinal: resultado.jogador.casa,
       projeto: resultado.jogador.projeto,
       venceu: resultado.venceu,
-      recusouFinal: resultado.recusouFinal,
       jogadaExtra: resultado.jogadaExtra,
       proximoJogador: resultado.venceu || resultado.jogadaExtra ? undefined : jogadores[jogadorAtivo - 1].nome,
       ignorados: turno.ignorados,

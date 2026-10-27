@@ -74,11 +74,16 @@ test("casa 4 concede nova jogada e casa 17 marca um turno perdido", () => {
   assert.equal(penalidade.jogador.turnosPerdidos, 1);
 });
 
-test("casa 40 exige 100 projeto e devolve à 30 em caso contrário", () => {
-  assert.equal(aplicarJogada(jogador(39, 80), 2, casas).jogador.casa, 30);
-  const vencedor = aplicarJogada(jogador(39, 90), 2, casas);
-  assert.equal(vencedor.venceu, true);
-  assert.equal(vencedor.jogador.casa, 40);
+test("chegar à casa 40 vence com qualquer projeto e não volta à casa 30", () => {
+  const comOitenta = aplicarJogada(jogador(39, 70), 1, casas);
+  assert.equal(comOitenta.venceu, true);
+  assert.equal(comOitenta.jogador.casa, 40);
+  assert.equal(comOitenta.jogador.projeto, 80);
+
+  const alemDoFim = aplicarJogada(jogador(35, 12), 8, casas);
+  assert.equal(alemDoFim.venceu, true);
+  assert.equal(alemDoFim.jogador.casa, 40);
+  assert.ok(alemDoFim.jogador.projeto < 100);
 });
 
 test("rotação local percorre os quatro jogadores e retorna ao primeiro", () => {

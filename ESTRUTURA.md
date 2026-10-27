@@ -307,8 +307,9 @@ Modelo identificado no catálogo Cloudflare: `@cf/google/gemma-4-26b-a4b-it`. Di
 | 39 | O segundo jogo | evento | +10 projeto |
 | 40 | **Seu nome no catálogo** | final | vitória |
 
-**Vitória:** chegar à casa 40 com `projeto ≥ 100`. Quem chega sem projeto suficiente
-fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
+**Vitória (regra vigente em 27/10/2026):** o primeiro jogador a alcançar a casa 40 — pousando nela ou passando além, com a peça limitada à casa 40 — publica o jogo e encerra a partida, qualquer que seja o projeto. Os pontos de projeto (0 a 100) são placar, aparecem no HUD e no ranking final e desempatam a classificação; não são condição de vitória. A casa 40 ainda concede +10 de projeto ao placar. Uma variante que devolvia o jogador à casa 30 quando o projeto era menor que 100 foi considerada e rejeitada: alongava o final e tirava o ritmo da publicação.
+
+O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto ≥ 100` e deixava quem chegasse curto preso na casa 39. Essa condição não está no motor.
 
 **Energia:** 0 = volta 3 casas e recupera 1. Nunca elimina jogador.
 
@@ -475,4 +476,20 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 - A suíte cobre reinício das músicas, não repetição do endgame, salto de marcos, consistência do gamelog, posição das sprites e partida completa humano × CPU.
 
 **Validação:** `npm test` com 36 testes aprovados e `npm run build` concluído sem erros.
+
+### 27/10/2026 — Etapa 6: boot, cassete, endgame, troféus, game log e casa 40
+
+**Status:** concluída em implementação; validada com testes automatizados, build e navegador.
+
+- O popup de boot não oferece mais “OUVIR INTRO”. A introdução toca em segundo plano assim que o navegador libera o áudio (primeiro clique ou tecla, inclusive no setup). Se o autoplay for bloqueado, o controle de volume no canto superior continua sendo o mute; a recusa do navegador não gera erro.
+- O gravador da barra inferior passou a usar PNG (`public/assets/cassette-save-load.webp` era um WebP VP8X com canal alfa que o navegador da prévia tratava como imagem quebrada e mostrava só o texto alternativo). REC/SAVE e PLAY/LOAD continuam sobre a arte.
+- A vitória é chegar primeiro à casa 40, com ou sem 100 de projeto. Não há mais retorno à casa 30. O projeto permanece placar e desempate.
+- Ao vencer, abre o diálogo ENDGAME · PUBLICAÇÃO: parabéns com o nome, projeto final, quantidade de rolagens, caminho casa a casa e ranking. “Nova partida” volta ao setup. Esc ou “Ver tabuleiro” fecha o diálogo sem apagar o estado, e REC/SAVE continua válido; “Ver endgame” reabre a tela.
+- A área “O Mestre narra” mostra um resumo local determinístico da trajetória. “Ouvir o Mestre” e “Baixar troféu (MP3)” existem, ficam desabilitados e apontam para `src/narrador/narrador.ts`, que responde `unavailable` / “narração em breve”. Nenhuma chamada de rede.
+- Troféus exclusivos `act1`, `act10`, `act20`, `act30` e `endgame`: o primeiro a entrar no ato (passar pela casa conta) leva o troféu com id, turno e caminho naquele instante. Quem chega depois não leva. O endgame pode ir para quem não tem nenhum troféu de ato. Um aviso não bloqueante anuncia a conquista.
+- O painel GAME LOG ao lado do cassete lista todos os lances desde o início (turno, jogador, dados, origem→destino, casas passadas, efeito, delta de projeto, troféus, vitória), com a entrada mais nova visível, rolagem por mouse e teclado e uma marca na cor do jogador. Esse log é a fonte da verdade do Markdown: seção “Game Log” e uma trajetória por jogador, restauradas no setup e no PLAY. `getPlayerTrajectory(log, jogadorId)` devolve os lances daquele jogador, da casa 1 até agora, e é o que a narração futura do Mestre consome.
+- O save também grava o cursor do RNG. Carregar a partida e continuar produz a mesma sequência de 2d6. O resumo do boot e o elenco saem da mesma lista de assentos confirmada na tela; “Ajustar jogadores” devolve essa lista.
+- A casa 40 ganhou a ilustração `public/assets/casa-40-endgame.webp`, no mesmo encaixe das artes de ato (rótulo ATO 4 · ENDGAME · PUBLICAÇÃO: prateleira de 1985, caixa, disquete e troféu). O caminho é relativo (`./`), como o restante do bundle.
+
+**Validação:** `npm test` e `npm run build`.
 

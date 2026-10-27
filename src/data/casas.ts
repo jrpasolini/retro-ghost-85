@@ -45,7 +45,7 @@ const detalhes: DetalheCasa[] = [
   ["Crítica na revista", "evento", "+18 projeto", "A revista publica uma análise favorável e destaca a clareza das instruções. Você recorta a página: ela ajuda outros leitores a descobrir o jogo.", { projeto: 18 }],
   ["A errata grave", "fatalidade", "−18 projeto · perca 1 jogada", "Um leitor encontra uma instrução impressa com a tecla errada. Você avisa a revista e prepara uma errata antes que mais cópias saiam com o defeito.", { projeto: -18, perdeTurno: true }],
   ["Prêmio dos leitores", "marco", "+22 projeto", "Numa votação da revista, leitores citam seu jogo entre os favoritos. O reconhecimento anima você a revisar os últimos detalhes da edição.", { projeto: 22 }],
-  ["Seu nome no catálogo", "final", "+10 projeto · 100: vitória · senão volte à casa 30", "O catálogo chega pelo correio com a prova do anúncio. A revisão final melhora o projeto; se ainda faltar trabalho, você volta ao início do Ato 4 para refazer o lote. Quando tudo estiver pronto, seu nome aparece na edição definitiva e a placa ENDGAME confirma a publicação.", { projeto: 10 }],
+  ["Seu nome no catálogo", "final", "+10 projeto · vitória", "O catálogo chega pelo correio com a prova do anúncio. Quem alcança a casa 40 primeiro publica o jogo. Os pontos de projeto ficam no placar e no desempate; não há retorno à casa 30.", { projeto: 10 }],
 ];
 
 const caixas: Array<[number, number, number, number]> = [
