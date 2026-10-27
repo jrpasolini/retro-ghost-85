@@ -2,7 +2,7 @@ import type { Casa, Jogador } from "../types";
 
 export const META_PROJETO = 100;
 export const ULTIMA_CASA = 40;
-export const CASAS_ACT = [40, 10, 20, 30] as const;
+export const CASAS_ACT = [1, 10, 20, 30] as const;
 
 export type ResultadoJogada = {
   jogador: Jogador;
@@ -15,10 +15,7 @@ export type ResultadoJogada = {
 
 export function aplicarJogada(jogador: Jogador, passos: number, casas: Casa[]): ResultadoJogada {
   if (!Number.isInteger(passos) || passos < 1) throw new Error("Passos inválidos");
-  // No primeiro lance, o BOOT ocupa o primeiro passo para manter as casas 1 e 2 alcançáveis com 2d6.
-  const destino = jogador.casa === ULTIMA_CASA
-    ? Math.min(ULTIMA_CASA, Math.max(1, passos - 1))
-    : Math.min(ULTIMA_CASA, jogador.casa + passos);
+  const destino = Math.min(ULTIMA_CASA, jogador.casa + passos);
   const casa = casas[destino - 1];
   if (!casa || casa.id !== destino) throw new Error("Tabuleiro inválido");
 
@@ -48,3 +45,4 @@ export function aplicarJogada(jogador: Jogador, passos: number, casas: Casa[]): 
     easterEggDesbloqueado: jogador.actsVisitados.length < CASAS_ACT.length && actsVisitados.length === CASAS_ACT.length,
   };
 }
+

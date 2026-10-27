@@ -314,7 +314,7 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 **Atualização de 26/10/2026:** a tabela acima permanece como registro da proposta inicial e foi substituída pelas 40 histórias e consequências em [`src/data/casas.ts`](src/data/casas.ts). As regras atuais, as mudanças das casas 2, 25 e 27 e as fontes de época estão em [`HISTORICO_NARRATIVO.md`](HISTORICO_NARRATIVO.md). A implementação atual usa projeto de 0 a 100 e 2d6; a antiga energia desta proposta não é aplicada.
 
-**Easter egg e partida atual:** os quatro jogadores partem da casa 40 (ACT 1 · BOOT); no primeiro lançamento, o BOOT consome um passo da soma de 2d6. Depois seguem pelas casas numeradas e retornam à 40 ao concluir a volta. As casas ACT são 40, 10, 20 e 30. Quando um mesmo jogador visita as quatro, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
+**Easter egg e partida atual:** os quatro jogadores partem da casa 1, apresentada como **ACT 1 · BOOT** no popup inicial. O movimento usa normalmente a soma de 2d6. As casas ACT são 1, 10, 20 e 30; a casa 40 é exclusivamente **ENDGAME · PUBLICAÇÃO**. Quando um mesmo jogador visita os quatro atos, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
 
 ---
 
@@ -442,6 +442,8 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 - A tecla `REC / SAVE` exporta a partida como Markdown e a tecla `PLAY / LOAD` importa o arquivo `.md`.
 - O save contém somente estado estruturado validado; nomes, imagens e HTML não são aceitos do arquivo importado, reduzindo risco de injeção.
 - Adicionados testes para progressão musical global, faixa de vitória, serialização Markdown e rejeição de saves inválidos.
+- Corrigido o início da partida: os quatro jogadores agora começam na casa 1, apresentada por um popup `ACT 1 · BOOT`; a casa 40 foi reservada ao encerramento `ENDGAME · PUBLICAÇÃO`.
+- Saves anteriores são migrados ao carregar, convertendo a antiga visita inicial da casa 40 para a casa 1.
 
 **Fronteira desta etapa:** o diário narrativo completo dentro do save, a integração opcional com Gemma e o deploy público permanecem para as próximas etapas.
 

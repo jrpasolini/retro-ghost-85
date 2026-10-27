@@ -6,31 +6,31 @@ import { aplicarJogada } from "./tabuleiro.ts";
 import { avancarTurno, podeIniciarJogada, proximoJogadorId } from "./turnos.ts";
 
 const jogador = (casa: number, projeto = 0): Jogador => ({
-  id: 1, nome: "Teste", cor: "#fff", imagem: "", casa, projeto, turnosPerdidos: 0, actsVisitados: [40],
+  id: 1, nome: "Teste", cor: "#fff", imagem: "", casa, projeto, turnosPerdidos: 0, actsVisitados: [1],
 });
 
-test("dois dados no ACT 1 podem alcançar as casas 1 e 2", () => {
-  const r = aplicarJogada(jogador(40), 2, casas);
-  assert.equal(r.casa.id, 1);
-  assert.equal(r.jogador.casa, 1);
-  assert.deepEqual(r.jogador.actsVisitados, [40]);
+test("jogadores partem da casa 1 e avançam normalmente com 2d6", () => {
+  const r = aplicarJogada(jogador(1), 2, casas);
+  assert.equal(r.casa.id, 3);
+  assert.equal(r.jogador.casa, 2);
+  assert.deepEqual(r.jogador.actsVisitados, [1]);
   assert.equal(r.easterEggDesbloqueado, false);
-  assert.equal(aplicarJogada(jogador(40), 3, casas).casa.id, 2);
+  assert.equal(aplicarJogada(jogador(1), 3, casas).casa.id, 4);
 });
 
 test("Einstein aparece só quando um mesmo jogador completa os quatro ACTs", () => {
   const primeiro = aplicarJogada(jogador(9), 1, casas);
-  assert.deepEqual(primeiro.jogador.actsVisitados, [40, 10]);
+  assert.deepEqual(primeiro.jogador.actsVisitados, [1, 10]);
   const segundo = aplicarJogada({ ...primeiro.jogador, casa: 19 }, 1, casas);
-  assert.deepEqual(segundo.jogador.actsVisitados, [40, 10, 20]);
+  assert.deepEqual(segundo.jogador.actsVisitados, [1, 10, 20]);
   assert.equal(segundo.easterEggDesbloqueado, false);
 
   const outroJogador = aplicarJogada({ ...jogador(29), id: 2 }, 1, casas);
-  assert.deepEqual(outroJogador.jogador.actsVisitados, [40, 30]);
+  assert.deepEqual(outroJogador.jogador.actsVisitados, [1, 30]);
   assert.equal(outroJogador.easterEggDesbloqueado, false);
 
   const terceiro = aplicarJogada({ ...segundo.jogador, casa: 29 }, 1, casas);
-  assert.deepEqual(terceiro.jogador.actsVisitados, [40, 10, 20, 30]);
+  assert.deepEqual(terceiro.jogador.actsVisitados, [1, 10, 20, 30]);
   assert.equal(terceiro.easterEggDesbloqueado, true);
   assert.equal(aplicarJogada({ ...terceiro.jogador, casa: 29 }, 1, casas).easterEggDesbloqueado, false);
 });
@@ -73,7 +73,7 @@ test("casa 40 exige 100 projeto e devolve à 30 em caso contrário", () => {
 });
 
 test("rotação local percorre os quatro jogadores e retorna ao primeiro", () => {
-  const jogadores = [1, 2, 3, 4].map((id) => ({ ...jogador(40), id, nome: `P${id}` }));
+  const jogadores = [1, 2, 3, 4].map((id) => ({ ...jogador(1), id, nome: `P${id}` }));
   assert.equal(proximoJogadorId(1, 4), 2);
   assert.equal(proximoJogadorId(4, 4), 1);
   const resultado = avancarTurno(jogadores, 4);
@@ -82,7 +82,7 @@ test("rotação local percorre os quatro jogadores e retorna ao primeiro", () =>
 });
 
 test("rotação pula jogadores com turno perdido e consome uma penalidade", () => {
-  const jogadores = [1, 2, 3, 4].map((id) => ({ ...jogador(40), id, nome: `P${id}` }));
+  const jogadores = [1, 2, 3, 4].map((id) => ({ ...jogador(1), id, nome: `P${id}` }));
   jogadores[1].turnosPerdidos = 1;
   jogadores[2].turnosPerdidos = 2;
   const resultado = avancarTurno(jogadores, 1);

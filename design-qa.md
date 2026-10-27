@@ -40,7 +40,9 @@ Build de produção concluído sem erro. Seleção da casa 24, rotação P1 → 
 - A primeira jogada alterou a indicação musical de `INTRO` para `ACT 1 · BOOT`, moveu a peça e avançou o turno normalmente.
 - O controle de áudio, o volume e a faixa atual permanecem visíveis sem aumentar a altura do painel lateral.
 - O parser de `PLAY / LOAD` foi coberto por testes de ida e volta e rejeição de arquivo inválido.
+- O popup inicial identifica `ACT 1 · BOOT`, mantém os dados bloqueados até `INICIAR JORNADA` e posiciona os quatro jogadores na casa 1.
+- A cobertura visual `ENDGAME · PUBLICAÇÃO` elimina a indicação antiga de ACT 1 na casa 40 sem criar um segundo cartão amarelo ao lado da casa 1.
 
-Build de produção e 23 testes automatizados concluídos sem erro em 27/10/2026.
+Build de produção e 24 testes automatizados concluídos sem erro em 27/10/2026.
 
 **final result: passed**

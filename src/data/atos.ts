@@ -1,7 +1,6 @@
-// Prólogos dos quatro atos. O ACT 1 usa a casa 40 como ponto de partida;
-// no retorno à mesma casa, a narrativa exibida é a do catálogo final.
+// Prólogos dos quatro atos. O ACT 1 começa na casa 1 e a casa 40 é o encerramento.
 export const atos = {
-  40: {
+  1: {
     titulo: "Ato 1 · BOOT",
     narrativa: "É 1985. Você liga o micro, ajusta o brilho do monitor e espera o cursor aparecer. Na mesa há uma revista de programação, um gravador de cassete e a vontade de criar um jogo seu. Sem atalhos prontos, cada linha de BASIC será escrita, testada e guardada por você. A primeira missão é simples e enorme ao mesmo tempo: fazer uma ideia sair do papel e responder ao comando RUN.",
   },
@@ -18,3 +17,4 @@ export const atos = {
     narrativa: "Chega pelo correio uma resposta animadora: há interesse em publicar o jogo, desde que a edição seja estável e compreensível. Você separa o disquete mestre, revisa as instruções, testa o joystick e confere a arte da capa. Agora não basta que o programa rode uma vez; cada cópia precisa carregar, cada página precisa orientar e o seu nome precisa acompanhar o trabalho até o catálogo.",
   },
 } as const;
+

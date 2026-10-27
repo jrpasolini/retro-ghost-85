@@ -10,6 +10,7 @@ export type EstadoSalvo = {
   jogadorSelecionado: number;
   casaAtiva: number;
   atoMusical: number;
+  partidaIniciada: boolean;
   partidaEncerrada: boolean;
   jogadores: JogadorSalvo[];
 };
@@ -25,14 +26,17 @@ export function validarEstadoSalvo(valor: unknown): EstadoSalvo {
   if (!Array.isArray(estado.jogadores) || estado.jogadores.length !== 4) throw new Error("O save precisa conter quatro jogadores");
   if (!inteiroEntre(estado.jogadorAtivo, 1, 4) || !inteiroEntre(estado.jogadorSelecionado, 1, 4)) throw new Error("Jogador inválido no save");
   if (!inteiroEntre(estado.casaAtiva, 1, 40) || !inteiroEntre(estado.atoMusical, 0, 4)) throw new Error("Posição inválida no save");
-  if (typeof estado.partidaEncerrada !== "boolean") throw new Error("Estado da partida inválido");
+  if (estado.partidaIniciada === undefined) estado.partidaIniciada = true;
+  if (typeof estado.partidaIniciada !== "boolean" || typeof estado.partidaEncerrada !== "boolean") throw new Error("Estado da partida inválido");
 
   const ids = new Set<number>();
   for (const jogador of estado.jogadores) {
     if (!jogador || !inteiroEntre(jogador.id, 1, 4) || ids.has(jogador.id)) throw new Error("ID de jogador inválido");
     ids.add(jogador.id);
     if (!inteiroEntre(jogador.casa, 1, 40) || !inteiroEntre(jogador.projeto, 0, 100) || !inteiroEntre(jogador.turnosPerdidos, 0, 99)) throw new Error("Progresso de jogador inválido");
-    if (!Array.isArray(jogador.actsVisitados) || jogador.actsVisitados.some((casa) => ![40, 10, 20, 30].includes(casa))) throw new Error("ACTS inválidos");
+    if (!Array.isArray(jogador.actsVisitados)) throw new Error("ACTS inválidos");
+    jogador.actsVisitados = jogador.actsVisitados.map((casa) => casa === 40 ? 1 : casa);
+    if (jogador.actsVisitados.some((casa) => ![1, 10, 20, 30].includes(casa))) throw new Error("ACTS inválidos");
   }
   return estado as EstadoSalvo;
 }

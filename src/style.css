@@ -158,6 +158,30 @@ h1 span { color: var(--amber); }
 .easter-egg-screen[hidden] { display: none; }
 .easter-egg-screen img { display: block; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
 
+.endgame-cover {
+  position: absolute;
+  left: 7.3%;
+  top: 10.8%;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr 1fr;
+  align-items: center;
+  width: 10.4%;
+  height: 11.2%;
+  padding: .45% .65%;
+  border: clamp(1px, .18vw, 3px) solid #ffbc28;
+  border-radius: 8%;
+  background: linear-gradient(145deg, #120d04, #2c1704);
+  color: #ffbc28;
+  box-shadow: inset 0 0 12px rgba(255, 181, 28, .25), 0 0 8px rgba(0, 0, 0, .7);
+  pointer-events: none;
+}
+
+.endgame-cover span { grid-row: 1 / 3; align-self: start; font: clamp(.5rem, 1.45vw, 1.55rem)/1 "Press Start 2P", monospace; }
+.endgame-cover b { align-self: end; font: clamp(.28rem, .65vw, .72rem)/1.1 "Press Start 2P", monospace; text-align: center; }
+.endgame-cover small { align-self: start; font-size: clamp(.28rem, .56vw, .66rem); font-weight: 700; text-align: center; }
+
 @keyframes einstein-boot {
   from { opacity: 0; filter: brightness(2); transform: scaleY(.04); }
   55% { opacity: 1; filter: brightness(1.5); transform: scaleY(1); }
@@ -526,6 +550,30 @@ h1 span { color: var(--amber); }
 
 footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7rem .15rem 0; color: #49746c; font-size: .62rem; letter-spacing: .06em; }
 
+.intro-dialog {
+  width: min(680px, calc(100% - 2rem));
+  padding: 0;
+  border: 1px solid var(--cyan);
+  background: #020908;
+  color: #d7fff3;
+  box-shadow: 0 0 0 1px #062e2a, 0 0 55px rgba(16, 242, 223, .2);
+}
+
+.intro-dialog::backdrop { background: rgba(0, 3, 4, .86); backdrop-filter: blur(5px); }
+.intro-terminal { position: relative; padding: clamp(1.35rem, 4vw, 2.6rem); overflow: hidden; }
+.intro-terminal::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0, 0, 0, .24) 4px); }
+.intro-kicker { margin: 0 0 1.4rem; color: var(--cyan); font: .62rem/1.3 "Press Start 2P", monospace; letter-spacing: .06em; }
+.intro-act { display: inline-block; padding: .38rem .55rem; border: 1px solid var(--amber); color: var(--amber); font: .65rem/1 "Press Start 2P", monospace; }
+.intro-terminal h2 { margin: 1rem 0; color: #effffb; font: clamp(1.15rem, 3vw, 1.85rem)/1.2 "Press Start 2P", monospace; }
+.intro-terminal > p:not(.intro-kicker) { color: #a5c9c0; font-size: 1rem; line-height: 1.65; }
+.intro-actions { position: relative; z-index: 2; display: flex; gap: .7rem; margin: 1.5rem 0 1rem; }
+.intro-actions button { flex: 1; min-height: 3rem; border: 1px solid var(--cyan); font: .65rem/1.3 "Press Start 2P", monospace; cursor: pointer; }
+.intro-primary { background: var(--cyan); color: #021411; box-shadow: 0 0 18px rgba(16, 242, 223, .3); }
+.intro-secondary { background: #071311; color: var(--cyan); }
+.intro-secondary:disabled { border-color: #56726b; color: #79968e; cursor: default; }
+.intro-actions button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+.intro-terminal > small { color: #678b83; font-size: .68rem; letter-spacing: .05em; }
+
 @media (max-width: 1050px) {
   .game-layout { grid-template-columns: 1fr; }
   .inspector { display: grid; grid-template-columns: 110px 1fr; column-gap: 1.2rem; }
@@ -547,6 +595,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .audio-console { min-width: 185px; }
   .board-stage { overflow-x: auto; min-height: 390px; aspect-ratio: auto; }
   .board-art, .houses, .tokens, .scanlines { width: 694px; height: 390px; inset: 0 auto auto 0; }
+  .endgame-cover { left: 51px; top: 42px; width: 72px; height: 44px; padding: 4px; }
   .cassette-deck { left: 272px; top: 345px; width: 95px; }
   .easter-egg-screen { left: 294px; top: 133px; width: 95px; height: 66px; }
   .player-list { grid-template-columns: repeat(2, 1fr); }
@@ -554,6 +603,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .inspector { grid-template-columns: 78px 1fr; }
   .house-number { font-size: 3.2rem; }
   footer { flex-direction: column; }
+  .intro-actions { flex-direction: column; }
 }
 
 @media (prefers-reduced-motion: reduce) {

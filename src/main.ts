@@ -14,16 +14,17 @@ import { ControleDeAudio } from "./audio";
 import { desserializarSave, serializarSave, type EstadoSalvo } from "./estado/save";
 
 let jogadores: Jogador[] = [
-  { id: 1, nome: "Jogador 1", cor: "#54f5c2", imagem: "./assets/player-1.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
-  { id: 2, nome: "Jogador 2", cor: "#ffd365", imagem: "./assets/player-2.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
-  { id: 3, nome: "Jogador 3", cor: "#48d8ff", imagem: "./assets/player-3.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
-  { id: 4, nome: "Jogador 4", cor: "#ff68bc", imagem: "./assets/player-4.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
+  { id: 1, nome: "Jogador 1", cor: "#54f5c2", imagem: "./assets/player-1.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
+  { id: 2, nome: "Jogador 2", cor: "#ffd365", imagem: "./assets/player-2.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
+  { id: 3, nome: "Jogador 3", cor: "#48d8ff", imagem: "./assets/player-3.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
+  { id: 4, nome: "Jogador 4", cor: "#ff68bc", imagem: "./assets/player-4.webp", casa: 1, projeto: 0, turnosPerdidos: 0, actsVisitados: [1] },
 ];
 
-let casaAtiva = 40;
+let casaAtiva = 1;
 let jogadorAtivo = 1;
 let jogadorSelecionado = 1;
 let rolandoDado = false;
+let partidaIniciada = false;
 let partidaEncerrada = false;
 let atoMusical = 0;
 
@@ -51,6 +52,7 @@ app.innerHTML = `
       <div class="board-column">
         <div id="tabuleiro" class="board-stage" role="group" aria-label="Tabuleiro com 40 casas">
           <img class="board-art" src="./assets/board-reference-edited.webp" alt="Mesa retrô com computador, cassetes, disquetes, BBS e quarenta casas ao redor" />
+          <div class="endgame-cover" aria-hidden="true"><span>40</span><b>ENDGAME</b><small>PUBLICAÇÃO</small></div>
           <div id="einstein-easter-egg" class="easter-egg-screen" role="img" aria-label="Albert Einstein sorri na tela do computador" hidden>
             <img src="./assets/einstein-smile.webp" alt="" />
           </div>
@@ -76,9 +78,9 @@ app.innerHTML = `
       <aside class="inspector" aria-live="polite">
         <div class="inspector-head">
           <span class="prompt">&gt; INSPECT_HOUSE</span>
-          <span class="counter">40/40</span>
+          <span class="counter">01/40</span>
         </div>
-        <div class="house-number">40</div>
+        <div class="house-number">01</div>
         <span class="type-chip">ACT 1</span>
         <h2>Ato 1 · BOOT</h2>
         <p class="effect-label">EFEITO DA CASA</p>
@@ -100,11 +102,11 @@ app.innerHTML = `
               <span class="dice-sub">AGUARDANDO JOGADA</span>
             </div>
           </div>
-          <button id="btn-rolar-dado" class="dice-btn" type="button">
+          <button id="btn-rolar-dado" class="dice-btn" type="button" disabled>
             ROLAR DADOS
           </button>
           <div class="dice-status" aria-live="polite">
-            Vez de <strong>Jogador 1</strong>. Clique para rolar os dados.
+            Inicie a jornada para liberar os dados.
           </div>
         </div>
 
@@ -116,6 +118,20 @@ app.innerHTML = `
       <span>BUILD 0.4.0</span>
       <span>40 CASAS · 4 JOGADORES · 2D6 · SAVE/LOAD · TRILHA DINÂMICA</span>
     </footer>
+
+    <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
+      <div class="intro-terminal">
+        <p class="intro-kicker">RETRO-GHOST-85 // SYSTEM READY</p>
+        <span class="intro-act">ACT 1</span>
+        <h2 id="intro-title">BOOT · A revista na banca</h2>
+        <p id="intro-copy">${atos[1].narrativa}</p>
+        <div class="intro-actions">
+          <button id="btn-ouvir-intro" class="intro-secondary" type="button">OUVIR INTRO</button>
+          <button id="btn-iniciar-jornada" class="intro-primary" type="button">INICIAR JORNADA</button>
+        </div>
+        <small>A partida começa na casa 1 · 4 jogadores locais · 2D6</small>
+      </div>
+    </dialog>
   </main>
 `;
 
@@ -130,6 +146,9 @@ const btnSave = document.querySelector<HTMLButtonElement>("#btn-save")!;
 const btnLoad = document.querySelector<HTMLButtonElement>("#btn-load")!;
 const inputLoad = document.querySelector<HTMLInputElement>("#input-load")!;
 const tapeFeedback = document.querySelector<HTMLElement>("#tape-feedback")!;
+const introDialog = document.querySelector<HTMLDialogElement>("#intro-dialog")!;
+const btnOuvirIntro = document.querySelector<HTMLButtonElement>("#btn-ouvir-intro")!;
+const btnIniciarJornada = document.querySelector<HTMLButtonElement>("#btn-iniciar-jornada")!;
 
 const trilha = new ControleDeAudio((ligado, nome) => {
   btnAudio.textContent = ligado ? "AUDIO ON" : "AUDIO OFF";
@@ -152,6 +171,7 @@ function estadoAtual(): EstadoSalvo {
     jogadorSelecionado,
     casaAtiva,
     atoMusical,
+    partidaIniciada,
     partidaEncerrada,
     jogadores: jogadores.map(({ id, casa, projeto, turnosPerdidos, actsVisitados }) => ({ id, casa, projeto, turnosPerdidos, actsVisitados })),
   };
@@ -181,14 +201,17 @@ async function carregarPartida(arquivo: File) {
     jogadorSelecionado = salvo.jogadorSelecionado;
     casaAtiva = salvo.casaAtiva;
     atoMusical = salvo.atoMusical;
+    partidaIniciada = salvo.partidaIniciada;
     partidaEncerrada = salvo.partidaEncerrada;
-    btnRolarDado.disabled = partidaEncerrada;
+    btnRolarDado.disabled = partidaEncerrada || !partidaIniciada;
     document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = !jogadores.some((jogador) => jogador.actsVisitados.length === 4);
     renderHouses();
     renderPlayers();
     updateInspector(casas[casaAtiva - 1]);
     bindHouseEvents();
     bindPlayerEvents();
+    if (partidaIniciada && introDialog.open) introDialog.close();
+    if (!partidaIniciada && !introDialog.open) introDialog.showModal();
     atualizarTrilha(partidaEncerrada);
     mostrarFeedbackCassete("PLAY · PARTIDA CARREGADA");
   } catch (erro) {
@@ -235,6 +258,10 @@ function renderHouses() {
 }
 
 function renderPlayers() {
+  const deslocamentos = [
+    { x: -1, y: -1.7 }, { x: 1, y: -1.7 },
+    { x: -1, y: 1.7 }, { x: 1, y: 1.7 },
+  ];
   playerListElement.innerHTML = jogadores.map((jogador) => `
     <button class="player-card ${jogador.id === jogadorAtivo ? "is-active" : ""} ${jogador.id === jogadorSelecionado ? "is-selected" : ""}" type="button" data-player="${jogador.id}" style="--player-color:${jogador.cor}" aria-label="${jogador.nome}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4${jogador.id === jogadorAtivo ? ", sua vez" : ""}">
       <img src="${jogador.imagem}" alt="" />
@@ -244,7 +271,7 @@ function renderPlayers() {
   `).join("");
 
   tokensElement.innerHTML = jogadores.map((jogador, index) => `
-    <button class="player-token ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${jogador.nome}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4" style="--player-color:${jogador.cor};--tx:${casas[jogador.casa - 1].x + casas[jogador.casa - 1].width / 2 + (index - 1.5) * 1.25}%;--ty:${casas[jogador.casa - 1].y + casas[jogador.casa - 1].height / 2}%">
+    <button class="player-token ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${jogador.nome}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4" style="--player-color:${jogador.cor};--tx:${casas[jogador.casa - 1].x + casas[jogador.casa - 1].width / 2 + deslocamentos[index].x}%;--ty:${casas[jogador.casa - 1].y + casas[jogador.casa - 1].height / 2 + deslocamentos[index].y}%">
       <img src="${jogador.imagem}" alt="" />
       <span>P${jogador.id}</span>
     </button>
@@ -254,8 +281,7 @@ function renderPlayers() {
 }
 
 function updateInspector(casa: Casa) {
-  const selecionado = jogadores[jogadorSelecionado - 1];
-  const inicioAct1 = casa.id === 40 && selecionado.casa === 40 && selecionado.projeto === 0;
+  const inicioAct1 = casa.id === 1;
   document.querySelector<HTMLElement>(".counter")!.textContent = `${String(casa.id).padStart(2, "0")}/40`;
   document.querySelector<HTMLElement>(".house-number")!.textContent = String(casa.id).padStart(2, "0");
   const chip = document.querySelector<HTMLElement>(".type-chip")!;
@@ -269,12 +295,12 @@ function updateInspector(casa: Casa) {
   narrative.textContent = casa.narrativa;
   narrative.classList.toggle("is-act", casa.id === 10 || casa.id === 20 || casa.id === 30 || inicioAct1);
   if (inicioAct1) {
-    document.querySelector<HTMLElement>(".inspector h2")!.textContent = atos[40].titulo;
+    document.querySelector<HTMLElement>(".inspector h2")!.textContent = atos[1].titulo;
     chip.textContent = "ACT 1";
     chip.dataset.type = "marco";
     effect.textContent = "Ponto de partida · sem efeito";
     effect.dataset.type = "marco";
-    narrative.textContent = atos[40].narrativa;
+    narrative.textContent = atos[1].narrativa;
   }
 }
 
@@ -293,12 +319,8 @@ function selectPlayer(id: number) {
 }
 
 async function executarSorteioDado() {
-  if (!podeIniciarJogada(rolandoDado, partidaEncerrada)) return;
+  if (!partidaIniciada || !podeIniciarJogada(rolandoDado, partidaEncerrada)) return;
   await trilha.desbloquear();
-  if (atoMusical === 0) {
-    atoMusical = 1;
-    atualizarTrilha();
-  }
   rolandoDado = true;
 
   const faceElements = Array.from(document.querySelectorAll<HTMLElement>(".dice-face"));
@@ -334,11 +356,7 @@ async function executarSorteioDado() {
   if (valueEl) {
     valueEl.textContent = `${dados[0].valor} + ${dados[1].valor} = ${total}`;
   }
-  if (subEl) {
-    subEl.textContent = jogador.casa === 40
-      ? `TOTAL: ${total} · BOOT CONTA 1 PASSO`
-      : `TOTAL: ${total} · AVANCE ${total} CASAS`;
-  }
+  if (subEl) subEl.textContent = `TOTAL: ${total} · AVANCE ${total} CASAS`;
   const resultado = aplicarJogada(jogador, total, casas);
   jogadores[jogadorAtivo - 1] = resultado.jogador;
   jogadorSelecionado = jogadorAtivo;
@@ -383,11 +401,22 @@ function bindPlayerEvents() {
   });
 }
 
+function iniciarJornada() {
+  partidaIniciada = true;
+  atoMusical = 1;
+  introDialog.close();
+  btnRolarDado.disabled = false;
+  document.querySelector<HTMLElement>(".dice-status")!.innerHTML = "Vez de <strong>Jogador 1</strong>. Clique para rolar os dados.";
+  void trilha.desbloquear().then(() => atualizarTrilha());
+}
+
 renderHouses();
 renderPlayers();
-updateInspector(casas[39]);
+updateInspector(casas[0]);
 bindHouseEvents();
 bindPlayerEvents();
+introDialog.showModal();
+introDialog.addEventListener("cancel", (evento) => evento.preventDefault());
 
 btnRolarDado.addEventListener("click", () => {
   executarSorteioDado();
@@ -401,4 +430,10 @@ inputLoad.addEventListener("change", () => {
   const arquivo = inputLoad.files?.[0];
   if (arquivo) void carregarPartida(arquivo);
 });
+btnOuvirIntro.addEventListener("click", () => {
+  void trilha.desbloquear();
+  btnOuvirIntro.textContent = "INTRO TOCANDO";
+  btnOuvirIntro.disabled = true;
+});
+btnIniciarJornada.addEventListener("click", iniciarJornada);
 

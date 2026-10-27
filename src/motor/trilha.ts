@@ -1,6 +1,6 @@
 export type TrilhaId = "intro" | "act-1" | "act-2" | "act-3" | "act-4" | "endgame";
 
-export const casasDosAtos = [40, 10, 20, 30] as const;
+export const casasDosAtos = [1, 10, 20, 30] as const;
 
 export function atoDaCasa(casa: number): number | null {
   const indice = casasDosAtos.indexOf(casa as (typeof casasDosAtos)[number]);
