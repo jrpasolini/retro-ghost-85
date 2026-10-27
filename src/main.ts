@@ -25,6 +25,7 @@ let partidaIniciada = false;
 let partidaEncerrada = false;
 let atoMusical = 0;
 let timerCpu: number | undefined;
+let gameLog: string[] = [];
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Elemento #app não encontrado");
@@ -62,6 +63,15 @@ app.innerHTML = `
             <input id="input-load" type="file" accept=".md,text/markdown,text/plain" hidden />
             <span id="tape-feedback" class="tape-feedback" aria-live="polite"></span>
           </div>
+          <section class="game-logbook" aria-labelledby="game-log-title">
+            <div class="game-logbook-header">
+              <span id="game-log-title" class="prompt">&gt; GAME_LOG</span>
+              <span class="game-log-count">0/4</span>
+            </div>
+            <div class="game-log-viewport">
+              <ol class="game-log-list" aria-live="polite" aria-relevant="additions"></ol>
+            </div>
+          </section>
           <div class="houses" aria-label="Casas interativas"></div>
           <div class="tokens" aria-label="Peças dos quatro jogadores"></div>
         </div>
@@ -267,6 +277,26 @@ function mostrarFeedbackCassete(mensagem: string, erro = false) {
   window.setTimeout(() => { if (tapeFeedback.textContent === mensagem) tapeFeedback.textContent = ""; }, 4500);
 }
 
+function renderGameLog() {
+  const list = document.querySelector<HTMLOListElement>(".game-log-list");
+  const count = document.querySelector<HTMLElement>(".game-log-count");
+  if (!list || !count) return;
+
+  count.textContent = `${gameLog.length}/4`;
+  list.innerHTML = "";
+  gameLog.forEach((mensagem, index) => {
+    const item = document.createElement("li");
+    item.textContent = mensagem;
+    if (index === 0) item.classList.add("is-latest");
+    list.append(item);
+  });
+}
+
+function registrarAcoes(mensagens: string[]) {
+  gameLog = [...mensagens, ...gameLog].filter(Boolean).slice(0, 4);
+  renderGameLog();
+}
+
 function salvarPartida() {
   const arquivo = new Blob([serializarSave(estadoAtual())], { type: "text/markdown;charset=utf-8" });
   const link = document.createElement("a");
@@ -291,10 +321,12 @@ async function carregarPartida(arquivo: File) {
     atoMusical = salvo.atoMusical;
     partidaIniciada = salvo.partidaIniciada;
     partidaEncerrada = salvo.partidaEncerrada;
+    gameLog = [];
     btnRolarDado.disabled = partidaEncerrada || !partidaIniciada;
     document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = !jogadores.some((jogador) => jogador.actsVisitados.length === 4);
     renderHouses();
     renderPlayers();
+    renderGameLog();
     updateInspector(casas[casaAtiva - 1]);
     bindHouseEvents();
     bindPlayerEvents();
@@ -429,6 +461,7 @@ async function executarSorteioDado(automatico = false) {
   faceElements.forEach((face) => face.classList.add("rolling"));
 
   const jogador = jogadores[jogadorAtivo - 1];
+  const casaAnterior = jogador.casa;
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (!prefersReducedMotion) {
@@ -468,6 +501,20 @@ async function executarSorteioDado(automatico = false) {
   jogadores = turno.jogadores;
   jogadorAtivo = turno.jogadorAtivo;
   const ignorados = turno.ignorados;
+  const movimentoRealizado = resultado.jogador.casa - casaAnterior;
+  const mensagemJogada = resultado.venceu
+    ? `${jogador.nome} chegou ao fim e publicou o jogo`
+    : resultado.recusouFinal
+      ? `${jogador.nome} voltou para a casa 30`
+      : movimentoRealizado > 0
+        ? `${jogador.nome} avançou ${movimentoRealizado} ${movimentoRealizado === 1 ? "casa" : "casas"}`
+        : movimentoRealizado < 0
+          ? `${jogador.nome} regrediu ${Math.abs(movimentoRealizado)} ${Math.abs(movimentoRealizado) === 1 ? "casa" : "casas"}`
+          : `${jogador.nome} permaneceu na casa ${resultado.jogador.casa}`;
+  registrarAcoes([
+    ...ignorados.map((nome) => `${nome} perdeu a jogada`),
+    mensagemJogada,
+  ]);
   renderPlayers();
   bindPlayerEvents();
   selectHouse(resultado.casa.id);
@@ -516,12 +563,14 @@ function aplicarConfiguracao() {
     jogadorAtivo = 1;
     jogadorSelecionado = 1;
     atoMusical = 0;
+    gameLog = [];
     partidaIniciada = false;
     partidaEncerrada = false;
     setupError.textContent = "";
     renderHouses();
     renderPlayers();
     updateInspector(casas[0]);
+    renderGameLog();
     bindHouseEvents();
     bindPlayerEvents();
     const cpus = jogadores.filter((jogador) => jogador.controle === "cpu").length;
@@ -576,4 +625,3 @@ btnMaisPlayer.addEventListener("click", () => {
   if (configuracoes.length < 4) configuracoes.push({ controle: "cpu" });
   renderSetup();
 });
-
