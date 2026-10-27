@@ -5,6 +5,13 @@ export type Casa = {
   titulo: string;
   tipo: TipoCasa;
   efeito: string;
+  narrativa: string;
+  consequencia: {
+    projeto?: number;
+    movimento?: number;
+    perdeTurno?: boolean;
+    jogadaExtra?: boolean;
+  };
   x: number;
   y: number;
   width: number;
@@ -17,4 +24,7 @@ export type Jogador = {
   cor: string;
   imagem: string;
   casa: number;
+  projeto: number;
+  turnosPerdidos: number;
+  actsVisitados: number[];
 };

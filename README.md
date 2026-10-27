@@ -56,10 +56,11 @@ Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · Cloudflare 
 - [`ESTRUTURA.md`](./ESTRUTURA.md) — documento vivo do projeto: princípios,
   arquitetura, modelo de dados, contrato do narrador, as 40 casas, roadmap e
   registro de decisões.
+- [`HISTORICO_NARRATIVO.md`](./HISTORICO_NARRATIVO.md) — base histórica e regras das 40 casas nesta versão.
 
 ## Status
 
-Estrutura definida. Implementação começa em 27/10/2026.
+Protótipo local com tabuleiro, narrativa das 40 casas, dois dados de seis faces, movimento e consequências determinísticas. Integrações de IA e publicação ainda não fazem parte desta versão.
 
 ## Créditos e atribuição
 

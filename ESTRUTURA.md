@@ -312,6 +312,10 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 **Energia:** 0 = volta 3 casas e recupera 1. Nunca elimina jogador.
 
+**Atualização de 26/10/2026:** a tabela acima permanece como registro da proposta inicial e foi substituída pelas 40 histórias e consequências em [`src/data/casas.ts`](src/data/casas.ts). As regras atuais, as mudanças das casas 2, 25 e 27 e as fontes de época estão em [`HISTORICO_NARRATIVO.md`](HISTORICO_NARRATIVO.md). A implementação atual usa projeto de 0 a 100 e 2d6; a antiga energia desta proposta não é aplicada.
+
+**Easter egg e partida atual:** os quatro jogadores partem da casa 40 (ACT 1 · BOOT); no primeiro lançamento, o BOOT consome um passo da soma de 2d6. Depois seguem pelas casas numeradas e retornam à 40 ao concluir a volta. As casas ACT são 40, 10, 20 e 30. Quando um mesmo jogador visita as quatro, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
+
 ---
 
 ## 10. Roteiro por etapas (gates) — semana 4
@@ -410,3 +414,16 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 **Fronteira desta etapa:** não foram implementados dado, turnos, movimento, aplicação de efeitos, save/load, Worker ou Gemma. O botão de jogabilidade permanece propositalmente desativado.
 
 **Contrato para o Antigravity/Gemini:** implementar a jogabilidade sobre a estrutura existente; usar `src/data/casas.ts` como fonte inicial; preservar as coordenadas e acessibilidade dos hotspots; mover as quatro peças atualizando o estado em vez de redesenhar o tabuleiro; não introduzir multiplayer remoto, serviços Google Cloud ou dependência obrigatória de IA.
+
+### 26/10/2026 — Etapa 2: sorteio de dados local (RNG 1d6)
+
+**Status:** concluída e validada com testes automatizados e build.
+
+- Criado o módulo `src/motor/dado.ts` para sorteio de dados local (1d6) sem chamadas de rede ou inferência de IA.
+- Implementado suporte à Crypto API do navegador (`crypto.getRandomValues`) com fallback seguro para `Math.random`.
+- Adicionado gerador determinístico por semente Mulberry32 (`criarRngSemente`) para viabilizar testes unitários e futuras reproduções de partidas (`semente`).
+- Criada suíte de testes unitários com o test runner nativo do Node.js (`src/motor/dado.test.ts`), integrada ao script `npm test`.
+- Integrado o painel interativo de rolagem no console lateral (`src/main.ts` e `src/style.css`), com botão temático "ROLAR DADO [1D6]", animação retrô de rolagem (com suporte a `prefers-reduced-motion`) e anúncio acessível para leitores de tela (`aria-live="polite"`).
+- O sorteio identifica o jogador atualmente selecionado/ativo e exibe o feedback visual e textual imediato do resultado.
+
+**Fronteira desta etapa:** as peças ainda não se movem automaticamente pelo tabuleiro ao rolar o dado; a alternância de turnos e aplicação de efeitos serão integradas nos próximos passos.
