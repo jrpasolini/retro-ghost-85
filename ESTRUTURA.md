@@ -504,3 +504,13 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 
 **Validação:** `npm test` e `npm run build`.
 
+### 27/10/2026 — Etapa 8: apresentação antes da jornada
+
+**Status:** concluída em implementação; validada com testes automatizados, build e navegador.
+
+- Antes da tela de escolha de participantes, a aplicação apresenta o retrato pixelado de Antonio Pasolini. Após um segundo, o crédito “Presents a project that is part of the Hacktoberfest Open-Source AI Challenge: Week 4 called...” aparece com fade-in abaixo do retrato.
+- Aos dois segundos, a arte neon de RETRO-GHOST-85 assume toda a tela; aos quatro segundos, a abertura é removida e a tela de configuração da jornada recebe o foco. A transição respeita `prefers-reduced-motion` sem alterar os marcos temporais.
+- Os arquivos de abertura são locais, em `public/assets/antonio-pasolini-portrait.png` e `public/assets/retro-ghost-opening.png`.
+
+**Validação:** `npm test` e `npm run build`.
+

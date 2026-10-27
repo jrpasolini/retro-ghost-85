@@ -39,6 +39,16 @@ const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Elemento #app não encontrado");
 
 app.innerHTML = `
+  <section id="opening-sequence" class="opening-sequence" aria-live="polite" aria-label="Apresentação de RETRO-GHOST-85">
+    <div class="opening-stage opening-stage-portrait" aria-hidden="true">
+      <img src="/assets/antonio-pasolini-portrait.png" alt="" />
+      <p id="opening-credit" class="opening-credit">Presents a project that is part of the Hacktoberfest Open-Source AI Challenge: Week 4 called...</p>
+    </div>
+    <div class="opening-stage opening-stage-game" aria-hidden="true">
+      <img src="/assets/retro-ghost-opening.png" alt="" />
+    </div>
+    <p class="sr-only">Apresentação do projeto RETRO-GHOST-85.</p>
+  </section>
   <main class="shell">
     <header class="topbar">
       <div>
@@ -224,6 +234,8 @@ const tapeFeedback = document.querySelector<HTMLElement>("#tape-feedback")!;
 const boardGameLog = document.querySelector<HTMLElement>("#board-game-log")!;
 const gameLogList = document.querySelector<HTMLElement>("#game-log-list")!;
 const introDialog = document.querySelector<HTMLDialogElement>("#intro-dialog")!;
+const openingSequence = document.querySelector<HTMLElement>("#opening-sequence")!;
+const openingCredit = document.querySelector<HTMLElement>("#opening-credit")!;
 const endgameDialog = document.querySelector<HTMLDialogElement>("#endgame-dialog")!;
 const playerConfigList = document.querySelector<HTMLElement>("#player-config-list")!;
 const playerCount = document.querySelector<HTMLOutputElement>("#player-count")!;
@@ -800,6 +812,15 @@ function novaPartida() {
   mostrarSetup();
 }
 
+function iniciarApresentacao() {
+  window.setTimeout(() => openingCredit.classList.add("is-visible"), 1_000);
+  window.setTimeout(() => openingSequence.classList.add("is-game-reveal"), 2_000);
+  window.setTimeout(() => {
+    openingSequence.hidden = true;
+    introDialog.showModal();
+  }, 4_000);
+}
+
 renderHouses();
 renderPlayers();
 updateInspector(casas[0]);
@@ -807,7 +828,7 @@ bindHouseEvents();
 bindPlayerEvents();
 renderSetup();
 renderLog();
-introDialog.showModal();
+iniciarApresentacao();
 introDialog.addEventListener("cancel", (evento) => evento.preventDefault());
 endgameDialog.addEventListener("close", () => {
   btnReabrirEndgame.hidden = !sessao?.partidaEncerrada;
