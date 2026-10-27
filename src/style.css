@@ -163,24 +163,20 @@ h1 span { color: var(--amber); }
   left: 7.3%;
   top: 10.8%;
   z-index: 5;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: 1fr 1fr;
-  align-items: center;
   width: 10.4%;
   height: 11.2%;
-  padding: .45% .65%;
-  border: clamp(1px, .18vw, 3px) solid #ffbc28;
-  border-radius: 8%;
-  background: linear-gradient(145deg, #120d04, #2c1704);
-  color: #ffbc28;
-  box-shadow: inset 0 0 12px rgba(255, 181, 28, .25), 0 0 8px rgba(0, 0, 0, .7);
+  overflow: hidden;
+  border-radius: 6%;
   pointer-events: none;
 }
 
-.endgame-cover span { grid-row: 1 / 3; align-self: start; font: clamp(.5rem, 1.45vw, 1.55rem)/1 "Press Start 2P", monospace; }
-.endgame-cover b { align-self: end; font: clamp(.28rem, .65vw, .72rem)/1.1 "Press Start 2P", monospace; text-align: center; }
-.endgame-cover small { align-self: start; font-size: clamp(.28rem, .56vw, .66rem); font-weight: 700; text-align: center; }
+.endgame-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
 
 @keyframes einstein-boot {
   from { opacity: 0; filter: brightness(2); transform: scaleY(.04); }
@@ -262,19 +258,52 @@ h1 span { color: var(--amber); }
 .board-game-log {
   position: absolute;
   left: 62.2%;
-  top: 92.55%;
-  z-index: 7;
+  top: 91.6%;
+  z-index: 8;
   width: 32.6%;
-  height: 4.9%;
+  height: 6.6%;
   margin: 0;
-  overflow: hidden;
+  overflow: auto;
+  overscroll-behavior: contain;
+  color: #a7fff0;
+  background: rgba(1, 8, 8, .55);
+  font: 600 clamp(.42rem, .62vw, .72rem)/1.25 "Chakra Petch", sans-serif;
+  letter-spacing: .01em;
+  scrollbar-color: var(--cyan) transparent;
+  pointer-events: auto;
+}
+
+.board-game-log:focus-visible { outline: 2px solid var(--cyan); outline-offset: 1px; }
+
+.board-game-log ol {
+  margin: 0;
+  padding: .15rem .35rem .2rem 0;
+  list-style: none;
+}
+
+.board-game-log li {
   display: flex;
   align-items: center;
-  color: #a7fff0;
-  font: 600 clamp(.32rem, .58vw, .66rem)/1.25 "Chakra Petch", sans-serif;
-  letter-spacing: .025em;
-  text-shadow: 0 0 6px rgba(16, 242, 223, .65);
-  pointer-events: none;
+  gap: .28rem;
+  min-width: 0;
+  color: #b7d8cf;
+  white-space: nowrap;
+}
+
+.board-game-log li span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.board-game-log li.is-latest { color: #f3fffb; text-shadow: 0 0 6px rgba(16, 242, 223, .45); }
+
+.log-pip {
+  flex: 0 0 auto;
+  width: .45rem;
+  height: .45rem;
+  border-radius: 50%;
+  background: var(--player-color, var(--cyan));
+  box-shadow: 0 0 6px var(--player-color, var(--cyan));
 }
 
 .houses, .tokens { position: absolute; inset: 0; }
@@ -660,7 +689,47 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
 .intro-secondary { background: #071311; color: var(--cyan); }
 .intro-secondary:disabled { border-color: #56726b; color: #79968e; cursor: default; }
 .intro-actions button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
-.intro-terminal > small { color: #678b83; font-size: .68rem; letter-spacing: .05em; }
+.intro-terminal > small, .setup-summary { color: #678b83; font-size: .68rem; letter-spacing: .05em; }
+.setup-summary { position: relative; z-index: 2; min-height: 1.2rem; margin: .8rem 0 0; }
+
+.endgame-dialog { width: min(760px, calc(100% - 2rem)); max-height: calc(100vh - 2rem); overflow: auto; }
+.endgame-dialog h3 { margin: 1.1rem 0 .45rem; color: var(--amber); font: .68rem/1.3 "Press Start 2P", monospace; }
+.narration-slot {
+  position: relative;
+  z-index: 2;
+  margin-top: .4rem;
+  padding: .8rem;
+  border: 1px solid rgba(16, 242, 223, .45);
+  background: rgba(4, 16, 15, .72);
+}
+.narration-slot p, .endgame-path, .endgame-ranking { color: #c5e6dc; font-size: .92rem; line-height: 1.45; }
+.endgame-path, .endgame-ranking { max-height: 9.5rem; overflow: auto; margin: 0; padding-left: 1.1rem; }
+.narration-controls { display: flex; gap: .5rem; margin-top: .7rem; }
+.narration-controls button, .trophy-toast button {
+  border: 1px solid var(--cyan);
+  background: #071311;
+  color: var(--cyan);
+  padding: .55rem .7rem;
+  font: .58rem/1.3 "Press Start 2P", monospace;
+  cursor: pointer;
+}
+.narration-controls button:disabled, .trophy-toast button:disabled { border-color: #56726b; color: #79968e; cursor: not-allowed; }
+
+.trophy-toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  width: min(420px, calc(100% - 2rem));
+  padding: .9rem 1rem;
+  border: 1px solid var(--amber);
+  background: rgba(8, 6, 2, .94);
+  color: #ffe7ad;
+  box-shadow: 0 0 24px rgba(255, 181, 28, .25);
+}
+.trophy-toast p { margin: 0 0 .7rem; font-size: .95rem; }
+.trophy-toast[hidden] { display: none; }
+.endgame-reopen { margin-top: .7rem; }
 .intro-terminal[hidden] { display: none; }
 
 .intro-back {
@@ -740,7 +809,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .audio-console { min-width: 185px; }
   .board-stage { overflow-x: auto; min-height: 390px; aspect-ratio: auto; }
   .board-art, .houses, .tokens, .scanlines { width: 694px; height: 390px; inset: 0 auto auto 0; }
-  .endgame-cover { left: 51px; top: 42px; width: 72px; height: 44px; padding: 4px; }
+  .endgame-cover { left: 51px; top: 42px; width: 72px; height: 44px; }
   .cassette-deck { left: 272px; top: 345px; width: 95px; }
   .board-game-log { left: 432px; top: 361px; width: 226px; height: 20px; font-size: .36rem; }
   .easter-egg-screen { left: 294px; top: 133px; width: 95px; height: 66px; }

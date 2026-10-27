@@ -18,7 +18,7 @@ O antigo evento de “disquete com vírus” foi substituído por uma listagem t
 - Todos os jogadores começam na casa 1, apresentada pelo popup **ACT 1 · BOOT**, com esse ato já visitado. O movimento usa normalmente a soma de 2d6. As casas 10, 20 e 30 são os ACTs 2, 3 e 4; a casa 40 é exclusivamente o desfecho **ENDGAME · PUBLICAÇÃO**.
 - O mesmo jogador precisa visitar as quatro casas ACT para revelar o retrato sorridente de Einstein no monitor. Visitas de jogadores diferentes não se somam; o deslocamento que termina sobre um ACT também conta, sem ativar novamente seu efeito.
 - Cada ACT tem um prólogo próprio em `src/data/atos.ts`. O ACT 1 aparece no início da partida; os ACTs 2, 3 e 4 são mostrados ao inspecionar ou alcançar as casas 10, 20 e 30. No retorno à casa 40, o painel mostra o desfecho do catálogo.
-- Ao alcançar a casa 40, a revisão final concede 10 projeto. Com 100, o jogador vence; caso contrário, retorna à casa 30 para repetir a etapa de publicação.
+- Ao alcançar a casa 40, a revisão final concede 10 projeto e a partida termina. Quem chega primeiro publica o jogo, com qualquer placar. O projeto (0 a 100) ordena o ranking e serve de desempate; não trava a casa 40 e não devolve o jogador à casa 30.
 - Os quatro jogadores jogam no mesmo dispositivo; quem ganha uma jogada permanece na vez, e quem perde um turno é pulado na rotação seguinte.
 
 Um teste de simulação com 10 mil sequências determinísticas verifica que pelo menos 50% concluem em até 15 lançamentos e 95% em até 30. Esse teste mede a progressão matemática das casas; ainda é preciso observar partidas humanas para refinar a duração e a sensação de justiça.

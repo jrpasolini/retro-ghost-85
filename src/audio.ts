@@ -41,18 +41,29 @@ export class ControleDeAudio {
     this.aoAtualizar(this.ligado, nomes[this.trilha]);
   }
 
-  private async reproduzir(): Promise<void> {
+  private async reproduzir(): Promise<boolean> {
     try {
       await this.audio.play();
+      return true;
     } catch {
       this.desbloqueado = false;
+      return false;
     }
   }
 
-  async desbloquear(): Promise<void> {
-    this.desbloqueado = true;
-    if (!this.ligado) return;
-    await this.reproduzir();
+  async desbloquear(): Promise<boolean> {
+    if (!this.ligado) {
+      this.desbloqueado = true;
+      return true;
+    }
+    try {
+      await this.audio.play();
+      this.desbloqueado = true;
+      return true;
+    } catch {
+      this.desbloqueado = false;
+      return false;
+    }
   }
 
   async tocar(trilha: TrilhaId): Promise<void> {

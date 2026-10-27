@@ -9,14 +9,53 @@ export type GeradorAleatorio = () => number;
 /**
  * Gerador determinístico baseado em Mulberry32 para testes e saves com semente (seed).
  */
+export type EstadoRng = { semente: number; estado: number };
+
+function passoMulberry(estado: number): { valor: number; estado: number } {
+  // O acumulador não é reduzido a 32 bits: os shifts é que aplicam ToUint32.
+  // Gravar o acumulador inteiro permite retomar a mesma sequência depois do save.
+  let t = estado + 0x6d2b79f5;
+  const proximo = t;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return { valor: ((t ^ (t >>> 14)) >>> 0) / 4294967296, estado: proximo };
+}
+
 export function criarRngSemente(semente: number): GeradorAleatorio {
   let s = semente >>> 0;
   return () => {
-    let t = (s += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    const passo = passoMulberry(s);
+    s = passo.estado;
+    return passo.valor;
   };
+}
+
+/** RNG da partida: a semente nasce uma vez e `estado` é o cursor gravado no save. */
+export function criarRngComEstado(inicial: EstadoRng): { aleatorio: GeradorAleatorio; snapshot: () => EstadoRng } {
+  let s = inicial.estado;
+  const semente = inicial.semente >>> 0;
+  return {
+    aleatorio: () => {
+      const passo = passoMulberry(s);
+      s = passo.estado;
+      return passo.valor;
+    },
+    snapshot: () => ({ semente, estado: s }),
+  };
+}
+
+export function novoEstadoRng(semente?: number): EstadoRng {
+  if (semente !== undefined) {
+    const valor = semente >>> 0;
+    return { semente: valor, estado: valor };
+  }
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return { semente: array[0], estado: array[0] };
+  }
+  const valor = Math.floor(Math.random() * 0x100000000) >>> 0;
+  return { semente: valor, estado: valor };
 }
 
 /**

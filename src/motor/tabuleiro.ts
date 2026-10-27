@@ -10,7 +10,6 @@ export type ResultadoJogada = {
   casa: Casa;
   venceu: boolean;
   jogadaExtra: boolean;
-  recusouFinal: boolean;
   easterEggDesbloqueado: boolean;
 };
 
@@ -20,12 +19,13 @@ export function aplicarJogada(jogador: Jogador, passos: number, casas: Casa[]): 
   const casa = casas[destino - 1];
   if (!casa || casa.id !== destino) throw new Error("Tabuleiro inválido");
 
-  const projeto = Math.max(0, Math.min(META_PROJETO, jogador.projeto + (casa.consequencia.projeto ?? 0)));
-  const venceu = destino === ULTIMA_CASA && projeto >= META_PROJETO;
-  const recusouFinal = destino === ULTIMA_CASA && !venceu;
-  const novaCasa = recusouFinal
-    ? 30
-    : Math.max(1, Math.min(ULTIMA_CASA, destino + (casa.consequencia.movimento ?? 0)));
+  const projetoAntes = jogador.projeto;
+  const projeto = Math.max(0, Math.min(META_PROJETO, projetoAntes + (casa.consequencia.projeto ?? 0)));
+  // Quem alcança ou ultrapassa a casa 40 publica o jogo. O projeto é só placar.
+  const movimento = destino === ULTIMA_CASA ? 0 : (casa.consequencia.movimento ?? 0);
+  const deslocada = Math.max(1, Math.min(ULTIMA_CASA, destino + movimento));
+  const venceu = destino === ULTIMA_CASA || deslocada === ULTIMA_CASA;
+  const novaCasa = venceu ? ULTIMA_CASA : deslocada;
   const visitas = new Set(jogador.actsVisitados);
   const maiorAtoAtingido = atoDaPosicao(Math.max(destino, novaCasa));
   CASAS_ACT.slice(0, maiorAtoAtingido).forEach((act) => visitas.add(act));
@@ -41,8 +41,7 @@ export function aplicarJogada(jogador: Jogador, passos: number, casas: Casa[]): 
     },
     casa,
     venceu,
-    jogadaExtra: Boolean(casa.consequencia.jogadaExtra),
-    recusouFinal,
+    jogadaExtra: Boolean(casa.consequencia.jogadaExtra) && !venceu,
     easterEggDesbloqueado: jogador.actsVisitados.length < CASAS_ACT.length && actsVisitados.length === CASAS_ACT.length,
   };
 }
