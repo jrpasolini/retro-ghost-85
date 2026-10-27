@@ -144,7 +144,6 @@ app.innerHTML = `
         <h2 id="intro-title">BOOT · A revista na banca</h2>
         <p id="intro-copy">${atos[1].narrativa}</p>
         <div class="intro-actions">
-          <button id="btn-ouvir-intro" class="intro-secondary" type="button">OUVIR INTRO</button>
           <button id="btn-iniciar-jornada" class="intro-primary" type="button">INICIAR JORNADA</button>
         </div>
         <small id="intro-summary">A partida começa na casa 1 · 1 participante · 2D6</small>
@@ -175,7 +174,6 @@ const btnMaisPlayer = document.querySelector<HTMLButtonElement>("#btn-mais-playe
 const btnContinuar = document.querySelector<HTMLButtonElement>("#btn-continuar")!;
 const btnLoadSetup = document.querySelector<HTMLButtonElement>("#btn-load-setup")!;
 const btnVoltarConfig = document.querySelector<HTMLButtonElement>("#btn-voltar-config")!;
-const btnOuvirIntro = document.querySelector<HTMLButtonElement>("#btn-ouvir-intro")!;
 const btnIniciarJornada = document.querySelector<HTMLButtonElement>("#btn-iniciar-jornada")!;
 const introSummary = document.querySelector<HTMLElement>("#intro-summary")!;
 
@@ -233,7 +231,7 @@ function lerConfiguracao(): ConfiguracaoJogador[] {
 function mostrarIntro() {
   setupStep.hidden = true;
   introStep.hidden = false;
-  btnOuvirIntro.focus();
+  btnIniciarJornada.focus();
 }
 
 function mostrarSetup() {
@@ -564,11 +562,6 @@ btnLoadSetup.addEventListener("click", () => inputLoad.click());
 inputLoad.addEventListener("change", () => {
   const arquivo = inputLoad.files?.[0];
   if (arquivo) void carregarPartida(arquivo);
-});
-btnOuvirIntro.addEventListener("click", () => {
-  void trilha.desbloquear();
-  btnOuvirIntro.textContent = "INTRO TOCANDO";
-  btnOuvirIntro.disabled = true;
 });
 btnIniciarJornada.addEventListener("click", iniciarJornada);
 btnContinuar.addEventListener("click", aplicarConfiguracao);
