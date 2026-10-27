@@ -49,7 +49,7 @@ Sem banco de dados. Sem login. Sem servidor de estado.
 
 ## Stack
 
-Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · Cloudflare Workers
+Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · ElevenLabs Music · Cloudflare Workers
 
 ## Documentação
 
@@ -60,7 +60,7 @@ Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · Cloudflare 
 
 ## Status
 
-Protótipo local com tabuleiro, narrativa das 40 casas, dois dados de seis faces, movimento e consequências determinísticas. Integrações de IA e publicação ainda não fazem parte desta versão.
+Protótipo local com tabuleiro, narrativa das 40 casas, dois dados de seis faces, movimento, consequências determinísticas, save/load em Markdown e trilha dinâmica por ato. As seis faixas originais — introdução, quatro atos e encerramento — foram criadas com a ElevenLabs. A integração com Gemma e a publicação ainda não fazem parte desta versão.
 
 ## Créditos e atribuição
 
@@ -73,6 +73,9 @@ proprietário. É um jogo de tabuleiro em texto e DOM — não emula hardware.
 Nomes de empresas, revistas, modems e equipamentos citados na narrativa pertencem a
 seus respectivos donos e aparecem em contexto histórico e descritivo.
 
+Trilha sonora original criada com a **ElevenLabs Music** para o Retro-Ghost-85.
+
 ## Licença
 
 A definir.
+

@@ -430,3 +430,18 @@ fica preso na 39 e precisa de mais uma volta (reviravolta, não derrota).
 
 **Fronteira desta etapa:** save/load em Markdown, Worker/Gemma e integração de narrativa opcional ainda serão implementados nas próximas etapas.
 
+### 27/10/2026 — Etapa 3: trilha dinâmica ElevenLabs e cassete de save/load
+
+**Status:** concluída em implementação; validada com testes automatizados, build e QA no navegador.
+
+- Integradas seis faixas originais criadas com ElevenLabs Music: introdução, quatro atos e encerramento de vitória.
+- A música é global para a mesa e avança quando o primeiro jogador alcança um novo ACT; nunca retrocede quando outro jogador permanece em um ato anterior.
+- A introdução toca antes da primeira jogada, o ACT 1 assume no início da partida e a faixa `endgame` substitui a trilha do tabuleiro quando há vitória.
+- Adicionados controle de áudio, faixa atual e volume, respeitando a exigência de interação do navegador antes da reprodução.
+- Os dados funcionais permanecem no painel direito. Os dados decorativos da barra inferior foram cobertos por um gravador de dados original inspirado em equipamentos de 1985, sem marca ou logotipo de terceiros.
+- A tecla `REC / SAVE` exporta a partida como Markdown e a tecla `PLAY / LOAD` importa o arquivo `.md`.
+- O save contém somente estado estruturado validado; nomes, imagens e HTML não são aceitos do arquivo importado, reduzindo risco de injeção.
+- Adicionados testes para progressão musical global, faixa de vitória, serialização Markdown e rejeição de saves inválidos.
+
+**Fronteira desta etapa:** o diário narrativo completo dentro do save, a integração opcional com Gemma e o deploy público permanecem para as próximas etapas.
+

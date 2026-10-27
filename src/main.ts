@@ -9,6 +9,9 @@ import type { Casa, Jogador } from "./types";
 import { rolar2D6 } from "./motor/dado";
 import { aplicarJogada } from "./motor/tabuleiro";
 import { avancarTurno, podeIniciarJogada } from "./motor/turnos";
+import { maiorAtoAlcancado, proximaTrilha } from "./motor/trilha";
+import { ControleDeAudio } from "./audio";
+import { desserializarSave, serializarSave, type EstadoSalvo } from "./estado/save";
 
 let jogadores: Jogador[] = [
   { id: 1, nome: "Jogador 1", cor: "#54f5c2", imagem: "./assets/player-1.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
@@ -22,6 +25,7 @@ let jogadorAtivo = 1;
 let jogadorSelecionado = 1;
 let rolandoDado = false;
 let partidaEncerrada = false;
+let atoMusical = 0;
 
 const app = document.querySelector<HTMLDivElement>("#app");
 if (!app) throw new Error("Elemento #app não encontrado");
@@ -33,7 +37,14 @@ app.innerHTML = `
         <p class="eyebrow">RETRO COMPUTER SYSTEM • 1985</p>
         <h1>RETRO-GHOST-<span>85</span></h1>
       </div>
-      <div class="status"><i></i> MVP LOCAL · NARRATIVA E REGRAS</div>
+      <div class="top-actions">
+        <div class="status"><i></i> MVP LOCAL · NARRATIVA E REGRAS</div>
+        <div class="audio-console" aria-label="Controle da trilha sonora">
+          <button id="btn-audio" type="button" aria-pressed="true">AUDIO ON</button>
+          <span id="audio-track">INTRO</span>
+          <label>VOL <input id="audio-volume" type="range" min="0" max="100" value="55" aria-label="Volume da trilha sonora" /></label>
+        </div>
+      </div>
     </header>
 
     <section class="game-layout" aria-label="Protótipo do tabuleiro">
@@ -44,6 +55,13 @@ app.innerHTML = `
             <img src="./assets/einstein-smile.webp" alt="" />
           </div>
           <div class="scanlines" aria-hidden="true"></div>
+          <div class="cassette-deck" aria-label="Gravador de cassete para salvar e carregar a partida">
+            <img src="./assets/cassette-save-load.webp" alt="Gravador de dados em cassete com teclas REC e PLAY" />
+            <button id="btn-save" class="tape-key tape-key-save" type="button" aria-label="REC: salvar partida em arquivo Markdown"><b>REC</b><span>SAVE</span></button>
+            <button id="btn-load" class="tape-key tape-key-load" type="button" aria-label="PLAY: carregar partida de arquivo Markdown"><b>PLAY</b><span>LOAD</span></button>
+            <input id="input-load" type="file" accept=".md,text/markdown,text/plain" hidden />
+            <span id="tape-feedback" class="tape-feedback" aria-live="polite"></span>
+          </div>
           <div class="houses" aria-label="Casas interativas"></div>
           <div class="tokens" aria-label="Peças dos quatro jogadores"></div>
         </div>
@@ -95,8 +113,8 @@ app.innerHTML = `
     </section>
 
     <footer>
-      <span>BUILD 0.3.0</span>
-      <span>40 CASAS · 4 JOGADORES LOCAIS · MOVIMENTO 2D6</span>
+      <span>BUILD 0.4.0</span>
+      <span>40 CASAS · 4 JOGADORES · 2D6 · SAVE/LOAD · TRILHA DINÂMICA</span>
     </footer>
   </main>
 `;
@@ -105,6 +123,80 @@ const housesElement = document.querySelector<HTMLDivElement>(".houses")!;
 const tokensElement = document.querySelector<HTMLDivElement>(".tokens")!;
 const playerListElement = document.querySelector<HTMLDivElement>(".player-list")!;
 const btnRolarDado = document.querySelector<HTMLButtonElement>("#btn-rolar-dado")!;
+const btnAudio = document.querySelector<HTMLButtonElement>("#btn-audio")!;
+const audioTrack = document.querySelector<HTMLElement>("#audio-track")!;
+const audioVolume = document.querySelector<HTMLInputElement>("#audio-volume")!;
+const btnSave = document.querySelector<HTMLButtonElement>("#btn-save")!;
+const btnLoad = document.querySelector<HTMLButtonElement>("#btn-load")!;
+const inputLoad = document.querySelector<HTMLInputElement>("#input-load")!;
+const tapeFeedback = document.querySelector<HTMLElement>("#tape-feedback")!;
+
+const trilha = new ControleDeAudio((ligado, nome) => {
+  btnAudio.textContent = ligado ? "AUDIO ON" : "AUDIO OFF";
+  btnAudio.setAttribute("aria-pressed", String(ligado));
+  audioTrack.textContent = nome;
+});
+document.addEventListener("pointerdown", () => { void trilha.desbloquear(); }, { once: true });
+
+function atualizarTrilha(venceu = false) {
+  const maiorAto = maiorAtoAlcancado(jogadores.map((jogador) => jogador.actsVisitados));
+  if (atoMusical === 0 && !venceu) return;
+  atoMusical = Math.max(atoMusical, maiorAto);
+  void trilha.tocar(proximaTrilha(atoMusical, maiorAto, venceu));
+}
+
+function estadoAtual(): EstadoSalvo {
+  return {
+    schema: 1,
+    jogadorAtivo,
+    jogadorSelecionado,
+    casaAtiva,
+    atoMusical,
+    partidaEncerrada,
+    jogadores: jogadores.map(({ id, casa, projeto, turnosPerdidos, actsVisitados }) => ({ id, casa, projeto, turnosPerdidos, actsVisitados })),
+  };
+}
+
+function mostrarFeedbackCassete(mensagem: string, erro = false) {
+  tapeFeedback.textContent = mensagem;
+  tapeFeedback.classList.toggle("is-error", erro);
+  window.setTimeout(() => { if (tapeFeedback.textContent === mensagem) tapeFeedback.textContent = ""; }, 4500);
+}
+
+function salvarPartida() {
+  const arquivo = new Blob([serializarSave(estadoAtual())], { type: "text/markdown;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(arquivo);
+  link.download = `retro-ghost-85-save-${new Date().toISOString().slice(0, 10)}.md`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  mostrarFeedbackCassete("REC · PARTIDA GRAVADA");
+}
+
+async function carregarPartida(arquivo: File) {
+  try {
+    const salvo = desserializarSave(await arquivo.text());
+    jogadores = jogadores.map((jogador) => ({ ...jogador, ...salvo.jogadores.find((item) => item.id === jogador.id)! }));
+    jogadorAtivo = salvo.jogadorAtivo;
+    jogadorSelecionado = salvo.jogadorSelecionado;
+    casaAtiva = salvo.casaAtiva;
+    atoMusical = salvo.atoMusical;
+    partidaEncerrada = salvo.partidaEncerrada;
+    btnRolarDado.disabled = partidaEncerrada;
+    document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = !jogadores.some((jogador) => jogador.actsVisitados.length === 4);
+    renderHouses();
+    renderPlayers();
+    updateInspector(casas[casaAtiva - 1]);
+    bindHouseEvents();
+    bindPlayerEvents();
+    atualizarTrilha(partidaEncerrada);
+    mostrarFeedbackCassete("PLAY · PARTIDA CARREGADA");
+  } catch (erro) {
+    mostrarFeedbackCassete(erro instanceof Error ? erro.message : "SAVE INVÁLIDO", true);
+  } finally {
+    inputLoad.value = "";
+  }
+}
 
 const pontosPorFace: Record<number, number[]> = {
   1: [5],
@@ -202,6 +294,11 @@ function selectPlayer(id: number) {
 
 async function executarSorteioDado() {
   if (!podeIniciarJogada(rolandoDado, partidaEncerrada)) return;
+  await trilha.desbloquear();
+  if (atoMusical === 0) {
+    atoMusical = 1;
+    atualizarTrilha();
+  }
   rolandoDado = true;
 
   const faceElements = Array.from(document.querySelectorAll<HTMLElement>(".dice-face"));
@@ -249,6 +346,7 @@ async function executarSorteioDado() {
     document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = false;
   }
   if (resultado.venceu) partidaEncerrada = true;
+  atualizarTrilha(resultado.venceu);
   const turno = !resultado.venceu && !resultado.jogadaExtra
     ? avancarTurno(jogadores, jogadorAtivo)
     : { jogadores, jogadorAtivo, ignorados: [] as string[] };
@@ -293,5 +391,14 @@ bindPlayerEvents();
 
 btnRolarDado.addEventListener("click", () => {
   executarSorteioDado();
+});
+
+btnAudio.addEventListener("click", () => { void trilha.alternar(); });
+audioVolume.addEventListener("input", () => trilha.definirVolume(Number(audioVolume.value) / 100));
+btnSave.addEventListener("click", salvarPartida);
+btnLoad.addEventListener("click", () => inputLoad.click());
+inputLoad.addEventListener("change", () => {
+  const arquivo = inputLoad.files?.[0];
+  if (arquivo) void carregarPartida(arquivo);
 });
 

@@ -30,4 +30,17 @@ Viewport verificado: desktop 1365 × 935
 
 Build de produção concluído sem erro. Seleção da casa 24, rotação P1 → P2 e distinção entre jogador selecionado e jogador ativo foram verificadas no navegador.
 
+## Etapa 3 — áudio e gravador de dados
+
+- Referência visual: gravador portátil de cassete da década de 1980 fornecido pelo Junior.
+- Foi criado um ativo original, sem marca ou modelo de terceiro, adaptado à barra inferior do tabuleiro.
+- O gravador cobre os dois dados puramente decorativos da arte; os dados funcionais continuam no painel direito.
+- As teclas físicas receberam controles HTML acessíveis: `REC / SAVE` e `PLAY / LOAD`.
+- `REC` foi verificado no navegador e gerou o arquivo Markdown com confirmação visual.
+- A primeira jogada alterou a indicação musical de `INTRO` para `ACT 1 · BOOT`, moveu a peça e avançou o turno normalmente.
+- O controle de áudio, o volume e a faixa atual permanecem visíveis sem aumentar a altura do painel lateral.
+- O parser de `PLAY / LOAD` foi coberto por testes de ida e volta e rejeição de arquivo inválido.
+
+Build de produção e 23 testes automatizados concluídos sem erro em 27/10/2026.
+
 **final result: passed**
