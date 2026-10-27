@@ -46,6 +46,7 @@ app.innerHTML = `
     </div>
     <div class="opening-stage opening-stage-game" aria-hidden="true">
       <img src="/assets/retro-ghost-opening.png" alt="" />
+      <p class="opening-prompt">PRESS SPACE TO START</p>
     </div>
     <p class="sr-only">Apresentação do projeto RETRO-GHOST-85.</p>
   </section>
@@ -813,12 +814,26 @@ function novaPartida() {
 }
 
 function iniciarApresentacao() {
-  window.setTimeout(() => openingCredit.classList.add("is-visible"), 1_000);
-  window.setTimeout(() => openingSequence.classList.add("is-game-reveal"), 2_000);
+  window.setTimeout(() => openingCredit.classList.add("is-visible"), 3_000);
+
   window.setTimeout(() => {
-    openingSequence.hidden = true;
-    introDialog.showModal();
-  }, 4_000);
+    openingSequence.classList.add("is-game-reveal");
+
+    let encerrado = false;
+    const encerrarApresentacao = (evento: Event) => {
+      if (encerrado) return;
+      encerrado = true;
+      evento.preventDefault();
+      evento.stopPropagation();
+      window.removeEventListener("pointerdown", encerrarApresentacao);
+      window.removeEventListener("keydown", encerrarApresentacao);
+      openingSequence.hidden = true;
+      if (!introDialog.open) introDialog.showModal();
+    };
+
+    window.addEventListener("pointerdown", encerrarApresentacao);
+    window.addEventListener("keydown", encerrarApresentacao);
+  }, 7_000);
 }
 
 renderHouses();

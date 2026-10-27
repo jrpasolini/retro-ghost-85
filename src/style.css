@@ -62,11 +62,42 @@
   transition: opacity 550ms ease-out, transform 550ms ease-out;
 }
 .opening-credit.is-visible { transform: translateY(0); opacity: 1; }
+.opening-sequence.is-game-reveal { cursor: pointer; }
 .opening-sequence.is-game-reveal .opening-stage-game { opacity: 1; }
 .opening-sequence.is-game-reveal .opening-stage-portrait { opacity: 0; transition: opacity 350ms ease-out; }
 
+.opening-prompt {
+  position: absolute;
+  bottom: clamp(1.5rem, 5vh, 3.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  padding: 0.65rem 1.25rem;
+  color: #effffb;
+  background: rgba(4, 16, 15, 0.85);
+  border: 1px solid var(--cyan);
+  border-radius: 4px;
+  font: clamp(.65rem, 1.2vw, .95rem)/1.4 "Press Start 2P", monospace;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(16, 242, 223, 0.85);
+  box-shadow: 0 0 18px rgba(16, 242, 223, 0.4);
+  letter-spacing: 0.05em;
+  animation: blink-prompt 1.2s infinite ease-in-out;
+  pointer-events: none;
+  user-select: none;
+  max-width: min(90vw, 42rem);
+  white-space: normal;
+}
+
+@keyframes blink-prompt {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .opening-stage-game, .opening-stage-portrait, .opening-credit { transition-duration: 1ms; }
+  .opening-prompt { animation: none; opacity: 1; }
 }
 
 * { box-sizing: border-box; }
