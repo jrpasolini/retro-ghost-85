@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { casas } from "../data/casas.ts";
 import { desserializarSave, serializarSave } from "../estado/save.ts";
 import { criarRngComEstado, novoEstadoRng, rolar2D6 } from "./dado.ts";
-import { getPlayerTrajectory } from "./log.ts";
+import { chaveDoPortao, getPlayerTrajectory, NOME_TROFEU, PORTAO_DO_TROFEU } from "./log.ts";
 import { criarNarradorLocal } from "../narrador/narrador.ts";
 import {
   daEstadoSalvo,
@@ -64,9 +64,29 @@ test("ajustar jogadores devolve o mesmo resumo dos assentos confirmados", () => 
   assert.deepEqual(confirmarAssentos(deVolta).jogadores.map((jogador) => jogador.nome), confirmado.jogadores.map((jogador) => jogador.nome));
 });
 
+test("o ato 1 é o começo da jornada e nunca vira troféu", () => {
+  const estado = iniciarPartida(doisAssentos, novoEstadoRng(7));
+  assert.equal(chaveDoPortao(1), null);
+  assert.equal(estado.trofeus.act10, null);
+  assert.equal(estado.trofeus.endgame, null);
+  assert.ok(estado.log.every((entrada) => entrada.trofeus.length === 0));
+  assert.equal("act1" in estado.trofeus, false);
+});
+
+test("os troféus usam os rótulos do tabuleiro", () => {
+  assert.deepEqual(PORTAO_DO_TROFEU, { act10: 10, act20: 20, act30: 30 });
+  assert.equal(NOME_TROFEU.act10, "Ato 2");
+  assert.equal(NOME_TROFEU.act20, "Ato 3");
+  assert.equal(NOME_TROFEU.act30, "Ato 4");
+  assert.equal(NOME_TROFEU.endgame, "Endgame");
+  assert.equal(chaveDoPortao(10), "act10");
+  assert.equal(chaveDoPortao(20), "act20");
+  assert.equal(chaveDoPortao(30), "act30");
+  assert.equal(chaveDoPortao(40), null);
+});
+
 test("o primeiro a entrar no ato leva o troféu e quem passa depois não leva", () => {
   let estado = iniciarPartida(doisAssentos, novoEstadoRng(7));
-  assert.equal(estado.trofeus.act1?.jogadorId, 1);
   assert.equal(estado.trofeus.act10, null);
 
   estado = comCasa(estado, 1, 8);
@@ -75,6 +95,7 @@ test("o primeiro a entrar no ato leva o troféu e quem passa depois não leva", 
   assert.ok(primeiro.entrada.casasPassadas.includes(10));
   assert.deepEqual(primeiro.entrada.atosEntrados, [10]);
   assert.deepEqual(primeiro.novosTrofeus, ["act10"]);
+  assert.equal(NOME_TROFEU[primeiro.novosTrofeus[0]], "Ato 2");
   assert.equal(primeiro.estado.trofeus.act10?.jogadorId, 1);
 
   const segundo = avancar(comCasa(primeiro.estado, 2, 8), 2, 2);
@@ -108,9 +129,11 @@ test("o endgame vai para quem chega à casa 40 mesmo sem troféu de ato", () => 
   assert.equal(vitoria.estado.jogadores[1].casa, 40);
   assert.equal(vitoria.estado.jogadores[1].projeto, 80);
   assert.equal(vitoria.estado.trofeus.endgame?.jogadorId, 2);
-  for (const chave of ["act1", "act10", "act20", "act30"] as const) {
+  for (const chave of ["act10", "act20", "act30"] as const) {
     assert.notEqual(vitoria.estado.trofeus[chave]?.jogadorId, 2);
   }
+  assert.equal(vitoria.entrada.trofeus.includes("endgame"), true);
+  assert.equal(vitoria.entrada.trofeus.some((chave) => chave === ("act1" as never)), false);
 
   const tela = montarTelaEndgame(vitoria.estado);
   assert.ok(tela);
@@ -180,6 +203,18 @@ test("save e load preservam o log, os troféus, o RNG e a continuação", () => 
   );
 });
 
+test("um save antigo com troféu do ato 1 volta sem esse troféu", () => {
+  const estado = iniciarPartida(doisAssentos, novoEstadoRng(4));
+  const markdown = serializarSave(paraEstadoSalvo(estado)).replace(
+    '"trofeus": {',
+    '"trofeus": { "act1": { "jogadorId": 1, "turno": 0, "caminho": [] },',
+  ).replace('"trofeus": []', '"trofeus": ["act1"]');
+  const carregado = daEstadoSalvo(desserializarSave(markdown));
+  assert.equal("act1" in carregado.trofeus, false);
+  assert.ok(carregado.log.every((entrada) => !entrada.trofeus.some((chave) => (chave as string) === "act1")));
+  assert.equal(carregado.jogadores[0].casa, 1);
+});
+
 test("nova partida zera placar, histórico e troféus", () => {
   let estado = iniciarPartida(doisAssentos, novoEstadoRng(3));
   estado = avancar(comCasa(estado, 1, 39, 90), 1, 1).estado;
@@ -222,4 +257,14 @@ test("a arte da casa 40 e o gravador entram no bundle por caminho relativo", () 
     assert.equal(existsSync(new URL(`../../public/${arquivo}`, import.meta.url)), true);
   }
   assert.doesNotMatch(fonte, /OUVIR INTRO|btn-ouvir-intro/);
+  assert.match(fonte, /prologo\.paragrafos/);
+  assert.match(fonte, /id="btn-iniciar-jornada"/);
+  assert.doesNotMatch(fonte, /prologue-dialog|id="intro-step"|abrirPrologo|prologo\.svg/);
+  assert.equal(existsSync(new URL("../../public/assets/prologo.svg", import.meta.url)), false);
+  const intro = readFileSync(new URL("../data/intro.ts", import.meta.url), "utf8");
+  assert.match(intro, /desenvolvedor em 1985/);
+  assert.match(intro, /casa 40/);
+  assert.match(intro, /Ato 2/);
+  assert.match(intro, /Ato 3/);
+  assert.match(intro, /Ato 4/);
 });

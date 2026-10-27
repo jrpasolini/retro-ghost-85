@@ -315,7 +315,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 
 **Atualização de 26/10/2026:** a tabela acima permanece como registro da proposta inicial e foi substituída pelas 40 histórias e consequências em [`src/data/casas.ts`](src/data/casas.ts). As regras atuais, as mudanças das casas 2, 25 e 27 e as fontes de época estão em [`HISTORICO_NARRATIVO.md`](HISTORICO_NARRATIVO.md). A implementação atual usa projeto de 0 a 100 e 2d6; a antiga energia desta proposta não é aplicada.
 
-**Easter egg e partida atual:** os quatro jogadores partem da casa 1, apresentada como **ACT 1 · BOOT** no popup inicial. O movimento usa normalmente a soma de 2d6. As casas ACT são 1, 10, 20 e 30; a casa 40 é exclusivamente **ENDGAME · PUBLICAÇÃO**. Quando um mesmo jogador visita os quatro atos, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
+**Easter egg e partida atual:** os jogadores partem da casa 1, o **prólogo**. O movimento usa normalmente a soma de 2d6. No tabuleiro, a casa 10 é o **Ato 2**, a 20 o **Ato 3**, a 30 o **Ato 4** e a 40 é exclusivamente **ENDGAME · PUBLICAÇÃO**. O troféu de cada ato vai a quem entra primeiro naquela região; a casa 1 não premia. As visitas musicais e o retrato de Einstein continuam ligados às casas 1, 10, 20 e 30. Quando um mesmo jogador visita as quatro, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
 
 ---
 
@@ -486,10 +486,21 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 - A vitória é chegar primeiro à casa 40, com ou sem 100 de projeto. Não há mais retorno à casa 30. O projeto permanece placar e desempate.
 - Ao vencer, abre o diálogo ENDGAME · PUBLICAÇÃO: parabéns com o nome, projeto final, quantidade de rolagens, caminho casa a casa e ranking. “Nova partida” volta ao setup. Esc ou “Ver tabuleiro” fecha o diálogo sem apagar o estado, e REC/SAVE continua válido; “Ver endgame” reabre a tela.
 - A área “O Mestre narra” mostra um resumo local determinístico da trajetória. “Ouvir o Mestre” e “Baixar troféu (MP3)” existem, ficam desabilitados e apontam para `src/narrador/narrador.ts`, que responde `unavailable` / “narração em breve”. Nenhuma chamada de rede.
-- Troféus exclusivos `act1`, `act10`, `act20`, `act30` e `endgame`: o primeiro a entrar no ato (passar pela casa conta) leva o troféu com id, turno e caminho naquele instante. Quem chega depois não leva. O endgame pode ir para quem não tem nenhum troféu de ato. Um aviso não bloqueante anuncia a conquista.
+- Troféus exclusivos nas casas 10, 20 e 30 e no endgame: o primeiro a entrar no ato (passar pela casa conta) leva o troféu com id, turno e caminho naquele instante. Quem chega depois não leva. O endgame pode ir para quem não tem nenhum troféu de ato. A casa 1 ficou, nesta etapa, marcada como troféu de abertura; a etapa seguinte retirou essa premiação.
 - O painel GAME LOG ao lado do cassete lista todos os lances desde o início (turno, jogador, dados, origem→destino, casas passadas, efeito, delta de projeto, troféus, vitória), com a entrada mais nova visível, rolagem por mouse e teclado e uma marca na cor do jogador. Esse log é a fonte da verdade do Markdown: seção “Game Log” e uma trajetória por jogador, restauradas no setup e no PLAY. `getPlayerTrajectory(log, jogadorId)` devolve os lances daquele jogador, da casa 1 até agora, e é o que a narração futura do Mestre consome.
 - O save também grava o cursor do RNG. Carregar a partida e continuar produz a mesma sequência de 2d6. O resumo do boot e o elenco saem da mesma lista de assentos confirmada na tela; “Ajustar jogadores” devolve essa lista.
-- A casa 40 ganhou a ilustração `public/assets/casa-40-endgame.webp`, no mesmo encaixe das artes de ato (rótulo ATO 4 · ENDGAME · PUBLICAÇÃO: prateleira de 1985, caixa, disquete e troféu). O caminho é relativo (`./`), como o restante do bundle.
+- A casa 40 ganhou a ilustração `public/assets/casa-40-endgame.webp`, no mesmo encaixe das artes de ato (rótulo ENDGAME · PUBLICAÇÃO: prateleira de 1985, caixa, disquete e troféu). O Ato 4 permanece na casa 30. O caminho é relativo (`./`), como o restante do bundle.
+
+**Validação:** `npm test` e `npm run build`.
+
+### 27/10/2026 — Etapa 7: prólogo na tela de setup e troféus nos atos do tabuleiro
+
+**Status:** concluída em implementação; validada com testes automatizados, build e navegador.
+
+- A casa 1 é o prólogo, sem troféu, sem narração e sem popup. A história — desenvolvedor em 1985, projeto publicável, objetivo de chegar à casa 40, atos nas casas 10, 20 e 30 — vive num único texto em `src/data/intro.ts`, lido pela tela de escolha dos jogadores. INICIAR JORNADA confirma o elenco visível, fecha o setup e abre o tabuleiro com todos na casa 1 e o dado livre na vez humana. Não há diálogo de boot depois do setup.
+- A casa 10 continua sendo o Ato 2 do tabuleiro (efeito da casa, banda e Einstein intactos) e também o portão do troféu do Ato 2. Casa 20 = Ato 3, casa 30 = Ato 4, casa 40 = Endgame. O primeiro a entrar em cada região (pousar na casa ou passar além dela) ganha o troféu. O endgame continua com quem chega primeiro à casa 40.
+- Saves antigos que gravaram `act1` carregam; essa chave é descartada e não volta a ser gravada. O Markdown nomeia os troféus como Ato 2, Ato 3, Ato 4 e Endgame.
+- A conquista abre um diálogo centrado: “Jogador X chegou ao Ato N”, a trajetória lida do game log (eventos positivos e negativos), a área “O Mestre narra” com esse texto como fallback, “Ouvir o Mestre” e “Baixar troféu (MP3)” desabilitados (“narração em breve”) e CONTINUAR. Enquanto ele está aberto o dado não rola e a CPU espera. Esc e CONTINUAR fecham o diálogo. Vale para humano e para CPU. Se a mesma rolagem também vence, o troféu de ato aparece antes do diálogo de endgame.
 
 **Validação:** `npm test` e `npm run build`.
 

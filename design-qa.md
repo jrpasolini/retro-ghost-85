@@ -70,3 +70,8 @@ Build de produção e 28 testes automatizados concluídos sem erro em 27/10/2026
 Build de produção e 36 testes automatizados concluídos sem erro em 27/10/2026.
 
 **final result: passed**
+
+## Etapa 7 — prólogo no setup e popup de troféu
+
+- A introdução da jornada aparece na mesma tela da escolha de jogadores. Um clique em INICIAR JORNADA fecha o setup, posiciona todos na casa 1 e libera o dado. Não há segundo modal de boot nem popup de prólogo.
+- O primeiro jogador a entrar no Ato 2 (casa 10 ou além), Ato 3 (20), Ato 4 (30) ou no Endgame (40) vê um diálogo centrado com a trajetória do game log, a área “O Mestre narra” e os botões de áudio desabilitados. O dado e a CPU ficam parados até CONTINUAR.

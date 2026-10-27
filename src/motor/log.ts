@@ -1,10 +1,9 @@
-export const CHAVES_TROFEU = ["act1", "act10", "act20", "act30", "endgame"] as const;
+export const CHAVES_TROFEU = ["act10", "act20", "act30", "endgame"] as const;
 export type ChaveTrofeu = (typeof CHAVES_TROFEU)[number];
 
-export const PORTAO_DO_TROFEU = { act1: 1, act10: 10, act20: 20, act30: 30 } as const;
+export const PORTAO_DO_TROFEU = { act10: 10, act20: 20, act30: 30 } as const;
 
 export const NOME_TROFEU: Record<ChaveTrofeu, string> = {
-  act1: "Ato 1",
   act10: "Ato 2",
   act20: "Ato 3",
   act30: "Ato 4",
@@ -43,11 +42,11 @@ export type Trofeu = {
 export type Trofeus = Record<ChaveTrofeu, Trofeu | null>;
 
 export function trofeusVazios(): Trofeus {
-  return { act1: null, act10: null, act20: null, act30: null, endgame: null };
+  return { act10: null, act20: null, act30: null, endgame: null };
 }
 
+/** A casa 1 abre a jornada no boot. Troféu só existe a partir das casas 10, 20 e 30. */
 export function chaveDoPortao(portao: number): ChaveTrofeu | null {
-  if (portao === 1) return "act1";
   if (portao === 10) return "act10";
   if (portao === 20) return "act20";
   if (portao === 30) return "act30";

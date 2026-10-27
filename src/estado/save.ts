@@ -39,8 +39,9 @@ function validarEntrada(valor: unknown): EntradaLog {
   if (!Array.isArray(entrada.casasPassadas) || !Array.isArray(entrada.atosEntrados) || !Array.isArray(entrada.perderamVez) || !Array.isArray(entrada.trofeus)) throw new Error("Lance do game log inválido");
   if (typeof entrada.efeito !== "string" || !inteiroEntre(entrada.deltaProjeto, -100, 100) || !inteiroEntre(entrada.projeto, 0, 100)) throw new Error("Lance do game log inválido");
   if (typeof entrada.jogadaExtra !== "boolean" || typeof entrada.perdeTurno !== "boolean" || typeof entrada.vitoria !== "boolean") throw new Error("Lance do game log inválido");
-  const trofeus = entrada.trofeus.filter((chave): chave is ChaveTrofeu => (CHAVES_TROFEU as readonly string[]).includes(chave));
-  if (trofeus.length !== entrada.trofeus.length) throw new Error("Troféu inválido no game log");
+  const informados = (entrada.trofeus as readonly string[]).filter((chave) => chave !== "act1");
+  const trofeus = informados.filter((chave): chave is ChaveTrofeu => (CHAVES_TROFEU as readonly string[]).includes(chave));
+  if (trofeus.length !== informados.length) throw new Error("Troféu inválido no game log");
   return {
     turno: entrada.turno,
     jogadorId: entrada.jogadorId,
@@ -101,12 +102,12 @@ export function validarEstadoSalvo(valor: unknown): EstadoSalvo {
   }
 
   const log = Array.isArray(estado.log) ? estado.log.map(validarEntrada) : [];
+  const gravados = (estado.trofeus ?? {}) as Partial<Trofeus>;
   const trofeus = estado.trofeus ? {
-    act1: validarTrofeu(estado.trofeus.act1),
-    act10: validarTrofeu(estado.trofeus.act10),
-    act20: validarTrofeu(estado.trofeus.act20),
-    act30: validarTrofeu(estado.trofeus.act30),
-    endgame: validarTrofeu(estado.trofeus.endgame),
+    act10: validarTrofeu(gravados.act10),
+    act20: validarTrofeu(gravados.act20),
+    act30: validarTrofeu(gravados.act30),
+    endgame: validarTrofeu(gravados.endgame),
   } : trofeusVazios();
   let rng: EstadoRng | null = null;
   if (estado.rng) {
