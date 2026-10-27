@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { casas } from "../data/casas.ts";
 import type { Jogador } from "../types";
 import { aplicarJogada } from "./tabuleiro.ts";
+import { avancarTurno, podeIniciarJogada, proximoJogadorId } from "./turnos.ts";
 
 const jogador = (casa: number, projeto = 0): Jogador => ({
   id: 1, nome: "Teste", cor: "#fff", imagem: "", casa, projeto, turnosPerdidos: 0, actsVisitados: [40],
@@ -70,3 +71,33 @@ test("casa 40 exige 100 projeto e devolve à 30 em caso contrário", () => {
   assert.equal(vencedor.venceu, true);
   assert.equal(vencedor.jogador.casa, 40);
 });
+
+test("rotação local percorre os quatro jogadores e retorna ao primeiro", () => {
+  const jogadores = [1, 2, 3, 4].map((id) => ({ ...jogador(40), id, nome: `P${id}` }));
+  assert.equal(proximoJogadorId(1, 4), 2);
+  assert.equal(proximoJogadorId(4, 4), 1);
+  const resultado = avancarTurno(jogadores, 4);
+  assert.equal(resultado.jogadorAtivo, 1);
+  assert.deepEqual(resultado.ignorados, []);
+});
+
+test("rotação pula jogadores com turno perdido e consome uma penalidade", () => {
+  const jogadores = [1, 2, 3, 4].map((id) => ({ ...jogador(40), id, nome: `P${id}` }));
+  jogadores[1].turnosPerdidos = 1;
+  jogadores[2].turnosPerdidos = 2;
+  const resultado = avancarTurno(jogadores, 1);
+  assert.equal(resultado.jogadorAtivo, 4);
+  assert.deepEqual(resultado.ignorados, ["P2", "P3"]);
+  assert.equal(resultado.jogadores[1].turnosPerdidos, 0);
+  assert.equal(resultado.jogadores[2].turnosPerdidos, 1);
+});
+
+test("jogada extra mantém o mesmo jogador e vitória encerra novas jogadas", () => {
+  const extra = aplicarJogada(jogador(3), 1, casas);
+  assert.equal(extra.jogadaExtra, true);
+  assert.equal(proximoJogadorId(1, 4), 2);
+  assert.equal(podeIniciarJogada(false, false), true);
+  assert.equal(podeIniciarJogada(false, true), false);
+  assert.equal(podeIniciarJogada(true, false), false);
+});
+
