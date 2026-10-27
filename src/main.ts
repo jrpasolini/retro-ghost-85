@@ -103,13 +103,20 @@ app.innerHTML = `
           <span class="prompt">&gt; INSPECT_HOUSE</span>
           <span class="counter">01/40</span>
         </div>
-        <div class="house-number">01</div>
-        <span class="type-chip">PRÓLOGO</span>
-        <h2>Prólogo · Início</h2>
-        <p class="effect-label">EFEITO DA CASA</p>
-        <p class="effect"></p>
-        <p class="narrative"></p>
-        <p class="act-progress" aria-live="polite">ACTS do Jogador 1: 1/4</p>
+        <div class="house-heading">
+          <div class="house-number" aria-hidden="true">01</div>
+          <div class="house-heading-copy">
+            <span class="type-chip">PRÓLOGO</span>
+            <h2>Prólogo · Início</h2>
+          </div>
+        </div>
+        <div class="inspector-story">
+          <p class="effect-label">EFEITO DA CASA</p>
+          <p class="effect"></p>
+          <p class="narrative" lang="pt-BR"></p>
+          <p class="act-progress" aria-live="polite">ACTS do Jogador 1: 1/4</p>
+        </div>
+        <div class="inspector-dock">
         <div class="divider"></div>
 
         <div class="dice-panel" aria-label="Controle de rolagem do dado">
@@ -133,7 +140,8 @@ app.innerHTML = `
           <button id="btn-reabrir-endgame" class="dice-btn endgame-reopen" type="button" hidden>VER ENDGAME</button>
         </div>
 
-        <p class="tip" style="margin-top: .85rem;">Clique em qualquer casa ou jogador para inspecionar detalhes.</p>
+        <p class="tip">Clique em qualquer casa ou jogador para inspecionar detalhes.</p>
+        </div>
       </aside>
     </section>
 
