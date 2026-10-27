@@ -57,4 +57,16 @@ Build de produção e 24 testes automatizados concluídos sem erro em 27/10/2026
 
 Build de produção e 28 testes automatizados concluídos sem erro em 27/10/2026.
 
+## Etapa 5 — arte editada, gamelog e sprites
+
+- A arte `board-reference-edited.webp` foi inspecionada em resolução original (1672 × 941); a área inferior passou a trazer `PLAYERS`, `DICE` e `GAME LOG` integrados ao cenário.
+- A mensagem dinâmica do gamelog começa em 62,2% da largura, depois do prompt `>` da arte, e termina antes da borda direita do visor.
+- Em telas estreitas, posição e dimensões equivalentes foram definidas em pixels sobre a versão horizontal rolável do tabuleiro.
+- O texto compacto do tabuleiro e o texto detalhado do painel lateral usam a mesma fonte de dados da jogada.
+- Peças solitárias agora ocupam o centro geométrico da casa; duas a quatro peças são distribuídas em formações próprias apenas quando dividem a mesma posição.
+- Um teste percorre todas as 40 casas com ocupações de uma a quatro peças e confirma que todos os centros permanecem dentro dos respectivos hotspots.
+- A conexão do navegador remoto ao preview local não ficou disponível nesta sessão; por isso, esta etapa não declara captura visual interativa nova. A validação visual foi feita sobre a arte original e as coordenadas, complementada pelos testes de layout e pelo build.
+
+Build de produção e 36 testes automatizados concluídos sem erro em 27/10/2026.
+
 **final result: passed**
