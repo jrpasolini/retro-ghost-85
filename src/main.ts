@@ -8,8 +8,9 @@ import { atos } from "./data/atos";
 import type { Casa, Jogador } from "./types";
 import { rolar2D6 } from "./motor/dado";
 import { aplicarJogada } from "./motor/tabuleiro";
+import { avancarTurno, podeIniciarJogada } from "./motor/turnos";
 
-const jogadores: Jogador[] = [
+let jogadores: Jogador[] = [
   { id: 1, nome: "Jogador 1", cor: "#54f5c2", imagem: "./assets/player-1.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
   { id: 2, nome: "Jogador 2", cor: "#ffd365", imagem: "./assets/player-2.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
   { id: 3, nome: "Jogador 3", cor: "#48d8ff", imagem: "./assets/player-3.webp", casa: 40, projeto: 0, turnosPerdidos: 0, actsVisitados: [40] },
@@ -199,22 +200,8 @@ function selectPlayer(id: number) {
   selectHouse(jogadores[id - 1].casa);
 }
 
-function avancarTurno() {
-  const proximo = () => (jogadorAtivo % jogadores.length) + 1;
-  jogadorAtivo = proximo();
-  const ignorados: string[] = [];
-  for (let i = 0; i < jogadores.length; i++) {
-    const jogador = jogadores[jogadorAtivo - 1];
-    if (jogador.turnosPerdidos === 0) break;
-    jogador.turnosPerdidos--;
-    ignorados.push(jogador.nome);
-    jogadorAtivo = proximo();
-  }
-  return ignorados;
-}
-
 async function executarSorteioDado() {
-  if (rolandoDado || partidaEncerrada) return;
+  if (!podeIniciarJogada(rolandoDado, partidaEncerrada)) return;
   rolandoDado = true;
 
   const faceElements = Array.from(document.querySelectorAll<HTMLElement>(".dice-face"));
@@ -262,7 +249,12 @@ async function executarSorteioDado() {
     document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = false;
   }
   if (resultado.venceu) partidaEncerrada = true;
-  const ignorados = !resultado.venceu && !resultado.jogadaExtra ? avancarTurno() : [];
+  const turno = !resultado.venceu && !resultado.jogadaExtra
+    ? avancarTurno(jogadores, jogadorAtivo)
+    : { jogadores, jogadorAtivo, ignorados: [] as string[] };
+  jogadores = turno.jogadores;
+  jogadorAtivo = turno.jogadorAtivo;
+  const ignorados = turno.ignorados;
   renderPlayers();
   bindPlayerEvents();
   selectHouse(resultado.casa.id);
@@ -302,3 +294,4 @@ bindPlayerEvents();
 btnRolarDado.addEventListener("click", () => {
   executarSorteioDado();
 });
+
