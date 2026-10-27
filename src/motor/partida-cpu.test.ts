@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { casas } from "../data/casas.ts";
-import { criarRngSemente, rolar2D6 } from "./dado.ts";
+import { criarRngSemente, rolarD6 } from "./dado.ts";
 import { formatarGamelog } from "./gamelog.ts";
 import { criarJogadores } from "./jogadores.ts";
 import { aplicarJogada } from "./tabuleiro.ts";
@@ -22,8 +22,8 @@ test("Alex e CPU-1 alternam naturalmente até um deles finalizar o jogo", () => 
 
   while (!vencedor && jogadas < 120) {
     const jogador = jogadores[jogadorAtivo - 1];
-    const { dados, total } = rolar2D6(rng);
-    const resultado = aplicarJogada(jogador, total, casas);
+    const dado = rolarD6(rng);
+    const resultado = aplicarJogada(jogador, dado.valor, casas);
     jogadores[jogadorAtivo - 1] = resultado.jogador;
     participantesQueJogaram.add(jogador.nome);
     jogadas += 1;
@@ -40,8 +40,7 @@ test("Alex e CPU-1 alternam naturalmente até um deles finalizar o jogo", () => 
 
     const log = formatarGamelog({
       jogador: jogador.nome,
-      dado1: dados[0].valor,
-      dado2: dados[1].valor,
+      dado: dado.valor,
       casaDestino: resultado.casa.id,
       casaFinal: resultado.jogador.casa,
       projeto: resultado.jogador.projeto,
@@ -51,7 +50,7 @@ test("Alex e CPU-1 alternam naturalmente até um deles finalizar o jogo", () => 
       ignorados: turno.ignorados,
     });
     assert.match(log.completo, new RegExp(jogador.nome));
-    assert.ok(log.completo.includes(`${dados[0].valor} + ${dados[1].valor} = ${total}`));
+    assert.ok(log.completo.includes(`tirou ${dado.valor}`));
     assert.ok(log.completo.includes(`Projeto: ${resultado.jogador.projeto}/100`));
 
     if (resultado.venceu) vencedor = jogador.nome;

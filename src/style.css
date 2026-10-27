@@ -325,8 +325,7 @@ h1 span { color: var(--amber); }
 .house-hotspot span { position: absolute; width: 1px; height: 1px; overflow: hidden; }
 
 .house-hotspot:hover,
-.house-hotspot:focus-visible,
-.house-hotspot.is-active {
+.house-hotspot:focus-visible {
   outline: none;
   border-color: #fff0ad;
   background: rgba(255, 191, 31, .11);
@@ -399,7 +398,7 @@ h1 span { color: var(--amber); }
 .inspector {
   position: relative;
   min-width: 0;
-  padding: clamp(1rem, 1.5vw, 1.5rem);
+  padding: clamp(.8rem, 1vw, 1rem);
   border: 1px solid rgba(16, 242, 223, .66);
   background: linear-gradient(180deg, rgba(4, 20, 18, .97), rgba(1, 7, 7, .99));
   box-shadow: inset 0 0 35px rgba(16, 242, 223, .035);
@@ -415,29 +414,29 @@ h1 span { color: var(--amber); }
 }
 
 .inspector-head { display: flex; justify-content: space-between; gap: .5rem; color: var(--cyan); font-size: .72rem; font-weight: 700; letter-spacing: .06em; }
-.house-number { margin-top: clamp(1.3rem, 2.5vw, 2.6rem); color: rgba(105, 255, 217, .14); font: clamp(3.5rem, 7vw, 7rem)/.8 "Press Start 2P", monospace; letter-spacing: -.12em; }
-.type-chip { display: inline-block; margin-top: 1rem; padding: .3rem .5rem; border: 1px solid var(--cyan); color: var(--cyan); font-size: .65rem; font-weight: 700; letter-spacing: .09em; }
+.house-number { margin-top: clamp(.65rem, 1vw, 1rem); color: rgba(105, 255, 217, .14); font: clamp(2.75rem, 4.3vw, 4.75rem)/.82 "Press Start 2P", monospace; letter-spacing: -.12em; }
+.type-chip { display: inline-block; margin-top: .6rem; padding: .25rem .45rem; border: 1px solid var(--cyan); color: var(--cyan); font-size: .62rem; font-weight: 700; letter-spacing: .09em; }
 .type-chip[data-type="fatalidade"] { border-color: #ff5b8e; color: #ff75a1; }
 .type-chip[data-type="marco"], .type-chip[data-type="final"] { border-color: var(--amber); color: var(--amber); }
 .type-chip[data-type="escolha"] { border-color: #c985ff; color: #d8a5ff; }
-.inspector h2 { margin: .85rem 0 .4rem; color: #e9fff9; font: 600 clamp(1.15rem, 1.5vw, 1.6rem)/1.05 "Chakra Petch", sans-serif; }
-.effect-label { margin: 1.2rem 0 .25rem; color: #617f78; font-size: .62rem; font-weight: 700; letter-spacing: .1em; }
+.inspector h2 { margin: .6rem 0 .3rem; color: #e9fff9; font: 600 clamp(1.1rem, 1.35vw, 1.45rem)/1.05 "Chakra Petch", sans-serif; }
+.effect-label { margin: .75rem 0 .2rem; color: #617f78; font-size: .6rem; font-weight: 700; letter-spacing: .1em; }
 .effect { margin: 0; color: var(--green); font-weight: 700; }
 .effect[data-type="fatalidade"] { color: #ff75a1; }
 .effect[data-type="final"] { color: var(--amber); }
-.narrative, .tip { color: #7ca49b; line-height: 1.5; font-size: .84rem; }
-.narrative { max-height: 7.5rem; overflow: auto; scrollbar-color: var(--cyan) #04100f; }
+.narrative, .tip { color: #7ca49b; line-height: 1.4; font-size: .8rem; }
+.narrative { max-height: 6rem; overflow: auto; scrollbar-color: var(--cyan) #04100f; }
 .narrative.is-act { max-height: 10rem; margin-top: 1rem; padding: .7rem .85rem; border-left: 3px solid var(--amber); background: rgba(255, 181, 28, .065); color: #c9dfd3; }
-.act-progress { margin: .85rem 0 0; color: var(--amber); font-size: .72rem; font-weight: 700; letter-spacing: .05em; }
-.divider { height: 1px; margin: 1.25rem 0; background: linear-gradient(90deg, var(--cyan), transparent); opacity: .4; }
+.act-progress { margin: .6rem 0 0; color: var(--amber); font-size: .68rem; font-weight: 700; letter-spacing: .05em; }
+.divider { height: 1px; margin: .8rem 0; background: linear-gradient(90deg, var(--cyan), transparent); opacity: .4; }
 
 /* Controles e painel de rolagem do Dado Retrô */
 .dice-panel {
   position: sticky;
   top: .75rem;
   z-index: 5;
-  margin-top: .75rem;
-  padding: .85rem;
+  margin-top: .25rem;
+  padding: .65rem;
   border: 1px solid rgba(16, 242, 223, .45);
   background: rgba(2, 14, 13, 0.9);
   box-shadow: inset 0 0 15px rgba(16, 242, 223, 0.05);
@@ -447,7 +446,7 @@ h1 span { color: var(--amber); }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: .65rem;
+  margin-bottom: .45rem;
 }
 
 .dice-panel-header .prompt {
@@ -471,8 +470,8 @@ h1 span { color: var(--amber); }
   justify-content: center;
   flex-wrap: wrap;
   gap: .55rem;
-  margin-bottom: .75rem;
-  padding: .6rem .75rem;
+  margin-bottom: .55rem;
+  padding: .45rem .65rem;
   background: #010605;
   border: 1px solid rgba(87, 244, 189, 0.28);
 }
@@ -482,9 +481,9 @@ h1 span { color: var(--amber); }
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: .16rem;
-  flex: 0 0 3.25rem;
-  width: 3.25rem;
-  height: 3.25rem;
+  flex: 0 0 3rem;
+  width: 3rem;
+  height: 3rem;
   padding: .38rem;
   border: 2px solid var(--cyan);
   border-radius: .45rem;
@@ -496,8 +495,8 @@ h1 span { color: var(--amber); }
 }
 
 .dice-pip {
-  width: .48rem;
-  height: .48rem;
+  width: .44rem;
+  height: .44rem;
   align-self: center;
   justify-self: center;
   border-radius: 50%;
@@ -517,8 +516,6 @@ h1 span { color: var(--amber); }
   animation: dice-shake .11s infinite alternate;
   box-shadow: inset 0 0 18px rgba(255, 181, 28, .25), 0 0 18px rgba(255, 181, 28, .65);
 }
-.dice-face[data-die="2"].rolling { animation-direction: alternate-reverse; }
-
 .dice-face.is-result {
   animation: dice-result .45s ease-out;
 }
@@ -541,7 +538,7 @@ h1 span { color: var(--amber); }
   flex: 1 0 100%;
   gap: .2rem;
   min-width: 0;
-  margin-top: .35rem;
+  margin-top: .2rem;
 }
 
 .dice-value {
@@ -559,7 +556,7 @@ h1 span { color: var(--amber); }
 
 .dice-btn {
   width: 100%;
-  padding: .75rem .5rem;
+  padding: .65rem .5rem;
   background: linear-gradient(180deg, #10f2df 0%, #0db8a9 100%);
   color: #021411;
   border: none;
@@ -587,14 +584,26 @@ h1 span { color: var(--amber); }
 }
 
 .dice-status {
-  margin-top: .6rem;
-  font-size: .74rem;
+  margin-top: .45rem;
+  font-size: .7rem;
   color: #9cddcf;
   line-height: 1.4;
 }
 
 .dice-status strong {
   color: var(--amber);
+}
+
+.tip { margin: .55rem 0 0 !important; }
+
+@media (min-width: 1051px) {
+  .game-layout { align-items: stretch; }
+  .inspector {
+    contain: size;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-color: var(--cyan) #04100f;
+  }
 }
 
 .game-logbook {

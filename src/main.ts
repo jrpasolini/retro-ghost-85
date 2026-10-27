@@ -7,7 +7,7 @@ import { casas } from "./data/casas";
 import { atos } from "./data/atos";
 import { prologo } from "./data/intro";
 import type { Casa, Jogador } from "./types";
-import { criarRngComEstado, novoEstadoRng, rolar2D6 } from "./motor/dado";
+import { criarRngComEstado, novoEstadoRng, rolarD6 } from "./motor/dado";
 import { podeIniciarJogada } from "./motor/turnos";
 import { maiorAtoAlcancado, proximaTrilha } from "./motor/trilha";
 import { criarJogadores, turnoDaCpu, type ConfiguracaoJogador } from "./motor/jogadores";
@@ -101,24 +101,23 @@ app.innerHTML = `
         <p class="act-progress" aria-live="polite">ACTS do Jogador 1: 1/4</p>
         <div class="divider"></div>
 
-        <div class="dice-panel" aria-label="Controle de rolagem dos dados">
+        <div class="dice-panel" aria-label="Controle de rolagem do dado">
           <div class="dice-panel-header">
-            <span class="prompt">&gt; DADOS_LOCAL (2D6)</span>
+            <span class="prompt">&gt; DADO_LOCAL (1D6)</span>
             <span class="dice-tag">RNG PURO</span>
           </div>
           <div class="dice-display-area">
-            <div class="dice-face" data-die="1" data-value="1" role="img" aria-label="Dado 1 mostrando 1"></div>
-            <div class="dice-face" data-die="2" data-value="1" role="img" aria-label="Dado 2 mostrando 1"></div>
+            <div class="dice-face" data-value="1" role="img" aria-label="Dado mostrando 1"></div>
             <div class="dice-readout">
-              <span class="dice-value">– + –</span>
+              <span class="dice-value">–</span>
               <span class="dice-sub">AGUARDANDO JOGADA</span>
             </div>
           </div>
           <button id="btn-rolar-dado" class="dice-btn" type="button" disabled>
-            ROLAR DADOS
+            ROLAR DADO
           </button>
           <div class="dice-status" aria-live="polite">
-            Inicie a jornada para liberar os dados.
+            Inicie a jornada para liberar o dado.
           </div>
           <button id="btn-reabrir-endgame" class="dice-btn endgame-reopen" type="button" hidden>VER ENDGAME</button>
         </div>
@@ -129,7 +128,7 @@ app.innerHTML = `
 
     <footer>
       <span>BUILD 0.6.0</span>
-      <span>40 CASAS · 1–4 JOGADORES/CPU · 2D6 · SAVE/LOAD · TRILHA DINÂMICA</span>
+      <span>40 CASAS · 1–4 JOGADORES/CPU · 1D6 · SAVE/LOAD · TRILHA DINÂMICA</span>
     </footer>
 
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
@@ -141,7 +140,7 @@ app.innerHTML = `
           ${prologo.paragrafos.map((paragrafo) => `<p>${paragrafo}</p>`).join("")}
         </div>
         <h3 class="setup-heading">Quem vai programar?</h3>
-        <p>Escolha de um a quatro participantes. Humanos dividem o mesmo dispositivo; a CPU apenas rola os dados automaticamente na própria vez.</p>
+        <p>Escolha de um a quatro participantes. Humanos dividem o mesmo dispositivo; a CPU apenas rola o dado automaticamente na própria vez.</p>
         <div class="player-count" aria-label="Quantidade de participantes">
           <button id="btn-menos-player" type="button" aria-label="Remover participante">−</button>
           <output id="player-count" aria-live="polite">1</output>
@@ -542,7 +541,7 @@ function renderDiceFace(element: HTMLElement, value: number) {
   if (!pontosAtivos) return;
 
   element.dataset.value = String(value);
-  element.setAttribute("aria-label", `Dado ${element.dataset.die} mostrando ${value}`);
+  element.setAttribute("aria-label", `Dado mostrando ${value}`);
   element.innerHTML = Array.from({ length: 9 }, (_, index) => {
     const position = index + 1;
     return `<span class="dice-pip${pontosAtivos.includes(position) ? " is-active" : ""}" aria-hidden="true"></span>`;
@@ -658,9 +657,9 @@ async function executarSorteioDado(automatico = false) {
   if (!prefersReducedMotion) {
     const ciclos = 14;
     for (let i = 0; i < ciclos; i++) {
-      const facesTemp = faceElements.map(() => Math.floor(Math.random() * 6) + 1);
-      faceElements.forEach((face, index) => renderDiceFace(face, facesTemp[index]));
-      if (valueEl) valueEl.textContent = facesTemp.join(" + ");
+      const faceTemp = Math.floor(Math.random() * 6) + 1;
+      faceElements.forEach((face) => renderDiceFace(face, faceTemp));
+      if (valueEl) valueEl.textContent = String(faceTemp);
       await new Promise((resolve) => setTimeout(resolve, 55));
     }
   }
@@ -672,26 +671,26 @@ async function executarSorteioDado(automatico = false) {
     return;
   }
   const gerador = criarRngComEstado(sessao.rng);
-  const { dados, total } = rolar2D6(gerador.aleatorio);
+  const dado = rolarD6(gerador.aleatorio);
   const registro = registrarJogada(
     { ...sessao, rng: gerador.snapshot() },
-    { dado1: dados[0].valor, dado2: dados[1].valor },
+    { dado: dado.valor },
     casas,
   );
   sessao = registro.estado;
   sincronizarVista();
 
-  faceElements.forEach((face, index) => {
+  faceElements.forEach((face) => {
     face.classList.remove("rolling");
-    renderDiceFace(face, dados[index].valor);
+    renderDiceFace(face, dado.valor);
     face.classList.remove("is-result");
     void face.offsetWidth;
     face.classList.add("is-result");
   });
   if (valueEl) {
-    valueEl.textContent = `${dados[0].valor} + ${dados[1].valor} = ${total}`;
+    valueEl.textContent = String(dado.valor);
   }
-  if (subEl) subEl.textContent = `TOTAL: ${total} · AVANCE ${total} CASAS`;
+  if (subEl) subEl.textContent = `RESULTADO: ${dado.valor} · AVANCE ${dado.valor} CASA${dado.valor === 1 ? "" : "S"}`;
   if (registro.easterEggDesbloqueado) {
     document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = false;
   }
@@ -702,8 +701,7 @@ async function executarSorteioDado(automatico = false) {
   renderLog();
   const log = formatarGamelog({
     jogador: jogador.nome,
-    dado1: dados[0].valor,
-    dado2: dados[1].valor,
+    dado: dado.valor,
     casaDestino: registro.entrada.casaDestino,
     casaFinal: registro.entrada.casaFinal,
     projeto: registro.entrada.projeto,
@@ -764,7 +762,7 @@ function iniciarJornada() {
     renderLog();
     void trilha.desbloquear().then(() => atualizarTrilha());
     const nome = jogadores[0]?.nome ?? "Jogador 1";
-    document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `Vez de <strong>${escaparHtml(nome)}</strong>. Clique para rolar os dados.`;
+    document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `Vez de <strong>${escaparHtml(nome)}</strong>. Clique para rolar o dado.`;
     agendarTurnoCpu();
     if (!btnRolarDado.disabled) btnRolarDado.focus();
   } catch (erro) {
@@ -790,7 +788,7 @@ function novaPartida() {
   btnReabrirEndgame.hidden = true;
   if (endgameDialog.open) endgameDialog.close();
   document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = true;
-  document.querySelector<HTMLElement>(".dice-status")!.textContent = "Inicie a jornada para liberar os dados.";
+  document.querySelector<HTMLElement>(".dice-status")!.textContent = "Inicie a jornada para liberar o dado.";
   renderHouses();
   renderPlayers();
   updateInspector(casas[0]);

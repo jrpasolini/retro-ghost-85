@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { casas } from "../data/casas.ts";
 import { desserializarSave, serializarSave } from "../estado/save.ts";
-import { criarRngComEstado, novoEstadoRng, rolar2D6 } from "./dado.ts";
+import { criarRngComEstado, novoEstadoRng, rolarD6 } from "./dado.ts";
 import { chaveDoPortao, getPlayerTrajectory, NOME_TROFEU, PORTAO_DO_TROFEU } from "./log.ts";
 import { criarNarradorLocal } from "../narrador/narrador.ts";
 import {
@@ -21,8 +21,8 @@ const doisAssentos = [
   { controle: "cpu" as const },
 ];
 
-function avancar(estado: EstadoPartida, dado1: number, dado2: number) {
-  return registrarJogada(estado, { dado1, dado2 }, casas);
+function avancar(estado: EstadoPartida, dado: number) {
+  return registrarJogada(estado, { dado }, casas);
 }
 
 function comCasa(estado: EstadoPartida, jogadorId: number, casa: number, projeto = estado.jogadores[jogadorId - 1].projeto): EstadoPartida {
@@ -38,7 +38,7 @@ test("resumo e elenco nascem dos assentos confirmados", () => {
   assert.equal(confirmado.jogadores.length, 2);
   assert.deepEqual(confirmado.jogadores.map((jogador) => jogador.controle), ["humano", "cpu"]);
   assert.equal(confirmado.resumo, resumoAssentos(confirmado.assentos));
-  assert.match(confirmado.resumo, /2 participantes · 1 HUMANO · 1 CPU · 2D6/);
+  assert.match(confirmado.resumo, /2 participantes · 1 HUMANO · 1 CPU · 1D6/);
   assert.doesNotMatch(confirmado.resumo, /3 participantes/);
 
   const doisHumanos = confirmarAssentos([
@@ -47,7 +47,7 @@ test("resumo e elenco nascem dos assentos confirmados", () => {
   ]);
   assert.equal(doisHumanos.jogadores.length, 2);
   assert.equal(doisHumanos.jogadores.filter((jogador) => jogador.controle === "cpu").length, 0);
-  assert.match(doisHumanos.resumo, /2 participantes · 2 HUMANOS · 2D6/);
+  assert.match(doisHumanos.resumo, /2 participantes · 2 HUMANOS · 1D6/);
   assert.doesNotMatch(doisHumanos.resumo, /CPU/);
 });
 
@@ -90,7 +90,7 @@ test("o primeiro a entrar no ato leva o troféu e quem passa depois não leva", 
   assert.equal(estado.trofeus.act10, null);
 
   estado = comCasa(estado, 1, 8);
-  const primeiro = avancar(estado, 2, 2);
+  const primeiro = avancar(estado, 4);
   assert.equal(primeiro.estado.jogadores[0].casa, 12);
   assert.ok(primeiro.entrada.casasPassadas.includes(10));
   assert.deepEqual(primeiro.entrada.atosEntrados, [10]);
@@ -98,7 +98,7 @@ test("o primeiro a entrar no ato leva o troféu e quem passa depois não leva", 
   assert.equal(NOME_TROFEU[primeiro.novosTrofeus[0]], "Ato 2");
   assert.equal(primeiro.estado.trofeus.act10?.jogadorId, 1);
 
-  const segundo = avancar(comCasa(primeiro.estado, 2, 8), 2, 2);
+  const segundo = avancar(comCasa(primeiro.estado, 2, 8), 4);
   assert.ok(segundo.entrada.casasPassadas.includes(10));
   assert.deepEqual(segundo.entrada.atosEntrados, [10]);
   assert.deepEqual(segundo.novosTrofeus, []);
@@ -109,7 +109,7 @@ test("o primeiro a entrar no ato leva o troféu e quem passa depois não leva", 
 test("pular a casa do ato ainda entrega o troféu a quem entra primeiro", () => {
   let estado = iniciarPartida(doisAssentos, novoEstadoRng(7));
   estado = comCasa(estado, 1, 8);
-  const pulo = avancar(estado, 3, 3);
+  const pulo = avancar(estado, 6);
   assert.notEqual(pulo.estado.jogadores[0].casa, 10);
   assert.equal(pulo.estado.trofeus.act10?.jogadorId, 1);
   assert.ok(pulo.entrada.casasPassadas.includes(10));
@@ -117,14 +117,14 @@ test("pular a casa do ato ainda entrega o troféu a quem entra primeiro", () => 
 
 test("o endgame vai para quem chega à casa 40 mesmo sem troféu de ato", () => {
   let estado = iniciarPartida(doisAssentos, novoEstadoRng(7));
-  estado = avancar(comCasa(estado, 1, 9), 1, 1).estado;
-  estado = avancar(comCasa(estado, 1, 19), 1, 1).estado;
-  estado = avancar(comCasa(estado, 1, 29), 1, 1).estado;
+  estado = avancar(comCasa(estado, 1, 9), 2).estado;
+  estado = avancar(comCasa(estado, 1, 19), 2).estado;
+  estado = avancar(comCasa(estado, 1, 29), 2).estado;
   assert.equal(estado.trofeus.act10?.jogadorId, 1);
   assert.equal(estado.trofeus.act20?.jogadorId, 1);
   assert.equal(estado.trofeus.act30?.jogadorId, 1);
 
-  const vitoria = avancar(comCasa(estado, 2, 39, 70), 1, 1);
+  const vitoria = avancar(comCasa(estado, 2, 39, 70), 2);
   assert.equal(vitoria.estado.partidaEncerrada, true);
   assert.equal(vitoria.estado.jogadores[1].casa, 40);
   assert.equal(vitoria.estado.jogadores[1].projeto, 80);
@@ -150,15 +150,16 @@ test("o endgame vai para quem chega à casa 40 mesmo sem troféu de ato", () => 
 
 test("o game log guarda cada lance e a trajetória filtra por jogador", () => {
   let estado = iniciarPartida(doisAssentos, novoEstadoRng(7));
-  estado = avancar(estado, 1, 1).estado;
-  estado = avancar(estado, 2, 2).estado;
-  estado = avancar(estado, 1, 2).estado;
+  estado = avancar(estado, 2).estado;
+  estado = avancar(estado, 4).estado;
+  estado = avancar(estado, 3).estado;
   const lances = estado.log.filter((entrada) => entrada.turno > 0);
   assert.equal(lances.length, 3);
   assert.deepEqual(lances.map((entrada) => entrada.turno), [1, 2, 3]);
   assert.deepEqual(lances.map((entrada) => entrada.jogadorId), [1, 2, 1]);
   for (const lance of lances) {
-    assert.ok(lance.dado1 && lance.dado2);
+    assert.ok(lance.dado1);
+    assert.equal(lance.dado2, null);
     assert.ok(lance.casaOrigem >= 1 && lance.casaFinal <= 40);
     assert.ok(lance.casasPassadas.length >= 1);
     assert.equal(typeof lance.efeito, "string");
@@ -173,8 +174,8 @@ test("o game log guarda cada lance e a trajetória filtra por jogador", () => {
 
 test("save e load preservam o log, os troféus, o RNG e a continuação", () => {
   let estado = iniciarPartida(doisAssentos, novoEstadoRng(1985));
-  estado = avancar(comCasa(estado, 1, 8), 2, 2).estado;
-  estado = avancar(estado, 3, 1).estado;
+  estado = avancar(comCasa(estado, 1, 8), 4).estado;
+  estado = avancar(estado, 4).estado;
   const markdown = serializarSave(paraEstadoSalvo(estado));
   assert.match(markdown, /## Game Log/);
   assert.match(markdown, /## Trajetória · Ju/);
@@ -188,18 +189,18 @@ test("save e load preservam o log, os troféus, o RNG e a continuação", () => 
 
   const seguir = (partida: EstadoPartida) => {
     const rng = criarRngComEstado(partida.rng);
-    const rolagem = rolar2D6(rng.aleatorio);
+    const rolagem = rolarD6(rng.aleatorio);
     return registrarJogada(
       { ...partida, rng: rng.snapshot() },
-      { dado1: rolagem.dados[0].valor, dado2: rolagem.dados[1].valor },
+      { dado: rolagem.valor },
       casas,
     );
   };
   const depoisDoSave = seguir(carregado);
   const semInterromper = seguir(estado);
   assert.deepEqual(
-    [depoisDoSave.entrada.dado1, depoisDoSave.entrada.dado2, depoisDoSave.entrada.casaFinal],
-    [semInterromper.entrada.dado1, semInterromper.entrada.dado2, semInterromper.entrada.casaFinal],
+    [depoisDoSave.entrada.dado1, depoisDoSave.entrada.casaFinal],
+    [semInterromper.entrada.dado1, semInterromper.entrada.casaFinal],
   );
 });
 
@@ -217,7 +218,7 @@ test("um save antigo com troféu do ato 1 volta sem esse troféu", () => {
 
 test("nova partida zera placar, histórico e troféus", () => {
   let estado = iniciarPartida(doisAssentos, novoEstadoRng(3));
-  estado = avancar(comCasa(estado, 1, 39, 90), 1, 1).estado;
+  estado = avancar(comCasa(estado, 1, 39, 90), 2).estado;
   assert.equal(estado.partidaEncerrada, true);
   const nova = iniciarPartida(estado.assentos, novoEstadoRng(9));
   assert.equal(nova.partidaEncerrada, false);
@@ -260,6 +261,11 @@ test("a arte da casa 40 e o gravador entram no bundle por caminho relativo", () 
   assert.match(fonte, /prologo\.paragrafos/);
   assert.match(fonte, /id="btn-iniciar-jornada"/);
   assert.doesNotMatch(fonte, /prologue-dialog|id="intro-step"|abrirPrologo|prologo\.svg/);
+  assert.match(fonte, /DADO_LOCAL \(1D6\)/);
+  assert.match(fonte, /ROLAR DADO/);
+  assert.doesNotMatch(fonte, /data-die="2"|ROLAR DADOS|2D6/);
+  const estilo = readFileSync(new URL("../style.css", import.meta.url), "utf8");
+  assert.doesNotMatch(estilo, /\.house-hotspot\.is-active/);
   assert.equal(existsSync(new URL("../../public/assets/prologo.svg", import.meta.url)), false);
   const intro = readFileSync(new URL("../data/intro.ts", import.meta.url), "utf8");
   assert.match(intro, /desenvolvedor em 1985/);

@@ -14,3 +14,16 @@ test("sprites ficam centralizadas ou distribuídas dentro das 40 casas", () => {
     }
   }
 });
+
+test("uma peça fica no centro visual das casas da faixa inferior", () => {
+  const centrosEsperados = new Map([
+    [21, 78.85], [22, 71.85], [23, 64.05], [24, 56.35], [25, 49.2],
+    [26, 42.5], [27, 36.05], [28, 29.75], [29, 22.85],
+  ]);
+
+  for (const [casaId, centroX] of centrosEsperados) {
+    const posicao = posicaoDaPeca(casas[casaId - 1], 0, 1);
+    assert.ok(Math.abs(posicao.x - centroX) < 0.06, `Centro X incorreto na casa ${casaId}`);
+    assert.ok(Math.abs(posicao.y - 82.5) < 0.01, `Centro Y incorreto na casa ${casaId}`);
+  }
+});

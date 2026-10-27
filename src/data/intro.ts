@@ -8,7 +8,7 @@ export const prologo = {
   titulo: "Você é um desenvolvedor em 1985",
   paragrafos: [
     "Você é um desenvolvedor em 1985. Na mesa há um micro, uma revista de programação e um gravador de cassete. O jogo que você quer publicar ainda não existe: só a vontade de escrever a primeira linha.",
-    "O tabuleiro é esse ano. Cada casa é uma noite de código, um disquete que falha ou uma página de revista. Os dados escolhem o caminho. Os pontos de projeto medem o quanto o programa cresceu — são placar, não um portão.",
+    "O tabuleiro é esse ano. Cada casa é uma noite de código, um disquete que falha ou uma página de revista. O dado escolhe o caminho. Os pontos de projeto medem o quanto o programa cresceu — são placar, não um portão.",
     "Todos começam na casa 1. O objetivo é chegar primeiro à casa 40 e publicar o jogo. Quem entra primeiro no Ato 2 (casa 10), no Ato 3 (casa 20) ou no Ato 4 (casa 30) guarda a história até ali.",
   ],
 };

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { rolarDado, rolarD6, rolar2D6, criarRngSemente, GLIFOS_DADO } from "./dado.ts";
+import { rolarDado, rolarD6, criarRngSemente, GLIFOS_DADO } from "./dado.ts";
 
 describe("Motor do Dado (RNG Local)", () => {
   it("deve rolar valores no intervalo 1..6 para D6 padrão", () => {
@@ -24,14 +24,6 @@ describe("Motor do Dado (RNG Local)", () => {
     // Gerador que retorna 0.5 -> deve dar valor 4 (0.5 * 6 = 3 -> floor + 1 = 4)
     const resultadoMeio = rolarDado(6, () => 0.5);
     assert.equal(resultadoMeio.valor, 4);
-  });
-
-  it("rola dois dados independentes e soma as duas faces", () => {
-    const sorteios = [0, 0.9999];
-    const resultado = rolar2D6(() => sorteios.shift()!);
-    assert.deepEqual(resultado.dados.map((dado) => dado.valor), [1, 6]);
-    assert.equal(resultado.total, 7);
-    assert.equal(sorteios.length, 0);
   });
 
   it("deve produzir resultados reproduzíveis com semente determinística (Mulberry32)", () => {

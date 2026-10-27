@@ -22,7 +22,7 @@ export function resumoJogadores(jogadores: Pick<Jogador, "controle">[]): string 
   const cpus = total - humanos;
   const textoHumano = `${humanos} HUMANO${humanos === 1 ? "" : "S"}`;
   const textoCpu = cpus > 0 ? ` · ${cpus} CPU` : "";
-  return `A partida começa na casa 1 · ${total} participante${total === 1 ? "" : "s"} · ${textoHumano}${textoCpu} · 2D6`;
+  return `A partida começa na casa 1 · ${total} participante${total === 1 ? "" : "s"} · ${textoHumano}${textoCpu} · 1D6`;
 }
 
 /** O rodapé do boot usa os assentos visíveis, não um contador separado. */

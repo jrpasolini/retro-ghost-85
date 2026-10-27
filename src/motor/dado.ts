@@ -98,11 +98,6 @@ export function rolarD6(rng?: GeradorAleatorio): ResultadoDado {
   return rolarDado(6, rng);
 }
 
-export function rolar2D6(rng: GeradorAleatorio = geradorPadrao): { dados: [ResultadoDado, ResultadoDado]; total: number } {
-  const dados: [ResultadoDado, ResultadoDado] = [rolarD6(rng), rolarD6(rng)];
-  return { dados, total: dados[0].valor + dados[1].valor };
-}
-
 /**
  * Ícones unicode clássicos para dados de 6 faces (1 a 6).
  */

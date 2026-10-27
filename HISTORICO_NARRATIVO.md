@@ -13,9 +13,9 @@ O antigo evento de “disquete com vírus” foi substituído por uma listagem t
 
 ## Regras desta versão
 
-- Cada turno usa **2d6**: os dois dados rolam separadamente e a soma move a peça. A casa onde ela para aplica projeto, recuo/avanço e perda ou ganho de turno **uma vez**. O movimento provocado pela carta não ativa outra carta.
+- Cada turno usa **1d6**: o resultado do dado move a peça. A casa onde ela para aplica projeto, recuo/avanço e perda ou ganho de turno **uma vez**. O movimento provocado pela carta não ativa outra carta.
 - O projeto fica entre 0 e 100. Ganhos e perdas representam progresso de desenvolvimento, não pontos de uma simulação histórica literal.
-- Todos os jogadores começam na casa 1, o **prólogo**, com essa visita já registrada para a trilha e para o easter egg. O movimento usa normalmente a soma de 2d6. A casa 10 é o Ato 2, a 20 o Ato 3 e a 30 o Ato 4; a casa 40 é exclusivamente o desfecho **ENDGAME · PUBLICAÇÃO**. A casa 1 não concede troféu.
+- Todos os jogadores começam na casa 1, o **prólogo**, com essa visita já registrada para a trilha e para o easter egg. O movimento usa normalmente o resultado de 1d6. A casa 10 é o Ato 2, a 20 o Ato 3 e a 30 o Ato 4; a casa 40 é exclusivamente o desfecho **ENDGAME · PUBLICAÇÃO**. A casa 1 não concede troféu.
 - O mesmo jogador precisa visitar as quatro casas ACT para revelar o retrato sorridente de Einstein no monitor. Visitas de jogadores diferentes não se somam; o deslocamento que termina sobre um ACT também conta, sem ativar novamente seu efeito.
 - Cada marco tem um texto em `src/data/atos.ts`. O prólogo da casa 1 abre a partida; os Atos 2, 3 e 4 aparecem ao inspecionar ou alcançar as casas 10, 20 e 30. Na casa 40, o painel mostra o desfecho do catálogo.
 - Ao alcançar a casa 40, a revisão final concede 10 projeto e a partida termina. Quem chega primeiro publica o jogo, com qualquer placar. O projeto (0 a 100) ordena o ranking e serve de desempate; não trava a casa 40 e não devolve o jogador à casa 30.
