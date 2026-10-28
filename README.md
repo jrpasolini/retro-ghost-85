@@ -53,13 +53,36 @@ GitHub Actions also checks compilation, unit tests, layout/resize behavior, and 
 ## Architecture
 
 ```
-Vite + TypeScript + DOM         → static playable board
-GitHub Actions + Playwright    → automated game and UI checks
-Cloudflare Worker + Gemma 4    → planned: AI Master narration
-ElevenLabs                     → planned: narration voice delivery
+https://jrpasolini.tech/retro-ghost-85/   → static site (Vite base "./")
+GitHub Actions + Playwright               → automated game and UI checks
+Cloudflare Worker + Gemma 4               → narration client is configured, not shown in the UI yet
+ElevenLabs                                → planned: narration voice delivery
 ```
 
 No account, database, or server-side game state is required for the local multiplayer experience. CPU decisions and die rolls remain local and deterministic with a saved RNG state.
+
+The public site is served at `https://jrpasolini.tech/retro-ghost-85/`. `vite.config.ts` keeps `base: "./"` so scripts and assets resolve on that subpath.
+
+## Narration worker
+
+Gemma 4 is the Master storyteller for the Hacktoberfest category **Best use of Gemma**. It does not roll the die or change the board. The screens still use the local “narration coming soon” stub. Nothing in the UI calls the Worker yet.
+
+| | |
+| --- | --- |
+| Worker | `https://retro-ghost-85-narrator.antonio-pasolini.workers.dev` |
+| Model | `@cf/google/gemma-4-26b-a4b-it` (Cloudflare Workers AI, Gemma 4) |
+| Env | `VITE_NARRATOR_URL` in `.env.example`. `src/config.ts` uses that value, or the Worker URL above when it is missing. |
+| Client | `checkNarratorHealth()` and `requestNarration({ player, act, trajectory })` in `src/services/narrator.ts`. They time out and return `{ ok: false, error }` instead of throwing. |
+
+`trajectory` is Markdown produced from `getPlayerTrajectory`, at most 20 000 characters. `act` is `"2"`, `"3"`, `"4"`, or `"endgame"`.
+
+```
+GET  /health   → { ok, model }
+POST /narrate  → { player, act, trajectory }
+               ← { narration, model } or { error }
+```
+
+CORS on the Worker allows only `https://jrpasolini.tech`, `https://www.jrpasolini.tech`, `http://localhost:5173`, and `http://localhost:4173`.
 
 ## Documentation
 
