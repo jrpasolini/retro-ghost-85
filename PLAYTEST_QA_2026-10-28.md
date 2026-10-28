@@ -163,3 +163,47 @@ Registrado porque é o desenho da etapa 2 e vale confirmar que está de pé:
 | 2 | "Perca 1 jogada" inerte em partida solo | Confirmado | Regra inconsistente |
 | 3 | Vitória por posição (casa 40) | Confirmado, correto | Nenhum |
 | 4 | Peça desalinhada em tela menor | Não reproduzido | Precisa de print + resolução |
+
+---
+
+## Adendo — 28/10: teste dinâmico de resize no Chromium (sem recarregar)
+
+**Objeto:** investigar o relato de peças aparentemente deslocadas depois de redimensionar a janela em pleno gameplay. Diferente da medição estática original, este ensaio percorre larguras progressivamente maiores e menores **na mesma sessão**.
+
+**Reprodução automatizada:** [GitHub Actions #40707465444](https://github.com/jrpasolini/retro-ghost-85/actions/runs/40707465444) — [capturas + medições JSON](https://github.com/jrpasolini/retro-ghost-85/actions/runs/40707465444/artifacts/12823499895).
+
+**Código do ensaio:** `qa/verify-resize.mjs` e workflow `.github/workflows/resize-audit.yml`; ambos mantidos **somente na branch da PR #6**. O frontend e a imagem original não foram alterados.
+
+### Metodologia
+
+1. Compilar e abrir o Vite no Chromium headless, aguardando o WebP original **1672×941** carregar.
+2. Sem recarregar a página, visitar 14 dimensões na ida/volta, cobrindo as transições 1051↔1050 px e 681↔680 px, além de 390×844 px.
+3. Medir os centros dos 40 hotspots contra a **projeção geométrica da imagem** levando `object-fit: cover` em consideração; conferir também peças ↔ hotspots e caixas de `.houses`/`.tokens` ↔ imagem.
+4. Configurar quatro participantes humanos de verdade na UI e repetir o resize com as quatro peças na casa inicial, incluindo a formação de quatro ocupantes.
+5. Executar **quatro rolagens reais do aplicativo**, movimentando os personagens; repetir o resize sobre a mesma sessão, medindo as quatro peças contra a imagem e os deslocamentos esperados de `posicaoDaPeca`.
+6. Salvar capturas de tela em resoluções representativas e JSON de medições para inspeção humana.
+
+### Resultados observados
+
+| Cenário | Maior diferença encontrada | Resultado |
+|---|---:|---|
+| Peça P1 ↔ hotspot inicial, ida e volta | 0,016 px | PASS |
+| 40 hotspots ↔ imagem projetada (14 dimensões) | 0,311 px | PASS |
+| Camada de peças/hotspots ↔ caixa da imagem | 0 px | PASS |
+| Quatro peças na casa 1 ↔ projeção | 0,0194 px | PASS |
+| Formação dos quatro participantes na casa 1 ↔ motor | 0 pontos percentuais | PASS |
+| Quatro participantes após quatro rolagens ↔ imagem projetada | 0,291 px | PASS |
+| Formação após quatro rolagens ↔ motor | 0 pontos percentuais | PASS |
+
+**Descontinuidade responsiva real:** em largura de janela 681 px, a imagem mede ~655 px; em 680 px, a imagem passa a 694 px fixos, gerando overflow e corte horizontal. Em uma janela de 390 px, o stage mede ~371 px, mas a imagem continua com 694 px, exigindo rolagem. O jogo não deslocou peças em relação à imagem no ensaio, mas **a escala e o enquadramento mudam abruptamente** e podem explicar a impressão visual do usuário.
+
+### Conclusão e limites
+
+- O código atual **já posiciona peças relativamente ao tabuleiro** via percentuais em `casas`, `posicaoDaPeca` e CSS `--tx`/`--ty`. Nenhum `resize` handler é necessário para esses valores CSS se recalcularem.
+- **Não foi reproduzida uma dessincronia geométrica geral** nas transições testadas, inclusive depois de jogadas.
+- A verificação compara a projeção dos percentuais sobre a imagem, **não** identifica visualmente por computador o desenho real do centro de cada casa rasterizada. Portanto, não certifica as coordenadas da arte com precisão pixel a pixel.
+- O ensaio rodou no Chromium do GitHub Actions, com fator de escala 1; **não reproduz necessariamente** configurações locais de Edge, zoom, monitor, DPR, extensões ou um evento transitório específico.
+- **Não modificar hotspots, motor ou WebP** para tentar corrigir um defeito não reproduzido. A única área de aperfeiçoamento com evidência objetiva é a quebra de apresentação em `max-width: 680px`, a ser tratada como UX responsiva separada.
+- Se o efeito persistir no navegador do autor, obter captura **durante o desvio** com dimensões da janela, porcentagem de zoom, e, se possível, casa/participantes envolvidos. Não inferir a causa sem esse registro.
+
+**Decisão neste PR:** manter o diagnóstico e os testes reexecutáveis; nenhuma mudança de produção até decisão sobre o comportamento responsivo no mobile.
