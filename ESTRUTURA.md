@@ -90,7 +90,7 @@ Gemini (ferramenta auxiliar de codificação, sem integração financeira ao Goo
 
 **Responsabilidades:** o frontend é autoritativo para sorteios, posições, eventos, inventário, turnos e save; o Worker só controla e limita chamadas de IA, sem chaves expostas no cliente. CORS por origem ajuda, mas **não autentica requisições nem impede abuso**: combinar proteção de endpoint, validação de payload, tamanho, rate limit e orçamento.
 
-**Hospedagem e domínio:** Render Static é a escolha. O caminho `jrpasolini.tech/retro-ghost-85` é intenção sujeita a confirmação do roteamento da subpasta. Ajustar `base` e URLs de assets conforme URL efetivamente servida. GitHub Pages poderá ser espelho **apenas após autorização explícita de publicação**.
+**Hospedagem e domínio:** o site público será servido em `https://jrpasolini.tech/retro-ghost-85/`. O `base` do Vite permanece `"./"` para os assets funcionarem nesse subcaminho. GitHub Pages poderá ser espelho **apenas após autorização explícita de publicação**.
 
 **Google Cloud / GenAI App Builder — FORA DO ESCOPO:** por decisão do Junior em 26/10/2026, ficam descartadas a utilização dos créditos promocionais Google Cloud, a criação de agentes GenAI gerenciados e a implantação de serviços Google Cloud neste projeto. Não é necessário investigar a elegibilidade de SKUs ou gastar créditos para concluir o Retro-Ghost-85. **Gemini é permitido exclusivamente como ferramenta externa de apoio à programação**, sem dependência de API ou de serviços pagos Google na aplicação. Dados de saldo, faturamento e benefício promocional não devem constar em documentação pública do jogo.
 
@@ -257,6 +257,8 @@ O programa rodou. Ele não sabia por quê, e isso foi o começo.
 - **Critério do challenge:** demonstrar o uso real e honesto da Gemma 4 na experiência sem afirmar que o modelo controla regras quando isso não acontece. A relevância da IA para a avaliação é um risco a validar.
 
 Modelo identificado no catálogo Cloudflare: `@cf/google/gemma-4-26b-a4b-it`. Disponibilidade na conta e custo efetivo devem ser testados de forma controlada.
+
+**Contrato implantado (28/10/2026), ainda sem efeito na tela.** A Gemma 4 entra na categoria Hacktoberfest “Best use of Gemma”. O Worker publicado é `https://retro-ghost-85-narrator.antonio-pasolini.workers.dev`, modelo `@cf/google/gemma-4-26b-a4b-it`. `GET /health` responde `{ ok, model }`. `POST /narrate` recebe `{ player, act: "2" | "3" | "4" | "endgame", trajectory }` — `trajectory` é o Markdown de `getPlayerTrajectory`, no máximo 20 000 caracteres — e responde `{ narration, model }` ou `{ error }`. O CORS aceita só `https://jrpasolini.tech`, `https://www.jrpasolini.tech`, `http://localhost:5173` e `http://localhost:4173`. A URL fica em `VITE_NARRATOR_URL` (`.env.example`), com o mesmo endereço como padrão em `src/config.ts`. `src/services/narrator.ts` expõe `checkNarratorHealth()` e `requestNarration()`, com tempo limite e resultado `{ ok: false, error }` em vez de exceção. Nenhuma tela, popup ou regra de jogo importa esse módulo; os botões continuam no narrador local.
 
 ---
 
@@ -511,6 +513,16 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 - Antes da tela de escolha de participantes, a aplicação apresenta o retrato pixelado de Antonio Pasolini. Após um segundo, o crédito “Presents a project that is part of the Hacktoberfest Open-Source AI Challenge: Week 4 called...” aparece com fade-in abaixo do retrato.
 - Aos dois segundos, a arte neon de RETRO-GHOST-85 assume toda a tela; aos quatro segundos, a abertura é removida e a tela de configuração da jornada recebe o foco. A transição respeita `prefers-reduced-motion` sem alterar os marcos temporais.
 - Os arquivos de abertura são locais, em `public/assets/antonio-pasolini-portrait.png` e `public/assets/retro-ghost-opening.png`.
+
+**Validação:** `npm test` e `npm run build`.
+
+### 28/10/2026 — Configuração do Worker da Gemma 4
+
+**Status:** cliente e documentação; a partida não mudou.
+
+- A URL do Worker (`https://retro-ghost-85-narrator.antonio-pasolini.workers.dev`, modelo `@cf/google/gemma-4-26b-a4b-it`) entra por `VITE_NARRATOR_URL`, com esse endereço como padrão.
+- `checkNarratorHealth()` e `requestNarration()` cobrem `GET /health` e `POST /narrate`, com tempo limite e erro devolvido no resultado. A interface não os chama.
+- O site público fica em `https://jrpasolini.tech/retro-ghost-85/`. O `base` do Vite continua `"./"`.
 
 **Validação:** `npm test` e `npm run build`.
 

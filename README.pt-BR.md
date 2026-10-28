@@ -40,12 +40,35 @@ sabia mudar o jogo.
 ## Arquitetura
 
 ```
-jrpasolini.tech/retro-ghost-85      → Render (site estático, domínio próprio)
-GitHub Pages                        → espelho público do mesmo build
-Cloudflare Worker                   → único ponto com segredo: proxy do modelo
+https://jrpasolini.tech/retro-ghost-85/   → site estático (base do Vite "./")
+Cloudflare Worker + Gemma 4               → cliente de narração configurado, ainda fora da tela
+ElevenLabs                                → voz da narração, etapa seguinte
 ```
 
 Sem banco de dados. Sem login. Sem servidor de estado.
+
+O site público fica em `https://jrpasolini.tech/retro-ghost-85/`. O `vite.config.ts` mantém `base: "./"` para os arquivos resolverem nesse subcaminho.
+
+## Worker de narração
+
+A Gemma 4 é o Mestre narrador na categoria **Best use of Gemma** do Hacktoberfest. Ela não rola o dado e não muda o tabuleiro. As telas continuam no texto local “narração em breve”. Nenhuma tela chama o Worker ainda.
+
+| | |
+| --- | --- |
+| Worker | `https://retro-ghost-85-narrator.antonio-pasolini.workers.dev` |
+| Modelo | `@cf/google/gemma-4-26b-a4b-it` (Cloudflare Workers AI, Gemma 4) |
+| Ambiente | `VITE_NARRATOR_URL` em `.env.example`. `src/config.ts` usa esse valor ou, se faltar, a URL do Worker acima. |
+| Cliente | `checkNarratorHealth()` e `requestNarration({ player, act, trajectory })` em `src/services/narrator.ts`. Eles expiram e devolvem `{ ok: false, error }` em vez de lançar erro na interface. |
+
+`trajectory` é Markdown vindo de `getPlayerTrajectory`, com no máximo 20 000 caracteres. `act` é `"2"`, `"3"`, `"4"` ou `"endgame"`.
+
+```
+GET  /health   → { ok, model }
+POST /narrate  → { player, act, trajectory }
+               ← { narration, model } ou { error }
+```
+
+O CORS do Worker só libera `https://jrpasolini.tech`, `https://www.jrpasolini.tech`, `http://localhost:5173` e `http://localhost:4173`.
 
 ## Stack
 
@@ -61,7 +84,7 @@ Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · ElevenLabs 
 
 ## Status
 
-Protótipo local com abertura cinematográfica, tabuleiro, narrativa das 40 casas, configuração de 1 a 4 participantes humanos/CPU, um dado de seis faces, movimento, consequências determinísticas, save/load em Markdown e trilha dinâmica por ato. A abertura mostra o retrato de Antonio Pasolini, revela o crédito do Hacktoberfest após um segundo, apresenta a arte do jogo aos dois segundos e entrega o controle à preparação da jornada aos quatro segundos. As seis faixas originais — introdução, quatro atos e encerramento — foram criadas com a ElevenLabs. A integração com Gemma e a publicação ainda não fazem parte desta versão.
+Protótipo local com abertura cinematográfica, tabuleiro, narrativa das 40 casas, configuração de 1 a 4 participantes humanos/CPU, um dado de seis faces, movimento, consequências determinísticas, save/load em Markdown e trilha dinâmica por ato. A abertura mostra o retrato de Antonio Pasolini, revela o crédito do Hacktoberfest após um segundo, apresenta a arte do jogo aos dois segundos e entrega o controle à preparação da jornada aos quatro segundos. As seis faixas originais — introdução, quatro atos e encerramento — foram criadas com a ElevenLabs. O cliente do Worker da Gemma 4 já está no repositório, mas a interface ainda não o usa.
 
 ## Créditos e atribuição
 
