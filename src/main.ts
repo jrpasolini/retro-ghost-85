@@ -64,9 +64,9 @@ app.innerHTML = `
       </div>
       <div class="top-actions">
         <div class="language-switch language-switch-top" role="group" aria-label="Language / Idioma">
-          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><span aria-hidden="true">🇺🇸</span><span>USA</span></button>
+          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><img class="language-flag" src="/assets/flag-usa-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
           <span class="language-separator" aria-hidden="true">/</span>
-          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><span aria-hidden="true">🇧🇷</span><span>BR</span></button>
+          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><img class="language-flag" src="/assets/flag-brazil-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
         </div>
         <div class="audio-console" aria-label="Controle da trilha sonora">
           <button id="btn-audio" type="button" aria-pressed="true">AUDIO ON</button>
@@ -163,9 +163,9 @@ app.innerHTML = `
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
       <div id="setup-step" class="intro-terminal setup-step">
         <div class="language-switch language-switch-popup" role="group" aria-label="Language / Idioma">
-          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><span aria-hidden="true">🇺🇸</span><span>USA</span></button>
+          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><img class="language-flag" src="/assets/flag-usa-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
           <span class="language-separator" aria-hidden="true">/</span>
-          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><span aria-hidden="true">🇧🇷</span><span>BR</span></button>
+          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><img class="language-flag" src="/assets/flag-brazil-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
         </div>
         <p class="intro-kicker">${prologo.kicker}</p>
         <span class="intro-act">${prologo.rotulo}</span>

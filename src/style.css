@@ -180,7 +180,7 @@ button { font: inherit; }
 .top-actions { display: flex; align-items: stretch; gap: .55rem; }
 
 
-/* Locale flags: 1985 console styling, native emoji flags with readable text. */
+/* Pixel-art locale flags shared by the header and setup screens. */
 .language-switch {
   position: relative;
   z-index: 4;
@@ -210,7 +210,12 @@ button { font: inherit; }
   letter-spacing: .075em;
   cursor: pointer;
 }
-.language-switch button span:first-child { font-size: 1.1rem; line-height: 1; }
+.language-flag {
+  display: block;
+  width: 48px;
+  height: 30px;
+  image-rendering: pixelated;
+}
 .language-switch button.is-selected,
 .language-switch button[aria-pressed="true"] {
   border-color: #12dfc8;
@@ -226,7 +231,7 @@ button { font: inherit; }
   top: clamp(1rem, 3vw, 1.7rem);
   right: clamp(1rem, 4vw, 2.6rem);
 }
-.setup-step > .intro-kicker { padding-right: 155px; min-height: 2.25rem; }
+.setup-step > .intro-kicker { padding-right: 175px; min-height: 2.25rem; }
 .language-switch-top { align-self: center; }
 @media (max-width: 520px) {
   .setup-step { padding-top: 4.6rem; }
