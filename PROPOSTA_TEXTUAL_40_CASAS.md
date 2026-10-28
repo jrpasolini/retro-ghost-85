@@ -31,7 +31,7 @@ A arte original foi **preservada sem sobreposições, retoques ou novos pictogra
 
 **Antes (master):** Depois de horas copiando uma listagem impressa, um único caractere trocado faz o BASIC parar com erro. Você compara linha por linha com a revista até encontrar o engano.
 
-**Depois (branch):** A revista ensina a ler os comandos de um joystick, e você copia a rotina imaginando o dia em que poderá testá-la com um controle emprestado. Mas, ao digitar RUN, o BASIC devolve um erro seco, assustador como um estalo no quarto silencioso. Uma vírgula virou ponto na transcrição. O joystick da ilustração continua sendo uma promessa enquanto você procura o caractere intruso linha por linha — e perde terreno.
+**Depois (branch):** A revista traz uma rotina para ler os comandos do joystick. Você copia as linhas imaginando o dia em que poderá testar um controle emprestado. Mas, ao digitar RUN, o BASIC devolve um erro seco, assustador como um estalo no quarto silencioso. Uma vírgula virou ponto na transcrição. O joystick continua sendo uma promessa enquanto você caça o caractere intruso, linha por linha — e vê a madrugada escapar.
 
 ## Casa 04 — RUN e a tela azul
 
@@ -71,7 +71,7 @@ A arte original foi **preservada sem sobreposições, retoques ou novos pictogra
 
 **Antes (master):** Você separa uma fita nova para cópia de segurança e escreve a versão na etiqueta. Quando a gravação principal falha, o trabalho continua.
 
-**Depois (branch):** Depois do susto com CLOAD, você abre a pequena caixa de ferramentas: confere os cabos, limpa o cabeçote do gravador e testa o mecanismo. Só então prepara uma fita virgem, escreve a versão na etiqueta e grava uma cópia de segurança. O sinal carrega corretamente na primeira tentativa. A chave do sucesso, desta vez, foi manutenção antes de improviso.
+**Depois (branch):** Com receio de perder tudo num CLOAD caprichoso, você abre a pequena caixa de ferramentas: confere os cabos, limpa o cabeçote do gravador e testa o mecanismo. Só então prepara uma fita virgem, escreve a versão na etiqueta e grava uma cópia de segurança. O sinal carrega corretamente na primeira tentativa. A chave do sucesso, desta vez, foi manutenção antes de improviso.
 
 ## Casa 08 — Joystick emprestado
 
@@ -181,7 +181,7 @@ A arte original foi **preservada sem sobreposições, retoques ou novos pictogra
 
 **Antes (master):** Você experimenta comandos de som no gerador programável e compõe uma vinheta curta. O protótipo finalmente tem uma identidade que se ouve.
 
-**Depois (branch):** A ampulheta sobre a mesa parece zombar da demora: você passou mais tempo regulando durações e pausas do que escrevendo notas. No PSG do micro, testa frequências, intervalos e o tempo de cada som até que três vozes modestas formem uma vinheta de abertura. Por fim, a melodia acompanha o jogo sem atropelar a animação. Valeu cada segundo.
+**Depois (branch):** O tempo escorre enquanto você ajusta pausas e durações de cada nota. No PSG do micro, experimenta frequências e intervalos até que três vozes modestas formem uma vinheta de abertura. Depois de várias tentativas, a melodia acompanha o jogo sem atropelar a animação. A ampulheta imaginária pode parar: valeu cada segundo.
 
 ## Casa 19 — O bug de scroll
 
@@ -201,7 +201,7 @@ A arte original foi **preservada sem sobreposições, retoques ou novos pictogra
 
 **Antes (master):** A demonstração empolgou os amigos, mas as anotações voltam cheias de falhas: um sprite fora do lugar, uma colisão esquecida, uma tela que prende o jogador. Você abre o caderno de testes ao lado do teclado e compara cada erro com a versão salva em disco. Este ato é o trabalho paciente de transformar um jogo que funciona na sua máquina em um jogo que outras pessoas conseguem terminar.
 
-**Depois (branch):** Os amigos conseguiram jogar, mas voltaram com uma lista de falhas maior do que você esperava. Agora, cada bug parece um fantasma escondido numa condição do BASIC ou num endereço errado. Com o caderno de testes em mãos, você procura respostas no clube, na BBS e nas revistas especializadas. Depurar é aprender a escutar quem joga — e a desconfiar do código que parecia perfeito.
+**Depois (branch):** A demonstração impressionou os amigos, mas o caderno voltou cheio de defeitos: um sprite fora do lugar, uma colisão falha, uma tela que não se atualiza. Agora cada bug parece um pequeno fantasma escondido numa condição do BASIC ou num endereço errado. Você retoma os testes com o grupo e prepara a conexão com a BBS para trocar descobertas. Depurar também é aprender a escutar quem joga — e a desconfiar do código que parecia perfeito.
 
 ## Casa 21 — Modem emprestado
 
@@ -221,7 +221,7 @@ A arte original foi **preservada sem sobreposições, retoques ou novos pictogra
 
 **Antes (master):** Você espera a conexão, lê mensagens de outros programadores e recebe uma dica para reduzir o tamanho de uma rotina. Volta ao código com uma solução.
 
-**Depois (branch):** Você disca o número anotado e espera, com o ouvido atento aos ruídos da linha. Desta vez a BBS atende. Na tela, mensagens de outros programadores revelam uma maneira de economizar memória numa rotina difícil. Você copia a dica no caderno antes de encerrar a chamada e corre para testar a descoberta.
+**Depois (branch):** Você disca o número anotado e espera o chiado inconfundível do modem. A BBS atende; as linhas de texto surgem devagar, como se atravessassem quilômetros de fios para chegar ao monitor. Entre recados de outros programadores, uma dica ensina a economizar memória numa rotina difícil. Você copia a solução no caderno antes de desligar: a linha telefônica não vai ficar livre sozinha.
 
 ## Casa 23 — Linha ocupada
 
