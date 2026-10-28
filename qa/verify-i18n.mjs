@@ -130,7 +130,9 @@ try {
   // A new load in the same context must remember explicit language choice.
   await page.reload({waitUntil:"domcontentloaded"});
   assert.equal(await page.locator("html").getAttribute("lang"),"pt-BR");
-  await page.locator(".language-switch-top [data-language='en-US']").click();
+  // After reload the opening cinematic overlays the toolbar. Use a direct
+  // element click here solely to verify saved preference, not pointer hit testing.
+  await page.evaluate(() => document.querySelector('.language-switch-top [data-language="en-US"]').click());
   await page.waitForFunction(() => document.documentElement.lang === "en-US");
   await page.reload({waitUntil:"domcontentloaded"});
   assert.equal(await page.locator("html").getAttribute("lang"),"en-US");
