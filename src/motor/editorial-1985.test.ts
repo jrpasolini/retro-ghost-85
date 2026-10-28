@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { casas } from "../data/casas.ts";
 import { posicaoDaPeca } from "./posicao.ts";
 
@@ -36,18 +37,21 @@ test("quatro personagens continuam dentro de cada casa e com o mesmo centro", ()
   }
 });
 
-test("arte original e camada transparente v2 coexistem sem substituir o arquivo-base", () => {
-  const html = readFileSync(new URL("../main.ts", import.meta.url), "utf8");
-  const overlay = readFileSync(new URL("../../public/assets/board-icon-overlay-v2.svg", import.meta.url), "utf8");
-  assert.match(html, /board-reference-edited\.webp/);
-  assert.match(html, /board-icon-overlay-v2\.svg/);
-  assert.ok(html.indexOf("board-reference-edited.webp") < html.indexOf("board-icon-overlay-v2.svg"));
-  assert.match(overlay, /viewBox="0 0 1668 939"/);
-  assert.match(overlay, /preserveAspectRatio="none"/);
-  const casasModificadas = [...overlay.matchAll(/<g id="casa-(\d+)">/g)].map((m) => Number(m[1]));
-  assert.deepEqual(casasModificadas, [3, 11, 12, 17, 18, 21, 23, 28, 35]);
-  assert.doesNotMatch(overlay, /<script\b|<foreignObject\b|<image\b/i);
+test("arte do tabuleiro é o WebP original imutável, sem pictogramas sobrepostos", () => {
+  const main = readFileSync(new URL("../main.ts", import.meta.url), "utf8");
+  const webp = readFileSync(new URL("../../public/assets/board-reference-edited.webp", import.meta.url));
+  assert.match(main, /board-reference-edited\.webp/);
+  assert.doesNotMatch(main, /board-icon-overlay|board-reference-v3|overlay-v3/i);
+
+  // SHA-1 de blob Git ("blob " + tamanho + NUL + bytes originais).
+  // Se um único pixel do WebP original mudar, o teste deve falhar.
+  const gitBlobSha = createHash("sha1")
+    .update("blob " + webp.length + "\0")
+    .update(webp)
+    .digest("hex");
+  assert.equal(gitBlobSha, "9207fc16a5bf28e2dbdba298090375986f7b3afe");
 });
+
 
 test("marcos dos atos e efeito das casas seguem íntegros", () => {
   assert.deepEqual([10, 20, 30, 40].map((id) => casas[id - 1].tipo), ["marco", "marco", "marco", "final"]);
