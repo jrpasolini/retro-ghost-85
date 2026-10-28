@@ -24,7 +24,7 @@ const NARRATION_MODELS = [
   "@cf/google/gemma-4-26b-a4b-it",
 ];
 const TTS_MODEL = "eleven_multilingual_v2";
-const PROMPT_VERSION = "v2";
+const PROMPT_VERSION = "v4";
 const MAX_NAME = 24;
 const MAX_SQUARES = 10;
 const MAX_DESC = 700;
@@ -205,13 +205,9 @@ function buildPrompt({ player, lang, act, endgame, squares }) {
       ? `${player} acaba de atravessar o ${ordinal} ato. Narre a trajetória até aqui, usando apenas as casas abaixo.`
       : `${player} has just crossed the ${ordinal} act. Narrate the journey so far using only the squares below.`;
 
-  const exemplo = ptbr
-    ? `Exemplo do registro que quero (não copie o conteúdo, copie o tom): "Ela saiu da banca com uma revista nas mãos e a certeza incômoda de que o jogo já começara sem ela."`
-    : `Example of the register I want (do not copy the content, copy the tone): "She left the newsstand with a magazine in her hands and the uneasy certainty that the game had already begun without her."`;
-
   const rodape = ptbr
-    ? `Casas em que ele parou, na ordem em que aconteceram:\n${linhas}\n\n${exemplo}\n\nEscreva apenas a narração, sem título e sem comentário.`
-    : `Squares where they stopped, in the order they happened:\n${linhas}\n\n${exemplo}\n\nWrite only the narration, with no title and no commentary.`;
+    ? `Casas em que ele parou, na ordem em que aconteceram:\n${linhas}\n\nEscreva apenas a narração, sem título e sem comentário.`
+    : `Squares where they stopped, in the order they happened:\n${linhas}\n\nWrite only the narration, with no title and no commentary.`;
 
   return `${cabeca}\n\n${rodape}`;
 }
@@ -300,6 +296,22 @@ export function extractText(result) {
   return "";
 }
 
+// Passada 1: reduz cada casa a uma frase factual. O texto original NÃO segue
+// para a narração — é o que impede o modelo pequeno de copiar a carta.
+async function extractFacts(env, model, squares, lang) {
+  const list = squares.map((s, i) => `${i + 1}. ${s.titulo} — ${s.descricao}`).join("\n");
+  const ask = lang === "en"
+    ? `Reduce each square below to ONE factual sentence, at most twelve words, no adjectives, no digits, third person, English. One line per square, starting with its number.\n\n${list}`
+    : `Reduza cada casa abaixo a UMA frase factual, no máximo doze palavras, sem adjetivos, sem algarismos, terceira pessoa. Uma linha por casa, começando pelo número.\n\n${list}`;
+  try {
+    const r = await env.AI.run(model, { messages: [{ role: "user", content: ask }], max_tokens: 320, temperature: 0.2 });
+    const raw = extractText(r);
+    const facts = raw.split(/\n+/).map((l) => l.replace(/^\s*\d+[.)\]]\s*/, "").trim()).filter((l) => l.length > 8).slice(0, squares.length);
+    if (facts.length) return facts;
+  } catch (e) { /* cai no título */ }
+  return squares.map((s) => s.titulo);
+}
+
 async function narrate(request, env) {
   const body = await request.json();
   const debug = new URL(request.url).searchParams.get("debug") === "1";
@@ -310,7 +322,9 @@ async function narrate(request, env) {
 
   if (!squares.length) return json({ error: "sem_casas", expected: "{ player, lang, squares[] }" }, 400);
 
-  const prompt = buildPrompt({ player, lang, act: Number(body.act) || 2, endgame: Boolean(body.endgame), squares });
+  const facts = env.AI ? await extractFacts(env, NARRATION_MODELS[0], squares, lang) : squares.map((s) => s.titulo);
+  const material = squares.map((s, i) => ({ ...s, descricao: facts[i] || s.titulo }));
+  const prompt = buildPrompt({ player, lang, act: Number(body.act) || 2, endgame: Boolean(body.endgame), squares: material });
   const key = "narr:" + (await sha256([PROMPT_VERSION, lang, NARRATION_MODELS.join(','), prompt].join("|")));
 
   if (env.CACHE) {
@@ -344,7 +358,7 @@ async function narrate(request, env) {
         break; // este modelo não devolve content: passa para o próximo
       }
       const got = wordify(gotRaw, lang);
-      const copy = copiedRatio(gotRaw, squares.map((s) => s.descricao + " " + s.titulo));
+      const copy = copiedRatio(gotRaw, squares.map((s) => s.descricao));
       if (!violates(got) && copy < 0.45) {
         text = got;
         usedModel = model;
