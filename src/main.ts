@@ -46,11 +46,11 @@ if (!app) throw new Error("Elemento #app não encontrado");
 app.innerHTML = `
   <section id="opening-sequence" class="opening-sequence" aria-live="polite" aria-label="Apresentação de RETRO-GHOST-85">
     <div class="opening-stage opening-stage-portrait" aria-hidden="true">
-      <img src="/assets/antonio-pasolini-portrait.png" alt="" />
+      <img src="./assets/antonio-pasolini-portrait.png" alt="" />
       <p id="opening-credit" class="opening-credit">Presents a project that is part of the Hacktoberfest Open-Source AI Challenge: Week 4 called...</p>
     </div>
     <div class="opening-stage opening-stage-game" aria-hidden="true">
-      <img src="/assets/retro-ghost-opening.png" alt="" />
+      <img src="./assets/retro-ghost-opening.png" alt="" />
       <p class="opening-prompt">PRESS SPACE TO START</p>
     </div>
     <p class="sr-only">Apresentação do projeto RETRO-GHOST-85.</p>
