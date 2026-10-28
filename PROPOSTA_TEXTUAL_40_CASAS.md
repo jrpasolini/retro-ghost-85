@@ -1,7 +1,7 @@
-# As 40 casas — revisão histórica, visual e textual para aprovação
+# As 40 casas — revisão histórica e textual para aprovação
 > **Fonte de verdade nesta branch:** código atual em `src/data/casas.ts` + `src/data/atos.ts`. Esta comparação é atualizada automaticamente a partir do código revisado. A coluna “Antes” é da `master`. Não realizar merge sem QA.
 
-A arte original foi **preservada**; os nove desenhos corrigidos estão numa camada transparente sobreposta. Títulos, efeitos, tipos, consequências e posições são idênticos aos da `master`. Os três marcos das casas 10/20/30 recebem a narrativa de `atos.ts`.
+A arte original foi **preservada sem sobreposições, retoques ou novos pictogramas**. Títulos, efeitos, tipos, consequências e posições permanecem idênticos aos da `master`. Os três marcos das casas 10/20/30 recebem a narrativa de `atos.ts`. A revisão se concentra em contexto histórico, ritmo, suspense e ligação entre cada história e o símbolo existente.
 
 ## Casa 01 — A revista na banca
 
@@ -27,7 +27,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** −12 projeto · volte 1 casa
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** Depois de horas copiando uma listagem impressa, um único caractere trocado faz o BASIC parar com erro. Você compara linha por linha com a revista até encontrar o engano.
 
@@ -107,7 +107,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** +20 projeto
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** Um drive chega à bancada. Arquivos separados e gravações mais rápidas permitem guardar versões do jogo sem depender apenas do cassete.
 
@@ -117,7 +117,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** +14 projeto
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** Você formata um disco novo e testa a leitura antes de confiar nele. Com a mídia preparada, monta uma cópia para continuar os experimentos.
 
@@ -167,7 +167,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** −14 projeto · perca 1 jogada
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** O herói atravessa o inimigo como se nada existisse. Você interrompe os testes públicos para revisar posições, limites e a ordem das verificações.
 
@@ -177,7 +177,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** +16 projeto
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** Você experimenta comandos de som no gerador programável e compõe uma vinheta curta. O protótipo finalmente tem uma identidade que se ouve.
 
@@ -207,7 +207,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** +18 projeto
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** No clube de usuários, você consegue experimentar um modem ligado à linha telefônica. A troca de mensagens abre uma nova rota para tirar dúvidas sobre o jogo.
 
@@ -227,7 +227,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** −12 projeto · perca 1 jogada
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** O telefone só devolve sinal de ocupado. Sem acesso à BBS naquela noite, a resposta que você precisava fica para a próxima sessão.
 
@@ -277,7 +277,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** +16 projeto
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** Você encontra numa revista técnica um exemplo de organização de código e reescreve a rotina mais confusa. O programa fica menor e mais fácil de testar.
 
@@ -347,7 +347,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Efeito original, preservado:** +18 projeto
 
-**Tratamento visual:** Pictograma substituído apenas na camada transparente
+**Tratamento visual:** Ícone original preservado; descrição contextualizada
 
 **Antes (master):** Cada cópia é gravada e conferida em outro leitor. A rotina é lenta, mas evita mandar ao público um disco que só funciona na sua máquina.
 
@@ -405,7 +405,8 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 ## Próximos aceites
 
-- Revisão visual do jogo realmente renderizado na branch, especialmente se máscara de ícone deixa traços da ilustração antiga.
-- Executar `npm test` e `npm run build`; o teste da introdução foi corrigido no texto para citar explicitamente Ato 2/3/4.
-- Conferir e aceitar por escrito a arte da casa 19 como limitação conhecida; não invadir o marco 20.
-- Só depois da aprovação do PR começar inglês, seletor, Gemma e ElevenLabs.
+- Ler as histórias das 40 casas e verificar progressão, continuidade, léxico e plausibilidade de 1985.
+- Manter intactos todos os títulos, efeitos, consequências, coordenadas e a imagem original.
+- Executar `npm test` e `npm run build`; as referências explícitas a Ato 2, Ato 3 e Ato 4 já constam no prólogo atualizado.
+- Preservar a exceção visual da casa 19 como limitação conhecida, sem impedir a revisão editorial.
+- Após aprovação do conteúdo PT-BR: tradução inglesa, seletor, Gemma e ElevenLabs.
