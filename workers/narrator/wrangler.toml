@@ -1,0 +1,18 @@
+name = "retro-ghost-85-narrator"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[ai]
+binding = "AI"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "0a682871fe874dfa8928b238dbee5116"
+
+[vars]
+# A voz do Mestre é decisão do momento 3. Enquanto não existir, /tts responde
+# "voice_id_ausente" em vez de usar a voz da Melissa por acidente.
+# ELEVENLABS_VOICE_ID = "<definir>"
+
+# Secrets (nunca neste arquivo):
+#   wrangler secret put ELEVENLABS_API_KEY
