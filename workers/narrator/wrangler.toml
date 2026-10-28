@@ -12,7 +12,7 @@ id = "0a682871fe874dfa8928b238dbee5116"
 [vars]
 # A voz do Mestre é decisão do momento 3. Enquanto não existir, /tts responde
 # "voice_id_ausente" em vez de usar a voz da Melissa por acidente.
-# ELEVENLABS_VOICE_ID = "<definir>"
+ELEVENLABS_VOICE_ID = "mpHKakCHjcnpaDuRTKqK"
 
 # Secrets (nunca neste arquivo):
 #   wrangler secret put ELEVENLABS_API_KEY

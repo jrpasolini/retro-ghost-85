@@ -16,9 +16,15 @@
  *   POST /tts      { text, lang?, voiceId? }
  */
 
-const NARRATION_MODEL = "@cf/google/gemma-4-26b-a4b-it"; // confirmado em /health do worker anterior
+// Gemma 4 é modelo de raciocínio: devolve content vazio e gasta o orçamento em reasoning_content.
+// Por isso a lista: tenta o pedido, cai para um Gemma que responde direto, e só então para um genérico.
+const NARRATION_MODELS = [
+  "@cf/google/gemma-7b-it-lora",
+  "@cf/google/gemma-2b-it-lora",
+  "@cf/google/gemma-4-26b-a4b-it",
+];
 const TTS_MODEL = "eleven_multilingual_v2";
-const PROMPT_VERSION = "v1";
+const PROMPT_VERSION = "v2";
 const MAX_NAME = 24;
 const MAX_SQUARES = 10;
 const MAX_DESC = 700;
@@ -36,6 +42,8 @@ export default {
 
     try {
       if (url.pathname === "/health") return health(env);
+      if (url.pathname === "/selftest") return selftest(env);
+      if (url.pathname === "/probe") return probe(env, url);
       if (url.pathname === "/narrate" && request.method === "POST") return await narrate(request, env);
       if (url.pathname === "/tts" && request.method === "POST") return await tts(request, env);
       return json({ error: "not_found" }, 404);
@@ -55,12 +63,50 @@ function json(body, status = 200) {
 function health(env) {
   return json({
     ok: true,
-    model: NARRATION_MODEL,
+    models: NARRATION_MODELS,
     tts: TTS_MODEL,
     prompt: PROMPT_VERSION,
     bindings: { ai: Boolean(env.AI), cache: Boolean(env.CACHE), elevenlabs: Boolean(env.ELEVENLABS_API_KEY) },
     voiceConfigured: Boolean(env.ELEVENLABS_VOICE_ID),
   });
+}
+
+async function probe(env, url) {
+  const tokens = Number(url.searchParams.get("tokens") || 500);
+  const model = url.searchParams.get("model") || "@cf/google/gemma-7b-it-lora";
+  const t0 = Date.now();
+  try {
+    const r = await env.AI.run(model, {
+      messages: [
+        { role: "system", content: PERSONA["pt-BR"] },
+        { role: "user", content: "Melissa acaba de atravessar o Ato 2. Casas em que parou:\n1. A revista na banca (marco) — comprou a revista na banca e descobriu que podia criar a própria aventura.\n2. Salvar no cassete (evento) — gravou o programa numa fita, com etiqueta e contador, com medo de perder tudo.\nEscreva apenas a narração." },
+      ],
+      max_tokens: tokens,
+      temperature: 0.75,
+    });
+    const msg = (r.choices && r.choices[0] && r.choices[0].message) || {};
+    const text = extractText(r);
+    return json({ model, ms: Date.now() - t0, tokens, text: text.slice(0, 900), len: text.length, violates: violates(text) });
+  } catch (e) {
+    return json({ ms: Date.now() - t0, error: String((e && e.message) || e) }, 500);
+  }
+}
+
+async function selftest(env) {
+  if (!env.AI) return json({ error: "sem_binding_ai" }, 503);
+  const out = [];
+  for (const model of NARRATION_MODELS) {
+    try {
+      const r = await env.AI.run(model, {
+        messages: [{ role: "user", content: "Responda apenas: ok" }],
+        max_tokens: 16,
+      });
+      out.push({ model, ok: true, sample: JSON.stringify(r).slice(0, 200) });
+    } catch (e) {
+      out.push({ model, ok: false, error: String((e && e.message) || e).slice(0, 200) });
+    }
+  }
+  return json({ results: out });
 }
 
 async function sha256(text) {
@@ -115,6 +161,7 @@ FORMA
 - De três a cinco frases. Entre 300 e 600 caracteres.
 - Escreva para ser ouvido em voz alta: frases curtas, sem parênteses, sem abreviações, sem algarismos (escreva números por extenso apenas se indispensável — de preferência não use nenhum).
 - Sem exclamações, sem markdown, sem listas.
+- Não explique seu raciocínio. Não comente a tarefa. Responda apenas com a narração final.
 - Português do Brasil.`,
   en: `You are the Master of Retro Ghost 85: a board-game narrator with a Halloween atmosphere, set in the microcomputing world of 1985.
 
@@ -134,11 +181,18 @@ FORM
 - Three to five sentences. Between 300 and 600 characters.
 - Written to be heard aloud: short sentences, no parentheses, no abbreviations, no digits.
 - No exclamation marks, no markdown, no lists.
+- Do not explain your reasoning. Do not comment on the task. Answer only with the final narration.
 - Natural English.`,
+};
+
+const ORDINAL = {
+  "pt-BR": { 2: "segundo", 3: "terceiro", 4: "quarto" },
+  en: { 2: "second", 3: "third", 4: "fourth" },
 };
 
 function buildPrompt({ player, lang, act, endgame, squares }) {
   const ptbr = lang !== "en";
+  const ordinal = ORDINAL[ptbr ? "pt-BR" : "en"][act] || (ptbr ? "segundo" : "second");
   const linhas = squares
     .map((s, i) => `${i + 1}. ${s.titulo} (${s.tipo}) — ${s.descricao}`)
     .join("\n");
@@ -148,12 +202,16 @@ function buildPrompt({ player, lang, act, endgame, squares }) {
       ? `${player} chegou ao fim do tabuleiro. Narre o fecho da trajetória, usando apenas as casas abaixo.`
       : `${player} reached the end of the board. Narrate the closing of the journey using only the squares below.`
     : ptbr
-      ? `${player} acaba de atravessar o Ato ${act}. Narre a trajetória até aqui, usando apenas as casas abaixo.`
-      : `${player} has just crossed Act ${act}. Narrate the journey so far using only the squares below.`;
+      ? `${player} acaba de atravessar o ${ordinal} ato. Narre a trajetória até aqui, usando apenas as casas abaixo.`
+      : `${player} has just crossed the ${ordinal} act. Narrate the journey so far using only the squares below.`;
+
+  const exemplo = ptbr
+    ? `Exemplo do registro que quero (não copie o conteúdo, copie o tom): "Ela saiu da banca com uma revista nas mãos e a certeza incômoda de que o jogo já começara sem ela."`
+    : `Example of the register I want (do not copy the content, copy the tone): "She left the newsstand with a magazine in her hands and the uneasy certainty that the game had already begun without her."`;
 
   const rodape = ptbr
-    ? `Casas em que ele parou, na ordem em que aconteceram:\n${linhas}\n\nEscreva apenas a narração, sem título e sem comentário.`
-    : `Squares where they stopped, in the order they happened:\n${linhas}\n\nWrite only the narration, with no title and no commentary.`;
+    ? `Casas em que ele parou, na ordem em que aconteceram:\n${linhas}\n\n${exemplo}\n\nEscreva apenas a narração, sem título e sem comentário.`
+    : `Squares where they stopped, in the order they happened:\n${linhas}\n\n${exemplo}\n\nWrite only the narration, with no title and no commentary.`;
 
   return `${cabeca}\n\n${rodape}`;
 }
@@ -161,16 +219,63 @@ function buildPrompt({ player, lang, act, endgame, squares }) {
 /* --------------------------------------------------------------- validação */
 
 const FORBIDDEN = [
-  /\bcasa\s*\d+/i,
-  /\bsquare\s*\d+/i,
-  /\+\s*\d+\s*(de )?(progresso|progress)/i,
+  /\bcasas?\s*\d+/i,
+  /\bsquares?\s*\d+/i,
+  /\+\s*\d+\s*(de\s*)?(progresso|progress)/i,
   /\b\d+\s*\/\s*100\b/,
-  /\brole\s*(o\s*)?(dado|dice)\b/i,
+  /\b(role|rolou|rolagem|roll)\b[^.]{0,20}\b(dado|dice|die)\b/i,
   /\bjogada extra\b/i,
+  /\bextra roll\b/i,
 ];
 
+// Algarismo é proibido, com uma exceção temática: o ano de 1985.
+const NUM_PT = ["zero","um","dois","três","quatro","cinco","seis","sete","oito","nove","dez","onze","doze","treze","catorze","quinze","dezesseis","dezessete","dezoito","dezenove","vinte"];
+const NUM_EN = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
+
+function numberToWords(n, lang) {
+  const table = lang === "en" ? NUM_EN : NUM_PT;
+  if (n <= 20) return table[n];
+  if (n < 100) {
+    const tens = lang === "en" ? ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"] : ["","","vinte","trinta","quarenta","cinquenta","sessenta","setenta","oitenta","noventa"];
+    const t = Math.floor(n / 10), r = n % 10;
+    return tens[t] + (r ? (lang === "en" ? "-" : " e ") + table[r] : "");
+  }
+  return String(n);
+}
+
+// O modelo pequeno ignora "sem algarismos". Em vez de brigar com ele,
+// normalizamos: "Ato 2" vira "segundo ato" e qualquer dígito vira palavra.
+export function wordify(text, lang) {
+  const ordinals = lang === "en"
+    ? { 2: "second", 3: "third", 4: "fourth" }
+    : { 2: "segundo", 3: "terceiro", 4: "quarto" };
+  let out = text
+    .replace(/\bAto\s*(\d+)\b/gi, (_, d) => (ordinals[d] ? (lang === "en" ? `the ${ordinals[d]} act` : `o ${ordinals[d]} ato`) : `ato`))
+    .replace(/\bAct\s*(\d+)\b/gi, (_, d) => (ordinals[d] ? `the ${ordinals[d]} act` : "act"));
+  out = out.replace(/\b(\d{1,3})\b/g, (m) => numberToWords(Number(m), lang));
+  out = out.replace(/\b1985\b/g, lang === "en" ? "nineteen eighty-five" : "mil novecentos e oitenta e cinco");
+  return out.replace(/\s+/g, " ").trim();
+}
+
+// Detecta cópia: se boa parte das sequências de seis palavras da saída já existe
+// no material de entrada, o modelo colou a carta em vez de narrar.
+export function copiedRatio(text, sources) {
+  const words = (s) => String(s).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/).filter(Boolean);
+  const out = words(text);
+  if (out.length < 12) return 0;
+  const hay = " " + sources.map(words).map((w) => w.join(" ")).join(" || ") + " ";
+  let hits = 0, total = 0;
+  for (let i = 0; i + 6 <= out.length; i++) {
+    total++;
+    if (hay.includes(out.slice(i, i + 6).join(" "))) hits++;
+  }
+  return total ? hits / total : 0;
+}
+
 export function violates(text) {
-  return FORBIDDEN.some((re) => re.test(text)) || /\d/.test(text);
+  if (FORBIDDEN.some((re) => re.test(text))) return true;
+  const semAno = text.replace(/\b1985\b/g, "ano");
+  return /\d/.test(semAno);
 }
 
 function fallbackNarration({ player, squares, lang }) {
@@ -184,8 +289,21 @@ function fallbackNarration({ player, squares, lang }) {
 
 /* ---------------------------------------------------------------- narração */
 
+export function extractText(result) {
+  if (!result) return "";
+  if (typeof result === "string") return result.trim();
+  const choice = result.choices && result.choices[0];
+  const msg = choice && choice.message;
+  if (msg && typeof msg.content === "string" && msg.content.trim()) return msg.content.trim();
+  if (typeof result.response === "string" && result.response.trim()) return result.response.trim();
+  if (typeof result.text === "string") return result.text.trim();
+  return "";
+}
+
 async function narrate(request, env) {
   const body = await request.json();
+  const debug = new URL(request.url).searchParams.get("debug") === "1";
+  let lastRaw = "";
   const player = sanitizeName(body && body.player);
   const lang = body && body.lang === "en" ? "en" : "pt-BR";
   const squares = sanitizeSquares(body && body.squares);
@@ -193,7 +311,7 @@ async function narrate(request, env) {
   if (!squares.length) return json({ error: "sem_casas", expected: "{ player, lang, squares[] }" }, 400);
 
   const prompt = buildPrompt({ player, lang, act: Number(body.act) || 2, endgame: Boolean(body.endgame), squares });
-  const key = "narr:" + (await sha256([PROMPT_VERSION, lang, NARRATION_MODEL, prompt].join("|")));
+  const key = "narr:" + (await sha256([PROMPT_VERSION, lang, NARRATION_MODELS.join(','), prompt].join("|")));
 
   if (env.CACHE) {
     const hit = await env.CACHE.get(key);
@@ -203,26 +321,48 @@ async function narrate(request, env) {
   if (!env.AI) return json({ error: "sem_binding_ai", fallback: fallbackNarration({ player, squares, lang }) }, 503);
 
   let text = "";
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const result = await env.AI.run(NARRATION_MODEL, {
-      messages: [
-        { role: "system", content: PERSONA[lang] + (attempt ? "\n\nAVISO: a tentativa anterior citou números ou mecânica. Reescreva sem nenhum algarismo." : "") },
-        { role: "user", content: prompt },
-      ],
-      max_tokens: 320,
-      temperature: 0.85,
-    });
-    text = String((result && (result.response || result.text)) || "").trim();
-    if (text && !violates(text)) break;
-    text = "";
+  let usedModel = null;
+  outer: for (const model of NARRATION_MODELS) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let result;
+      try {
+        result = await env.AI.run(model, {
+          messages: [
+            { role: "system", content: PERSONA[lang] + (attempt ? "\n\nAVISO: a tentativa anterior copiou o texto das cartas ou citou números. Narre com SUAS palavras, sem copiar frases do material." : "") },
+            { role: "user", content: prompt },
+          ],
+          max_tokens: 1200,
+          temperature: 0.7,
+        });
+      } catch (e) {
+        lastRaw = "AI_ERROR(" + model + "): " + String((e && e.message) || e);
+        break;
+      }
+      const gotRaw = extractText(result);
+      if (!gotRaw) {
+        lastRaw = "AI_EMPTY(" + model + "): " + JSON.stringify(result).slice(0, 200);
+        break; // este modelo não devolve content: passa para o próximo
+      }
+      const got = wordify(gotRaw, lang);
+      const copy = copiedRatio(gotRaw, squares.map((s) => s.descricao + " " + s.titulo));
+      if (!violates(got) && copy < 0.45) {
+        text = got;
+        usedModel = model;
+        break outer;
+      }
+      lastRaw = (copy >= 0.45 ? "COPIED(" : "VIOLATES(") + model + "): " + got.slice(0, 300);
+    }
   }
 
   if (!text) {
-    return json({ text: fallbackNarration({ player, squares, lang }), cached: false, fallback: true, key, lang });
+    const out = { text: fallbackNarration({ player, squares, lang }), cached: false, fallback: true, key, lang };
+    if (debug) out.raw = lastRaw.slice(0, 900);
+    return json(out);
   }
 
+
   if (env.CACHE) await env.CACHE.put(key, text, { expirationTtl: 60 * 60 * 24 * 180 });
-  return json({ text, cached: false, key, lang });
+  return json({ text, cached: false, key, lang, model: usedModel });
 }
 
 /* --------------------------------------------------------------------- voz */
