@@ -468,10 +468,12 @@ function apresentarTrofeu(chave: ChaveTrofeu, nome: string) {
   const trofeu = sessao.trofeus[chave];
   const dono = trofeu ? sessao.jogadores.find((jogador) => jogador.id === trofeu.jogadorId)?.nome ?? nome : nome;
   const trajetoria = getPlayerTrajectory(sessao.log, trofeu?.jogadorId ?? 0);
-  trophyAct.textContent = NOME_TROFEU[chave].toUpperCase();
-  trophyTitle.textContent = `${dono} chegou ao ${NOME_TROFEU[chave]}`;
-  trophyNarration.textContent = textoMestre(trajetoria, dono);
-  document.querySelector<HTMLElement>("#trophy-path")!.innerHTML = trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada))}</li>`).join("");
+  trophyAct.textContent = tituloTrofeu(chave, idioma).toUpperCase();
+  trophyTitle.textContent = idioma === "pt-BR"
+    ? `${dono} chegou ao ${tituloTrofeu(chave, idioma)}`
+    : `${dono} reached ${tituloTrofeu(chave, idioma)}`;
+  trophyNarration.textContent = textoMestre(trajetoria, dono, idioma);
+  document.querySelector<HTMLElement>("#trophy-path")!.innerHTML = trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada, idioma))}</li>`).join("");
   if (timerCpu !== undefined) window.clearTimeout(timerCpu);
   btnRolarDado.disabled = true;
   if (!trophyDialog.open) trophyDialog.showModal();
@@ -512,15 +514,15 @@ function retomarDepoisDoTrofeu() {
 
 function abrirEndgame() {
   if (!sessao) return;
-  const tela = montarTelaEndgame(sessao);
+  const tela = montarTelaEndgame(sessao, idioma);
   if (!tela) return;
-  document.querySelector<HTMLElement>("#endgame-winner")!.textContent = `${tela.vencedorNome}, seu nome entrou no catálogo!`;
-  document.querySelector<HTMLElement>("#endgame-score")!.textContent = `Projeto final: ${tela.projeto}/100 · Rolagens de ${tela.vencedorNome}: ${tela.rolamentosVencedor} · Rolagens da mesa: ${tela.rolamentosMesa}`;
+  document.querySelector<HTMLElement>("#endgame-winner")!.textContent = textoVitoria(tela.vencedorNome, idioma);
+  document.querySelector<HTMLElement>("#endgame-score")!.textContent = nomeScore(idioma, tela.vencedorNome, tela.projeto, tela.rolamentosVencedor, tela.rolamentosMesa);
   document.querySelector<HTMLElement>("#endgame-narration")!.textContent = tela.narracao;
-  document.querySelector<HTMLElement>("#endgame-path")!.innerHTML = tela.trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada))}</li>`).join("");
+  document.querySelector<HTMLElement>("#endgame-path")!.innerHTML = tela.trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada, idioma))}</li>`).join("");
   document.querySelector<HTMLElement>("#endgame-ranking")!.innerHTML = tela.ranking.map((linha) => {
-    const trofeus = linha.trofeus.length ? linha.trofeus.map((chave) => NOME_TROFEU[chave]).join(", ") : "sem troféu de ato";
-    return `<li><b>${escaparHtml(linha.nome)}</b> · casa ${linha.casa} · ${linha.projeto}/100 · ${escaparHtml(trofeus)}</li>`;
+    const trofeus = linha.trofeus.length ? linha.trofeus.map((chave) => tituloTrofeu(chave, idioma)).join(", ") : u("sem troféu de ato");
+    return `<li><b>${escaparHtml(linha.nome)}</b> · ${idioma === "pt-BR" ? "casa" : "square"} ${linha.casa} · ${linha.projeto}/100 · ${escaparHtml(trofeus)}</li>`;
   }).join("");
   if (!endgameDialog.open) endgameDialog.showModal();
   document.querySelector<HTMLElement>("#endgame-title")!.focus();
@@ -578,7 +580,7 @@ function renderDiceFace(element: HTMLElement, value: number) {
   if (!pontosAtivos) return;
 
   element.dataset.value = String(value);
-  element.setAttribute("aria-label", `Dado mostrando ${value}`);
+  element.setAttribute("aria-label", idioma === "pt-BR" ? `Dado mostrando ${value}` : `Die showing ${value}`);
   element.innerHTML = Array.from({ length: 9 }, (_, index) => {
     const position = index + 1;
     return `<span class="dice-pip${pontosAtivos.includes(position) ? " is-active" : ""}" aria-hidden="true"></span>`;
@@ -588,26 +590,29 @@ function renderDiceFace(element: HTMLElement, value: number) {
 document.querySelectorAll<HTMLElement>(".dice-face").forEach((face) => renderDiceFace(face, 1));
 
 function renderHouses() {
-  housesElement.innerHTML = casas.map((casa) => `
+  housesElement.innerHTML = casas.map((original) => {
+    const casa = localizarCasa(original, idioma);
+    return `
     <button
       class="house-hotspot ${casa.id === casaAtiva ? "is-active" : ""}"
       type="button"
       style="--x:${casa.x}%;--y:${casa.y}%;--w:${casa.width}%;--h:${casa.height}%"
       data-house="${casa.id}"
-      aria-label="Casa ${casa.id}: ${casa.titulo}"
+      aria-label="${idioma === "pt-BR" ? "Casa" : "Square"} ${casa.id}: ${escaparHtml(casa.titulo)}"
       aria-pressed="${casa.id === casaAtiva}"
     ><span>${casa.id}</span></button>
-  `).join("");
+  `;
+  }).join("");
 }
 
 function renderPlayers() {
   playerListElement.innerHTML = jogadores.map((jogador) => {
     const nome = escaparHtml(jogador.nome);
     return `
-    <button class="player-card ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""} ${jogador.id === jogadorSelecionado ? "is-selected" : ""}" type="button" data-player="${jogador.id}" style="--player-color:${jogador.cor}" aria-label="${nome}, ${jogador.controle === "cpu" ? "CPU local" : "humano"}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4${jogador.id === jogadorAtivo ? ", sua vez" : ""}">
+    <button class="player-card ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""} ${jogador.id === jogadorSelecionado ? "is-selected" : ""}" type="button" data-player="${jogador.id}" style="--player-color:${jogador.cor}" aria-label="${nome}, ${idioma === "pt-BR" ? (jogador.controle === "cpu" ? "CPU local" : "humano") : (jogador.controle === "cpu" ? "local CPU" : "human")}, ${idioma === "pt-BR" ? "casa" : "square"} ${jogador.casa}, ${idioma === "pt-BR" ? "projeto" : "progress"} ${jogador.projeto} ${idioma === "pt-BR" ? "de" : "of"} 100, ACTS ${jogador.actsVisitados.length} ${idioma === "pt-BR" ? "de" : "of"} 4${jogador.id === jogadorAtivo ? (idioma === "pt-BR" ? ", sua vez" : ", your turn") : ""}">
       <img src="${jogador.imagem}" alt="" />
       <span><b>P${jogador.id}</b>${nome}</span>
-      <small>${jogador.controle === "cpu" ? "CPU" : "HUM"} · CASA ${String(jogador.casa).padStart(2, "0")} · ${jogador.projeto}/100</small>
+      <small>${jogador.controle === "cpu" ? "CPU" : "HUM"} · ${idioma === "pt-BR" ? "CASA" : "SQUARE"} ${String(jogador.casa).padStart(2, "0")} · ${jogador.projeto}/100</small>
     </button>
   `;
   }).join("");
@@ -618,22 +623,25 @@ function renderPlayers() {
     const indiceNaCasa = ocupantes.findIndex((item) => item.id === jogador.id);
     const { x, y } = posicaoDaPeca(casa, indiceNaCasa, ocupantes.length);
     return `
-    <button class="player-token ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${escaparHtml(jogador.nome)}, ${jogador.controle === "cpu" ? "CPU local" : "humano"}, casa ${jogador.casa}, projeto ${jogador.projeto} de 100, ACTS ${jogador.actsVisitados.length} de 4" style="--player-color:${jogador.cor};--tx:${x}%;--ty:${y}%">
+    <button class="player-token ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${escaparHtml(jogador.nome)}, ${jogador.controle === "cpu" ? (idioma === "pt-BR" ? "CPU local" : "local CPU") : (idioma === "pt-BR" ? "humano" : "human")}, ${idioma === "pt-BR" ? "casa" : "square"} ${jogador.casa}, ${idioma === "pt-BR" ? "projeto" : "progress"} ${jogador.projeto} ${idioma === "pt-BR" ? "de" : "of"} 100, ACTS ${jogador.actsVisitados.length} ${idioma === "pt-BR" ? "de" : "of"} 4" style="--player-color:${jogador.cor};--tx:${x}%;--ty:${y}%">
       <img src="${jogador.imagem}" alt="" />
       <span>P${jogador.id}</span>
     </button>
   `;
   }).join("");
   const selecionado = jogadores[jogadorSelecionado - 1];
-  document.querySelector<HTMLElement>(".act-progress")!.textContent = `ACTS do ${selecionado.nome}: ${selecionado.actsVisitados.length}/4`;
+  document.querySelector<HTMLElement>(".act-progress")!.textContent = idioma === "pt-BR"
+    ? `ACTS do ${selecionado.nome}: ${selecionado.actsVisitados.length}/4`
+    : `${selecionado.nome}'s Acts: ${selecionado.actsVisitados.length}/4`;
 }
 
-function updateInspector(casa: Casa) {
+function updateInspector(original: Casa) {
+  const casa = localizarCasa(original, idioma);
   const inicioAct1 = casa.id === 1;
   document.querySelector<HTMLElement>(".counter")!.textContent = `${String(casa.id).padStart(2, "0")}/40`;
   document.querySelector<HTMLElement>(".house-number")!.textContent = String(casa.id).padStart(2, "0");
   const chip = document.querySelector<HTMLElement>(".type-chip")!;
-  chip.textContent = casa.tipo.toUpperCase();
+  chip.textContent = textoTipo(casa.tipo, idioma);
   chip.dataset.type = casa.tipo;
   document.querySelector<HTMLElement>(".inspector h2")!.textContent = casa.titulo;
   const effect = document.querySelector<HTMLElement>(".effect")!;
@@ -643,12 +651,12 @@ function updateInspector(casa: Casa) {
   narrative.textContent = casa.narrativa;
   narrative.classList.toggle("is-act", casa.id === 10 || casa.id === 20 || casa.id === 30 || inicioAct1);
   if (inicioAct1) {
-    document.querySelector<HTMLElement>(".inspector h2")!.textContent = atos[1].titulo;
-    chip.textContent = "PRÓLOGO";
+    document.querySelector<HTMLElement>(".inspector h2")!.textContent = localizarAto(1, idioma).titulo;
+    chip.textContent = u("PRÓLOGO");
     chip.dataset.type = "marco";
-    effect.textContent = "Ponto de partida · sem efeito";
+    effect.textContent = u("Ponto de partida · sem efeito");
     effect.dataset.type = "marco";
-    narrative.textContent = atos[1].narrativa;
+    narrative.textContent = localizarAto(1, idioma).narrativa;
   }
 }
 
@@ -685,8 +693,8 @@ async function executarSorteioDado(automatico = false) {
     sessao = consumirTurnoPerdidoSolo(sessao);
     sincronizarVista();
     document.querySelector<HTMLElement>(".dice-value")!.textContent = "–";
-    document.querySelector<HTMLElement>(".dice-sub")!.textContent = "TURNO PERDIDO · SEM ROLAGEM";
-    document.querySelector<HTMLElement>(".dice-status")!.textContent = `${nome} cumpriu a penalidade sem rolar o dado nem avançar. Próxima jogada liberada.`;
+    document.querySelector<HTMLElement>(".dice-sub")!.textContent = u("TURNO PERDIDO · SEM ROLAGEM");
+    document.querySelector<HTMLElement>(".dice-status")!.textContent = textoJogador(nome, "turnServed", idioma);
     renderLog();
     agendarTurnoCpu();
     return;
@@ -742,7 +750,7 @@ async function executarSorteioDado(automatico = false) {
   if (valueEl) {
     valueEl.textContent = String(dado.valor);
   }
-  if (subEl) subEl.textContent = `RESULTADO: ${dado.valor} · AVANCE ${dado.valor} CASA${dado.valor === 1 ? "" : "S"}`;
+  if (subEl) subEl.textContent = textoDado(dado.valor, idioma);
   if (registro.easterEggDesbloqueado) {
     document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = false;
   }
@@ -762,7 +770,7 @@ async function executarSorteioDado(automatico = false) {
     proximoJogador: registro.entrada.vitoria || registro.entrada.jogadaExtra ? undefined : jogadores[jogadorAtivo - 1].nome,
     ignorados: registro.ignorados,
     easterEgg: registro.easterEggDesbloqueado,
-  });
+  }, idioma);
   if (statusEl) statusEl.textContent = log.completo;
   const pausa = enfileirarTrofeus(registro.novosTrofeus, jogador.nome);
   rolandoDado = false;
@@ -791,15 +799,15 @@ function agendarTurnoCpu() {
   }
   const cpu = turnoDaCpu(jogadores, jogadorAtivo, partidaIniciada, partidaEncerrada);
   const penalidadeSolo = Boolean(sessao && sessao.jogadores.length === 1 && sessao.jogadores[0].turnosPerdidos > 0 && partidaIniciada && !partidaEncerrada);
-  btnRolarDado.textContent = penalidadeSolo ? "PASSAR TURNO" : "ROLAR DADO";
+  btnRolarDado.textContent = penalidadeSolo ? u("PASSAR TURNO") : u("ROLAR DADO");
   btnRolarDado.disabled = !partidaIniciada || partidaEncerrada || cpu;
   if (penalidadeSolo) {
     document.querySelector<HTMLElement>(".dice-status")!.textContent =
-      `${jogadores[0].nome} perdeu uma jogada. Clique em PASSAR TURNO para cumprir a penalidade sem rolar o dado.`;
+      textoJogador(jogadores[0].nome, "turnLost", idioma);
   }
   if (!cpu) return;
   const atual = jogadores[jogadorAtivo - 1];
-  document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `<strong>${escaparHtml(atual.nome)}</strong> está preparando a jogada automática...`;
+  document.querySelector<HTMLElement>(".dice-status")!.textContent = textoJogador(atual.nome, "cpu", idioma);
   timerCpu = window.setTimeout(() => { void executarSorteioDado(true); }, 900);
 }
 
@@ -819,8 +827,8 @@ function iniciarJornada() {
     bindPlayerEvents();
     renderLog();
     void trilha.desbloquear().then(() => atualizarTrilha());
-    const nome = jogadores[0]?.nome ?? "Jogador 1";
-    document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `Vez de <strong>${escaparHtml(nome)}</strong>. Clique para rolar o dado.`;
+    const nome = jogadores[0]?.nome ?? nomePadrao(1, idioma);
+    document.querySelector<HTMLElement>(".dice-status")!.textContent = textoJogador(nome, "turn", idioma);
     agendarTurnoCpu();
     if (!btnRolarDado.disabled) btnRolarDado.focus();
   } catch (erro) {
@@ -847,7 +855,7 @@ function novaPartida() {
   if (endgameDialog.open) endgameDialog.close();
   document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = true;
   document.querySelector<HTMLElement>(".dice-status")!.textContent = "Inicie a jornada para liberar o dado.";
-  btnRolarDado.textContent = "ROLAR DADO";
+  btnRolarDado.textContent = u("ROLAR DADO");
   btnRolarDado.disabled = true;
   renderHouses();
   renderPlayers();
