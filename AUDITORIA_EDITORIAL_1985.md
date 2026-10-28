@@ -1,6 +1,6 @@
 # AUDITORIA EDITORIAL E HISTÓRICA — RETRO-GHOST-85
 
-> 27/10/2026 · Status: PROPOSTA / revisão pendente pelo autor. Nenhum arquivo de produção, arte, título impresso, regra ou layout foi modificado. Esta branch existe para revisão e eventual merge manual.
+> 27/10/2026 · Status: REDAÇÃO IMPLEMENTADA APENAS NA BRANCH, conferência visual pendente e revisão do autor obrigatória. Código narrativo alterado (`src/data/casas.ts`, `src/data/atos.ts`, `src/data/intro.ts`, texto de vitória em `src/main.ts`). Sem mudanças na arte, rótulos, posições, regras ou layout. Não fazer merge antes da validação.
 
 ## Regra de ouro: tabuleiro congelado
 
@@ -8,7 +8,7 @@
 - Os títulos das 40 casas e as denominações **Ato 2 · BBS**, **Ato 3 · DEBUG**, **Ato 4 · FINAL** permanecem. Não mudar títulos no código sem confirmar que são idênticos à arte aprovada.
 - Propor somente enriquecimento dos campos narrativos das casas, do prólogo, das narrações-base dos atos e do endgame, sem tocar em efeitos, dados, probabilidade, pontos, turnos, save, música, CPU, Gemma ou interface.
 - Onde o texto da arte não puder ser conciliado, registrar **licença poética conhecida** em vez de reabrir projeto gráfico.
-- O texto proposto casa a casa está em [PROPOSTA_TEXTUAL_40_CASAS.md](PROPOSTA_TEXTUAL_40_CASAS.md). Não está conectado ao jogo.
+- O texto aplicado casa a casa nesta branch está em [PROPOSTA_TEXTUAL_40_CASAS.md](PROPOSTA_TEXTUAL_40_CASAS.md), lado a lado com a versão `master`. **Ainda não está aprovado para merge.**
 
 ## Achados de maior impacto
 
@@ -38,7 +38,7 @@ Nota: O **MS-DOS do IBM PC** também já existia, mas a coexistência temporal *
 
 ## Princípios de revisão
 
-1. Preservar título e efeito de toda casa, inclusive o texto curto de efeito e posições; propostas revisam somente narrativa.
+1. Preservar título e efeito de toda casa, inclusive o texto curto de efeito e posições; as alterações de código nesta branch revisam somente narrativas e uma frase de endgame.
 2. Cada casa precisa de causa própria, obstáculo ou descoberta concreta; evitar começar com 'você' em todas.
 3. Tornar a narrativa progressiva: inspiração → protótipo → ferramentas → comunicação/testes → edição/lançamento.
 4. Não transformar fatos que *podiam ocorrer* em práticas universais de 1985. BBS, drive e modem eram possíveis, mas não gratuitos nem onipresentes.
@@ -49,7 +49,7 @@ Nota: O **MS-DOS do IBM PC** também já existia, mas a coexistência temporal *
 
 ## Critérios de aceite para eventual merge
 
-- Conferir os rótulos e textos efetivamente *impressos na imagem* com inspeção visual antes de editar textos de produção. A auditoria do conteúdo fonte **não substitui** essa inspeção.
+- Conferir os rótulos, ícones e textos efetivamente *impressos na imagem* antes de aprovar a integração do conteúdo de produção. A auditoria do código **não substitui** essa inspeção; aqui os textos já foram alterados apenas na branch.
 - Aprovar ou rejeitar cada sugestão; comparar conteúdo atual ↔ proposto.
 - Manter estrutura `DetalheCasa` (40 entradas) e os mesmos campos `titulo`, `tipo`, `efeito`, `consequencia`, posições e dimensões.
 - Rodar testes e build após qualquer integração ao código; nenhuma verificação de build foi necessária nesta branch de documentação.
@@ -67,4 +67,4 @@ Nota: O **MS-DOS do IBM PC** também já existia, mas a coexistência temporal *
 
 ## Situação
 
-**Branch de discussão**, sem alterações de funcionalidade ou arte. Sugestões em `PROPOSTA_TEXTUAL_40_CASAS.md`; não efetuar merge sem aprovação editorial e checagem visual final.
+**Branch com conteúdo narrativo atualizado**, sem alterações de funcionalidade ou arte. Comparação dos textos em `PROPOSTA_TEXTUAL_40_CASAS.md`, prompt externo em `PROMPT_CODEX_VALIDACAO_VISUAL.md`. Não efetuar merge sem aprovação editorial e checagem visual final.
