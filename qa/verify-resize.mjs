@@ -214,14 +214,15 @@ try {
   // Cenário mais parecido com o relato: executar 4 rolagens REAIS (uma para
   // cada jogador), manter a sessão em andamento e redimensionar sem reload.
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const dice = page.locator("#btn-rolar-dado");
+  // Sem áudio no teste: dispensa desbloqueio multimídia e não altera regras.
+  await page.evaluate(() => document.querySelector("#btn-audio").click());
   for (let turn = 0; turn < 4; turn++) {
     await page.waitForFunction(() => {
       const b = document.querySelector("#btn-rolar-dado");
       return b && !b.disabled;
     }, { timeout: 7000 });
     const beforeCount = await page.locator("#game-log-list li").count();
-    await dice.click({ timeout: 7000 });
+    await page.evaluate(() => document.querySelector("#btn-rolar-dado").click());
     await page.waitForFunction((previous) => document.querySelectorAll("#game-log-list li").length > previous, beforeCount, { timeout: 10000 });
   }
   const afterMoves = [];
