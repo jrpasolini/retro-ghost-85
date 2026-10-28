@@ -52,9 +52,10 @@ app.innerHTML = `
   </section>
   <main class="shell">
     <header class="topbar">
-      <div>
+      <div class="masthead">
         <p class="eyebrow">RETRO COMPUTER SYSTEM • 1985</p>
-        <h1>RETRO-GHOST-<span>85</span></h1>
+        <h1 class="masthead-title"><span class="sr-only">RETRO-GHOST-85 — </span>WHERE CODE BECOMES LEGEND</h1>
+        <p class="masthead-subtitle">AN 8-BIT JOURNEY THROUGH CODE, CHAOS &amp; CASSETTES</p>
       </div>
       <div class="top-actions">
         <div class="audio-console" aria-label="Controle da trilha sonora">
