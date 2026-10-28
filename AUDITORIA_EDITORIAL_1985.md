@@ -68,3 +68,9 @@ Nota: O **MS-DOS do IBM PC** também já existia, mas a coexistência temporal *
 ## Situação
 
 **Branch com conteúdo narrativo atualizado**, sem alterações de funcionalidade ou arte. Comparação dos textos em `PROPOSTA_TEXTUAL_40_CASAS.md`, prompt externo em `PROMPT_CODEX_VALIDACAO_VISUAL.md`. Não efetuar merge sem aprovação editorial e checagem visual final.
+
+## Estado posterior à inspeção do Codex — revisão localizada v2
+
+**2026-10-28:** a inspeção visual do Codex foi incorporada em [MATRIZ_VALIDACAO_VISUAL.md](MATRIZ_VALIDACAO_VISUAL.md). Houve correção textual das 15 casas sinalizadas, restauração das referências a Ato 2/3/4 na introdução, e uma **imagem de fundo composta em duas camadas**: a base WebP original + [board-icon-overlay-v2.svg](public/assets/board-icon-overlay-v2.svg) com 9 novos desenhos. Nenhuma dimensão, posição ou centro de peça foi alterado. A casa 13 mantém o `C:\>` original do desenho e a narrativa agora identifica um PC com MS-DOS, não MSX-DOS. A casa 19 e o logo repetido continuam pendências conhecidas; revisar a composição no navegador e executar testes antes de merge.
+
+A especificação e as fontes estão em [DIRECAO_EDITORIAL_1985.md](DIRECAO_EDITORIAL_1985.md).
