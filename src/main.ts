@@ -69,7 +69,6 @@ app.innerHTML = `
       <div class="board-column">
         <div id="tabuleiro" class="board-stage" role="group" aria-label="Tabuleiro com 40 casas">
           <img class="board-art" src="./assets/board-reference-edited.webp" alt="Mesa retrô com computador, cassetes, disquetes, BBS e quarenta casas ao redor" />
-          <img class="board-art" src="./assets/board-icon-overlay-v2.svg" alt="" aria-hidden="true" />
           <div class="endgame-cover">
             <img src="./assets/casa-40-endgame.webp" alt="ENDGAME · PUBLICAÇÃO" />
           </div>
