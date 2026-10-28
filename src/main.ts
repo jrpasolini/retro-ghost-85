@@ -46,11 +46,11 @@ if (!app) throw new Error("Elemento #app não encontrado");
 app.innerHTML = `
   <section id="opening-sequence" class="opening-sequence" aria-live="polite" aria-label="Apresentação de RETRO-GHOST-85">
     <div class="opening-stage opening-stage-portrait" aria-hidden="true">
-      <img src="/assets/antonio-pasolini-portrait.png" alt="" />
+      <img src="./assets/antonio-pasolini-portrait.png" alt="" />
       <p id="opening-credit" class="opening-credit">Presents a project that is part of the Hacktoberfest Open-Source AI Challenge: Week 4 called...</p>
     </div>
     <div class="opening-stage opening-stage-game" aria-hidden="true">
-      <img src="/assets/retro-ghost-opening.png" alt="" />
+      <img src="./assets/retro-ghost-opening.png" alt="" />
       <p class="opening-prompt">PRESS SPACE TO START</p>
     </div>
     <p class="sr-only">Apresentação do projeto RETRO-GHOST-85.</p>
@@ -64,9 +64,9 @@ app.innerHTML = `
       </div>
       <div class="top-actions">
         <div class="language-switch language-switch-top" role="group" aria-label="Language / Idioma">
-          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><img class="language-flag" src="/assets/flag-usa-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
+          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><img class="language-flag" src="./assets/flag-usa-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
           <span class="language-separator" aria-hidden="true">/</span>
-          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><img class="language-flag" src="/assets/flag-brazil-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
+          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><img class="language-flag" src="./assets/flag-brazil-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
         </div>
         <div class="audio-console" aria-label="Controle da trilha sonora">
           <button id="btn-audio" type="button" aria-pressed="true">AUDIO ON</button>
@@ -87,7 +87,7 @@ app.innerHTML = `
             <img src="./assets/einstein-smile.webp" alt="" />
           </div>
           <div class="scanlines" aria-hidden="true"></div>
-          <div class="cassette-deck" aria-label="Gravador de cassete para salvar e carregar a partida">
+          <div class="cassette-deck" style="--tape-button-image: url('${new URL("./assets/cassette-save-load.png", document.baseURI).href}')" aria-label="Gravador de cassete para salvar e carregar a partida">
             <img src="./assets/cassette-save-load.png" alt="Gravador de dados em cassete com teclas REC e PLAY" />
             <button id="btn-save" class="tape-key tape-key-save" type="button" aria-label="REC: salvar partida em arquivo Markdown"><b>REC</b><span>SAVE</span></button>
             <button id="btn-load" class="tape-key tape-key-load" type="button" aria-label="PLAY: carregar partida de arquivo Markdown"><b>PLAY</b><span>LOAD</span></button>
@@ -163,9 +163,9 @@ app.innerHTML = `
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
       <div id="setup-step" class="intro-terminal setup-step">
         <div class="language-switch language-switch-popup" role="group" aria-label="Language / Idioma">
-          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><img class="language-flag" src="/assets/flag-usa-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
+          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><img class="language-flag" src="./assets/flag-usa-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
           <span class="language-separator" aria-hidden="true">/</span>
-          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><img class="language-flag" src="/assets/flag-brazil-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
+          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><img class="language-flag" src="./assets/flag-brazil-8bit.svg" width="48" height="30" alt="" aria-hidden="true" /></button>
         </div>
         <p class="intro-kicker">${prologo.kicker}</p>
         <span class="intro-act">${prologo.rotulo}</span>

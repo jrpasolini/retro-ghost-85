@@ -494,8 +494,8 @@ button { font: inherit; }
   cursor: pointer;
 }
 
-.tape-key-save { left: 2px; background: url("/assets/cassette-save-load.png") 6% 51% / 500% 260% no-repeat; }
-.tape-key-load { right: 2px; background: url("/assets/cassette-save-load.png") 95% 51% / 500% 260% no-repeat; }
+.tape-key-save { left: 2px; background: var(--tape-button-image) 6% 51% / 500% 260% no-repeat; }
+.tape-key-load { right: 2px; background: var(--tape-button-image) 95% 51% / 500% 260% no-repeat; }
 .tape-key b { font: clamp(.48rem, .85vw, .9rem)/1 "Press Start 2P", monospace; }
 .tape-key span { margin-top: .2rem; font-size: clamp(.4rem, .65vw, .7rem); font-weight: 700; }
 .tape-key:hover, .tape-key:focus-visible { outline: 2px solid #fff; outline-offset: -2px; box-shadow: 0 0 10px var(--cyan); }
