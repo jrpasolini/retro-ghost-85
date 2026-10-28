@@ -1,6 +1,6 @@
-# Prompt para o Codex — inspeção visual da arte e auditoria textual completa
+# ARQUIVO HISTÓRICO — antigo prompt do Codex para inspeção visual
 
-> Copie integralmente este documento para uma sessão Codex com acesso ao repositório privado `jrpasolini/retro-ghost-85`. Trabalhe em `audit/editorial-1985-casas`; a branch é proposta, o PR #5 é draft. **Não faça merge, não edite arte, layout ou lógica.**
+> **ARQUIVADO / NÃO EXECUTAR NOVAMENTE PARA EDITAR ARTE.** O autor decidiu manter a imagem original intacta e focar somente na revisão histórica e narrativa. Este arquivo registra o método de uma auditoria já realizada. Instrução histórica anterior: copie integralmente este documento para uma sessão Codex com acesso ao repositório privado `jrpasolini/retro-ghost-85`. Trabalhe em `audit/editorial-1985-casas`; a branch é proposta, o PR #5 é draft. **Não faça merge, não edite arte, layout ou lógica.**
 
 ## Objetivo
 
