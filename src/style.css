@@ -156,25 +156,6 @@ h1 {
 
 h1 span { color: var(--amber); }
 
-.status {
-  border: 1px solid rgba(16, 242, 223, .48);
-  padding: .7rem .85rem;
-  color: #9cddcf;
-  font: 600 .74rem/1 "Chakra Petch", sans-serif;
-  letter-spacing: .1em;
-  white-space: nowrap;
-}
-
-.status i {
-  display: inline-block;
-  width: .5rem;
-  height: .5rem;
-  margin-right: .5rem;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 10px var(--green);
-}
-
 .top-actions { display: flex; align-items: stretch; gap: .55rem; }
 
 .audio-console {
@@ -186,6 +167,10 @@ h1 span { color: var(--amber); }
   padding: .42rem .55rem;
   border: 1px solid rgba(255, 181, 28, .45);
   background: #030d0c;
+}
+
+@media (min-width: 1051px) {
+  .audio-console { width: max(260px, 20vw); }
 }
 
 .audio-console button {
@@ -516,7 +501,7 @@ h1 span { color: var(--amber); }
 .type-chip[data-type="marco"], .type-chip[data-type="final"] { border-color: var(--amber); color: var(--amber); }
 .type-chip[data-type="escolha"] { border-color: #c985ff; color: #d8a5ff; }
 .inspector h2 { margin: .28rem 0 0; color: #e9fff9; font: 600 clamp(1.1rem, 1.35vw, 1.45rem)/1.15 "Chakra Petch", sans-serif; }
-.inspector-story { flex: 1 1 auto; min-height: 0; margin-top: .35rem; overflow: auto; scrollbar-color: var(--cyan) #04100f; }
+.inspector-story { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; margin-top: .35rem; overflow: auto; scrollbar-color: var(--cyan) #04100f; }
 .effect-label { margin: .35rem 0 .2rem; color: #8aa39b; font-size: .7rem; font-weight: 700; letter-spacing: .1em; }
 .effect { margin: 0; color: var(--green); font-weight: 700; }
 .effect[data-type="fatalidade"] { color: #ff75a1; }
@@ -534,7 +519,7 @@ h1 span { color: var(--amber); }
   overflow-wrap: break-word;
 }
 .narrative.is-act { margin-top: .7rem; padding: .7rem .85rem; border-left: 3px solid var(--amber); background: rgba(255, 181, 28, .065); color: #e7f6ef; }
-.act-progress { margin: .6rem 0 0; color: var(--amber); font-size: .7rem; font-weight: 700; letter-spacing: .05em; }
+.act-progress { margin: auto 0 0; color: var(--amber); font-size: .7rem; font-weight: 700; letter-spacing: .05em; }
 .inspector-dock { flex: 0 0 auto; margin-top: auto; }
 .divider { height: 1px; margin: .7rem 0; background: linear-gradient(90deg, var(--cyan), transparent); opacity: .4; }
 
@@ -718,7 +703,7 @@ h1 span { color: var(--amber); }
   .player-console { grid-column: 1; grid-row: 2; min-width: 0; margin-top: 0; align-self: start; }
   .inspector {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 1 / span 2;
     align-self: stretch;
     contain: size;
     height: auto;
@@ -914,7 +899,6 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
 @media (max-width: 680px) {
   .shell { padding: .6rem; }
   .topbar { align-items: flex-start; }
-  .status { display: none; }
   .top-actions { margin-left: auto; }
   .audio-console { min-width: 185px; }
   .board-stage { overflow-x: auto; min-height: 390px; aspect-ratio: auto; }

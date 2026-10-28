@@ -57,7 +57,6 @@ app.innerHTML = `
         <h1>RETRO-GHOST-<span>85</span></h1>
       </div>
       <div class="top-actions">
-        <div class="status"><i></i> MVP LOCAL · NARRATIVA E REGRAS</div>
         <div class="audio-console" aria-label="Controle da trilha sonora">
           <button id="btn-audio" type="button" aria-pressed="true">AUDIO ON</button>
           <span id="audio-track">INTRO</span>
@@ -905,4 +904,3 @@ btnMaisPlayer.addEventListener("click", () => {
   rascunho = ajustarQuantidade(atuais, atuais.length + 1);
   renderSetup();
 });
-
