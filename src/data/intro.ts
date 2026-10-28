@@ -1,14 +1,14 @@
 /**
- * Introdução da jornada. A tela de configuração (escolha dos jogadores)
- * é o único lugar que mostra este texto. A redação final entra aqui.
+ * Apresentação da jornada na configuração da partida.
+ * A ambientação é revelada pelo título uma única vez, sem repetir a premissa nos parágrafos.
  */
 export const prologo = {
   kicker: "RETRO-GHOST-85 // PRÓLOGO",
   rotulo: "INÍCIO",
   titulo: "Você é um desenvolvedor em 1985",
   paragrafos: [
-    "Você é um desenvolvedor em 1985. Na mesa há um micro, uma revista de programação e um gravador de cassete. O jogo que você quer publicar ainda não existe: só a vontade de escrever a primeira linha.",
-    "O tabuleiro é esse ano. Cada casa é uma noite de código, um disquete que falha ou uma página de revista. O dado escolhe o caminho. Os pontos de projeto medem o quanto o programa cresceu — são placar, não um portão.",
-    "Todos começam na casa 1. O objetivo é chegar primeiro à casa 40 e publicar o jogo. Quem entra primeiro no Ato 2 (casa 10), no Ato 3 (casa 20) ou no Ato 4 (casa 30) guarda a história até ali.",
+    "A luz do monitor recorta a mesa. Ao lado do teclado, uma revista de BASIC promete aventuras feitas de linhas numeradas; o gravador de cassete aguarda a primeira tentativa. Por enquanto, seu grande jogo existe apenas no caderno. O resto depende de paciência, curiosidade e algumas noites maldormidas.",
+    "No tabuleiro, cada casa conta um episódio dessa jornada: descobertas, amigos, disquetes temperamentais e bugs que surgem na pior hora. O dado decide para onde você vai; os pontos de projeto registram seus avanços e tropeços, mas não impedem ninguém de vencer.",
+    "Todos começam na casa 1. O primeiro a alcançar a casa 40 coloca o jogo no catálogo. Ao cruzar o Ato 2 (casa 10), o Ato 3 (casa 20) e o Ato 4 (casa 30), quem chega primeiro em cada marco conquista o direito de guardar sua história.",
   ],
 };
