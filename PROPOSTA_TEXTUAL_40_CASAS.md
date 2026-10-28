@@ -1,203 +1,293 @@
-# Proposta de textos — 40 casas e marcos de narrativa (revisão humana)
+# Revisão integrada das 40 casas — comparação antes / depois
 
-> Documento de comparação editorial. **Nenhum texto abaixo substituiu código em produção.** Títulos e ordem preservados da versão `master` consultada em 27/10/2026. A arte do tabuleiro não será modificada.
+> Estado: **textos aplicados SOMENTE na branch `audit/editorial-1985-casas`**. A imagem definitiva `public/assets/board-reference-edited.webp` ainda **não foi validada visualmente**. Não fazer merge enquanto a conferência do Codex estiver pendente.
 
-Cada bloco propõe apenas uma substituição do **campo narrativa**. Tipos, efeitos e consequências permanecem iguais.
+Os títulos, efeitos, tipos, consequências e coordenadas permanecem inalterados. O conteúdo abaixo reflete **exatamente** as narrativas presentes no código da branch, e não uma alternativa adicional.
 
-### Casa 01 — A revista na banca
+## Casa 01 — A revista na banca
 
-Uma revista na banca traz um jogo inteiro em linhas numeradas de BASIC. Você folheia as páginas imaginando como aqueles comandos podem fazer um personagem se mover. Pela primeira vez, decide que quer escrever um jogo, não apenas jogá-lo.
+- **Tipo:** marco | **Efeito:** Primeira inspiração · sem efeito
+- **Anterior:** Na banca, uma revista traz um jogo inteiro em linhas de BASIC. Você leva o exemplar para casa e começa a estudar como outros autores organizaram seus programas.
+- **Revisada:** Na banca de jornal, uma revista promete um jogo inteiro escondido entre centenas de linhas de BASIC. As páginas cheiram a tinta fresca; cada número de linha parece uma pista de um tesouro. Você compra o exemplar, volta para casa e descobre a primeira magia da época: construir uma aventura com as próprias mãos.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 02 — Disquete de trabalho
+## Casa 02 — Disquete de trabalho
 
-Um amigo oferece o drive do próprio micro para guardar uma cópia do código que você começou na fita. O disquete fica com ele por segurança; em casa, você ainda depende do gravador de cassete. É o primeiro contato com uma forma bem mais rápida de recuperar arquivos.
+- **Tipo:** evento | **Efeito:** +18 projeto · avance 1 casa
+- **Anterior:** Um amigo lhe empresta um disquete formatado e identificado à mão. Você grava uma cópia do código e descobre como é bom voltar ao trabalho sem redigitar tudo.
+- **Revisada:** O amigo do clube oferece o drive do próprio micro para salvar seu código em um disquete. A luz de acesso pisca, o motor ronca e, em instantes, o trabalho está guardado. Você ainda não tem drive em casa — terá de devolver o favor —, mas essa cópia emprestada pode salvar uma noite inteira de digitação.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 03 — Erro na listagem
+## Casa 03 — Erro na listagem
 
-O BASIC acusa um erro depois de horas de digitação. Entre números de linha, vírgulas e parênteses, um único caractere não corresponde à revista. Com lápis na mão, você compara tudo até encontrar a diferença e recuperar a execução.
+- **Tipo:** fatalidade | **Efeito:** −12 projeto · volte 1 casa
+- **Anterior:** Depois de horas copiando uma listagem impressa, um único caractere trocado faz o BASIC parar com erro. Você compara linha por linha com a revista até encontrar o engano.
+- **Revisada:** Você termina de copiar a listagem, confere o último número de linha e digita RUN. A tela responde com um erro seco. O cursor pisca como se zombasse de você: em alguma das páginas, uma vírgula se transformou em ponto. Começa a investigação mais assustadora da noite, linha por linha, até o pequeno intruso aparecer.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 04 — RUN e a tela azul
+## Casa 04 — RUN e a tela azul
 
-Você digita RUN. Sobre o fundo azul do monitor, surgem as primeiras formas da aventura e um personagem finalmente responde às teclas. Ainda falta muito para ser um jogo completo, mas agora há algo que realmente pode ser testado.
+- **Tipo:** marco | **Efeito:** +22 projeto · jogue outra vez
+- **Anterior:** Você digita RUN e vê a primeira tela do seu jogo surgir no monitor. O desenho ainda é tosco, mas o programa responde às teclas: já dá para testar a próxima ideia.
+- **Revisada:** RUN. O fundo azul do monitor se ilumina, o primeiro personagem responde ao teclado e você quase derruba o copo de refrigerante na comemoração. A animação é simples, mas se move! A descoberta abre uma madrugada de testes e aquela perigosa vontade de programar só mais cinco minutinhos.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 05 — Salvar no cassete
+## Casa 05 — Salvar no cassete
 
-Antes de desligar o micro, você grava o BASIC em fita, identifica o lado e marca a posição aproximada do contador. O som áspero da gravação incomoda, mas vale a tranquilidade de não precisar redigitar a noite inteira.
+- **Tipo:** evento | **Efeito:** +16 projeto
+- **Anterior:** Antes de desligar, você grava o programa em fita e anota o contador do gravador. A cópia poupa outra noite inteira de digitação.
+- **Revisada:** O relógio já passou da hora de dormir. Você conecta o gravador, usa o comando de gravação em fita e acompanha o chiado que levará seu BASIC para o cassete. Na etiqueta, escreve nome e versão; no caderno, marca o contador. Amanhã, se tudo correr bem, o programa voltará do passado sem precisar nascer outra vez.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 06 — O cassete que não carrega
+## Casa 06 — O cassete que não carrega
 
-O gravador gira e o sinal chega ao micro, mas CLOAD não encontra o programa. Você volta alguns segundos, verifica a conexão e tenta novamente. A cópia anterior funciona — por sorte, só as últimas mudanças terão de ser refeitas.
+- **Tipo:** fatalidade | **Efeito:** −14 projeto · volte 2 casas
+- **Anterior:** A fita gira, o cabeçote chia, mas CLOAD não encontra o programa. Você ajusta o volume, rebobina e recupera uma versão anterior do código.
+- **Revisada:** O botão PLAY desce com um estalo, a fita gira e o alto-falante chia. Você executa CLOAD, espera... e nada. Um silêncio terrível toma conta do quarto. Depois de ajustar volume e cabos, a gravação de ontem finalmente carrega; a de hoje se perdeu. O fantasma desta casa devorou suas últimas alterações e o obriga a recuar.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 07 — Fitas virgens
+## Casa 07 — Fitas virgens
 
-Você reserva uma fita virgem exclusivamente para cópias de segurança e anota a data de cada gravação. Dessa vez, a versão de ontem está protegida enquanto o experimento de hoje pode dar errado sem destruir tudo.
+- **Tipo:** evento | **Efeito:** +14 projeto
+- **Anterior:** Você separa uma fita nova para cópia de segurança e escreve a versão na etiqueta. Quando a gravação principal falha, o trabalho continua.
+- **Revisada:** Na papelaria, você encontra uma fita virgem e decide destiná-la apenas às cópias de segurança. Escreve a versão na etiqueta com a caprichosa solenidade de quem lacra um cofre. Pode parecer excesso de cuidado, mas a lembrança do último CLOAD fracassado transforma aquela fita barata em verdadeiro amuleto.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 08 — Joystick emprestado
+## Casa 08 — Joystick emprestado
 
-Um colega empresta o joystick durante uma tarde de testes. O personagem que parecia ágil no teclado reage de outro jeito à alavanca, especialmente nas diagonais. Você ajusta a resposta dos comandos antes de devolver o controle.
+- **Tipo:** evento | **Efeito:** +18 projeto · avance 1 casa
+- **Anterior:** No encontro de amigos, alguém empresta um joystick. Testar o controle de verdade revela movimentos que pareciam bons no teclado, e você ajusta o jogo.
+- **Revisada:** Um colega chega com um joystick gasto de tantas partidas. A alavanca range, os botões respondem de modo diferente do teclado e as diagonais denunciam uma falha no controle do seu herói. Você ajusta os comandos ali mesmo. Nunca um acessório emprestado pareceu tão valioso.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 09 — O cartucho do amigo
+## Casa 09 — O cartucho do amigo
 
-Na casa de um amigo, um jogo em cartucho começa quase de imediato e mostra o valor de comandos precisos e fases bem ritmadas. Você observa, faz anotações e volta ao seu protótipo com ideias de design — sem copiar o programa alheio.
+- **Tipo:** evento | **Efeito:** +18 projeto
+- **Anterior:** Você estuda um jogo em cartucho na casa de um colega: a resposta dos comandos e o ritmo das fases dão ideias para melhorar seu protótipo, sem copiar o programa.
+- **Revisada:** Na casa de um amigo, um cartucho inicia um jogo quase sem espera. Você observa como a ação responde aos botões, como a dificuldade aumenta e como cada tela convida à próxima. Volta com ideias rabiscadas no caderno, não com código copiado: a melhor inspiração é aquela que vira invenção própria.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 10 — Ato 2 · BBS
+## Casa 10 — Ato 2 · BBS
 
-O primeiro protótipo já permite chegar ao fim de uma partida. No encontro do clube, os colegas descobrem falhas e um deles anota o número de uma BBS em seu caderno. Você ainda precisa melhorar muito código antes de discar, mas não está mais trabalhando sozinho.
+- **Tipo:** marco | **Efeito:** +20 projeto · jogue outra vez
+- **Anterior:** Seu primeiro programa enfim vai do início ao fim. Você o leva ao encontro de usuários, onde cada pessoa joga de um jeito e encontra algo que você não tinha previsto. Um colega anota o número de uma BBS e promete trocar dicas quando você conseguir se conectar. O jogo já existe; agora precisa crescer com as perguntas, críticas e descobertas de quem o experimenta.
+- **Revisada:** O protótipo funciona e já provoca sorrisos — e perguntas — no clube de usuários. Entre uma sugestão e outra, alguém escreve o número de uma BBS no seu caderno: a promessa de uma comunidade além daquela sala. Antes de discar, porém, você precisa dominar disquetes, memória, sprites e rotinas mais rápidas. O segundo ato abre portas para o mundo e para as entranhas do micro.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 11 — O drive de disquete
+## Casa 11 — O drive de disquete
 
-Um drive compatível finalmente chega à sua bancada. Com a interface instalada e os discos preparados, carregar uma versão deixa de exigir rebobinar a fita várias vezes. Pela primeira vez, testar e recuperar arquivos parece parte do mesmo processo.
+- **Tipo:** marco | **Efeito:** +20 projeto
+- **Anterior:** Um drive chega à bancada. Arquivos separados e gravações mais rápidas permitem guardar versões do jogo sem depender apenas do cassete.
+- **Revisada:** Finalmente, um drive chega à sua bancada. O som do mecanismo parece música nova, e o disquete entra como uma promessa de velocidade. Agora suas versões não precisam depender apenas de um gravador caprichoso. É uma mudança de rotina — desde que você se lembre de manter as fitas antigas a salvo.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 12 — Formatar o disco
+## Casa 12 — Formatar o disco
 
-Um disquete novo precisa ser preparado antes de receber os arquivos. Você acompanha a formatação, faz uma gravação de teste e confere a leitura. Só depois entrega ao disco uma cópia importante do projeto.
+- **Tipo:** evento | **Efeito:** +14 projeto
+- **Anterior:** Você formata um disco novo e testa a leitura antes de confiar nele. Com a mídia preparada, monta uma cópia para continuar os experimentos.
+- **Revisada:** O disco novo tem cara de pronto, mas ainda precisa ser formatado. Você prepara a mídia, aguarda o procedimento e faz um pequeno teste de gravação e leitura. Só depois entrega a ela uma cópia importante. Em 1985, a prudência começa antes do primeiro arquivo.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 13 — Prompt do DOS
+## Casa 13 — Prompt do DOS
 
-Com drive e memória suficiente, o micro inicia o MSX-DOS 1 e mostra o prompt A>. Você usa DIR para conferir os arquivos e distinguir a versão nova da antiga. Não há pastas nem ferramentas modernas: a organização começa por nomes cuidadosamente escolhidos.
+- **Tipo:** marco | **Efeito:** +18 projeto
+- **Anterior:** Diante do prompt, você lista os arquivos e organiza código, dados e cópias de segurança. Saber exatamente qual versão está no disco evita uma confusão futura.
+- **Revisada:** Com o drive instalado e memória suficiente, o MSX-DOS 1 apresenta o discreto prompt A>. Você digita DIR e vê os nomes dos arquivos aparecerem. Não existem pastas para organizar o caos: versões bem identificadas e disquetes separados são sua defesa contra a temível pergunta: qual destes é o programa certo?
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 14 — O assembler
+## Casa 14 — O assembler
 
-Uma rotina que o BASIC executa lentamente é reescrita em linguagem de máquina para o processador de 8 bits. Você confere cada endereço e observa o resultado no monitor: o movimento fica mais fluido, mas agora cada erro exige ainda mais cuidado.
+- **Tipo:** evento | **Efeito:** +22 projeto
+- **Anterior:** Uma rotina em linguagem de máquina substitui o trecho lento do BASIC. Depois de conferir endereços e testar com cuidado, a animação ganha fôlego.
+- **Revisada:** O BASIC tem sido fiel, mas uma parte da animação se arrasta como um monstro cansado. Você arrisca uma pequena rotina em linguagem de máquina para o processador de 8 bits, revisando endereços e instruções com o manual aberto. Quando a tela ganha velocidade, parece que o micro recebeu fôlego novo.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 15 — Sprite fora do lugar
+## Casa 15 — Sprite fora do lugar
 
-O herói aparece vários pontos distante de onde deveria. O desenho está correto; o problema está nas coordenadas passadas à rotina de sprites. Você risca os valores no caderno, corrige a tabela e repete o teste desde o início.
+- **Tipo:** fatalidade | **Efeito:** −16 projeto · volte 2 casas
+- **Anterior:** O personagem surge longe de onde deveria. Um valor de coordenada gravado errado faz você voltar ao mapa de sprites e revisar a rotina de desenho.
+- **Revisada:** O herói deveria estar no centro do cenário, mas surge encostado na borda como se tivesse sido puxado por uma força invisível. Não é assombração: um valor errado na tabela de coordenadas enviou o sprite para longe. Você revisita o mapa de desenho e perde tempo até devolver o aventureiro ao seu lugar.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 16 — Mapa de memória e VRAM
+## Casa 16 — Mapa de memória e VRAM
 
-O manual mostra por que os endereços da memória principal não são os mesmos usados para a memória de vídeo. Você corrige a rotina que escrevia dados gráficos na posição errada da VRAM. Os caracteres estranhos desaparecem da tela.
+- **Tipo:** evento | **Efeito:** +20 projeto · avance 1 casa
+- **Anterior:** Com o manual aberto ao lado do teclado, você separa a memória do programa da memória de vídeo. A imagem deixa de corromper os dados do jogo.
+- **Revisada:** O manual explica que os dados gráficos vão para a VRAM, por um caminho diferente da memória principal. Um endereço errado na transferência estava espalhando caracteres e cores estranhas pela tela. Você corrige a rotina, testa novamente e vê o cenário reaparecer — como se tivesse acendido a luz num quarto escuro.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 17 — Colisão que não colide
+## Casa 17 — Colisão que não colide
 
-Seu personagem atravessa um inimigo sem perder uma vida. A animação funciona, mas o teste de limites considera as posições na ordem errada. Você suspende a demonstração e reexamina cada condição, uma linha por vez.
+- **Tipo:** fatalidade | **Efeito:** −14 projeto · perca 1 jogada
+- **Anterior:** O herói atravessa o inimigo como se nada existisse. Você interrompe os testes públicos para revisar posições, limites e a ordem das verificações.
+- **Revisada:** Seu herói caminha direto para o inimigo... e o atravessa sem qualquer reação. A tela continua tranquila, mas você conhece o terror escondido: o teste de colisão está errado. O caderno de testes ganha círculos vermelhos; a apresentação aos amigos terá de esperar enquanto você confere posições e limites.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 18 — Música em PSG
+## Casa 18 — Música em PSG
 
-Depois de testar frequências e durações no gerador de som programável, você cria uma vinheta curta para a abertura. São poucos canais e quase nenhum espaço para extravagâncias, mas agora seu jogo já tem uma assinatura sonora.
+- **Tipo:** evento | **Efeito:** +16 projeto
+- **Anterior:** Você experimenta comandos de som no gerador programável e compõe uma vinheta curta. O protótipo finalmente tem uma identidade que se ouve.
+- **Revisada:** Você descobre o prazer de brincar com os tons do PSG, o gerador de som programável do micro. Entre apitos, graves modestos e algumas notas insistentes, nasce a vinheta da abertura. São poucos canais, mas a melodia fica na cabeça — e de repente seu protótipo parece ter personalidade.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 19 — O bug de scroll
+## Casa 19 — O bug de scroll
 
-Ao deslocar o cenário, uma faixa de blocos antigos permanece visível. Como o micro não oferece a rolagem suave que você imaginou, a rotina precisa redesenhar partes da imagem por software. Você volta aos testes da VRAM e elimina a faixa fantasma.
+- **Tipo:** fatalidade | **Efeito:** −16 projeto · volte 2 casas
+- **Anterior:** Ao mover o cenário, uma linha antiga fica presa na tela. A cópia de memória está fora de ordem; você volta ao teste anterior para corrigir o deslocamento.
+- **Revisada:** O cenário deveria deslizar; em vez disso, uma faixa de blocos antigos permanece na tela como uma sombra agarrada ao monitor. O deslocamento é feito por software, redesenhando partes da imagem, e a ordem da atualização da VRAM falhou. Você volta ao rascunho da rotina e expulsa o defeito, bloco por bloco.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 20 — Ato 3 · DEBUG
+## Casa 20 — Ato 3 · DEBUG
 
-O jogo já pode ser demonstrado, mas os testes fora de casa revelam defeitos difíceis de reproduzir sozinho. Você cria uma lista de falhas, guarda cópias identificadas e leva dúvidas ao clube de usuários. A próxima fase é depurar com a ajuda de outras pessoas.
+- **Tipo:** marco | **Efeito:** +20 projeto
+- **Anterior:** A demonstração empolgou os amigos, mas as anotações voltam cheias de falhas: um sprite fora do lugar, uma colisão esquecida, uma tela que prende o jogador. Você abre o caderno de testes ao lado do teclado e compara cada erro com a versão salva em disco. Este ato é o trabalho paciente de transformar um jogo que funciona na sua máquina em um jogo que outras pessoas conseguem terminar.
+- **Revisada:** Os amigos conseguiram jogar, mas voltaram com uma lista de falhas maior do que você esperava. Agora, cada bug parece um fantasma escondido numa condição do BASIC ou num endereço errado. Com o caderno de testes em mãos, você procura respostas no clube, na BBS e nas revistas especializadas. Depurar é aprender a escutar quem joga — e a desconfiar do código que parecia perfeito.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 21 — Modem emprestado
+## Casa 21 — Modem emprestado
 
-No clube de usuários, um micro equipado com interface de comunicação e modem é ligado à linha telefônica. Você escuta os sinais da conexão e percebe que os programas podem viajar sem que um disquete mude de mãos. A novidade custa tempo de linha e exige paciência.
+- **Tipo:** evento | **Efeito:** +18 projeto
+- **Anterior:** No clube de usuários, você consegue experimentar um modem ligado à linha telefônica. A troca de mensagens abre uma nova rota para tirar dúvidas sobre o jogo.
+- **Revisada:** No clube de usuários, alguém conecta um modem ao micro e à linha telefônica. O equipamento solta uma sequência de sons metálicos que parecem conversa entre máquinas. Você descobre um novo caminho para tirar dúvidas e trocar mensagens. Só há um detalhe: cada minuto de conexão ocupa um telefone de verdade.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 22 — Discar para a BBS
+## Casa 22 — Discar para a BBS
 
-Depois de algumas tentativas, a BBS responde. Entre mensagens de outros programadores, você encontra uma dica para encurtar uma rotina e faz uma anotação antes que a ligação termine. O código continua no seu micro, mas a solução veio de longe.
+- **Tipo:** evento | **Efeito:** +20 projeto · jogue outra vez
+- **Anterior:** Você espera a conexão, lê mensagens de outros programadores e recebe uma dica para reduzir o tamanho de uma rotina. Volta ao código com uma solução.
+- **Revisada:** Você disca o número anotado e espera, com o ouvido atento aos ruídos da linha. Desta vez a BBS atende. Na tela, mensagens de outros programadores revelam uma maneira de economizar memória numa rotina difícil. Você copia a dica no caderno antes de encerrar a chamada e corre para testar a descoberta.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 23 — Linha ocupada
+## Casa 23 — Linha ocupada
 
-Você disca novamente e ouve apenas o sinal de ocupado. Sem conseguir falar com o sistema naquela noite, a resposta de que precisava terá de esperar. Resta revisar o que já está anotado e tentar a ligação depois.
+- **Tipo:** fatalidade | **Efeito:** −12 projeto · perca 1 jogada
+- **Anterior:** O telefone só devolve sinal de ocupado. Sem acesso à BBS naquela noite, a resposta que você precisava fica para a próxima sessão.
+- **Revisada:** O número da BBS está certo. A hora também. Mas a linha devolve apenas o sinal de ocupado, uma vez, duas, três... No silêncio da madrugada, a resposta parece estar do outro lado de uma porta trancada. Sem conseguir conectar, você guarda o caderno e perde esta oportunidade de avançar.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 24 — O grupo de usuários
+## Casa 24 — O grupo de usuários
 
-Você leva a demonstração ao encontro do grupo. Um jogador tenta passar de fase de um jeito inesperado, outro descobre uma instrução confusa e um terceiro aponta um erro de tempo. O caderno volta cheio — e o projeto, mais promissor.
+- **Tipo:** marco | **Efeito:** +18 projeto
+- **Anterior:** Você leva o jogo ao encontro do grupo. As pessoas testam fases, anotam falhas e sugerem uma instrução mais clara para quem está começando.
+- **Revisada:** A reunião do grupo de usuários vira um pequeno laboratório de surpresas. Uma pessoa pula uma instrução, outra descobre um caminho impossível e um terceiro pergunta por que aquele botão não faz nada. A princípio dói ouvir as críticas; depois você percebe que acabou de ganhar uma equipe de testes sem pagar um tostão.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 25 — Listagem truncada
+## Casa 25 — Listagem truncada
 
-Uma fotocópia de revista termina justamente no meio da rotina que você queria estudar. O trecho faltante não é erro do BASIC: simplesmente não está na página. Você procura o exemplar completo e reconstrói a solução antes de adaptá-la.
+- **Tipo:** fatalidade | **Efeito:** −14 projeto · volte 1 casa
+- **Anterior:** A página fotocopiada termina no meio de uma linha essencial. Sem o restante da rotina, você procura o exemplar original e recompõe o trecho perdido.
+- **Revisada:** A fotocópia tem tudo de que você precisa — até a última linha da página, cortada pela máquina copiadora. A rotina termina no meio de um comando, como uma mensagem interrompida num filme de suspense. Você procura a revista original e reconstrói o trecho faltante antes de aproveitar a ideia no seu programa.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 26 — Cópia autorizada
+## Casa 26 — Cópia autorizada
 
-Ao preparar uma demonstração para o clube, você revisa o conteúdo do disco. A rotina escrita por você pode seguir junto; o programa comercial usado para estudar técnicas fica de fora. Assim, todos recebem uma cópia identificada do seu trabalho.
+- **Tipo:** evento | **Efeito:** +16 projeto · avance 2 casas
+- **Anterior:** Antes de distribuir o protótipo, você separa seus próprios arquivos dos programas de terceiros usados como referência. A versão de demonstração pode circular com autoria clara.
+- **Revisada:** Chegou a hora de mostrar a demonstração a outras pessoas. Você separa cuidadosamente o código que escreveu dos programas comerciais consultados durante o aprendizado. O disquete de apresentação leva apenas o que pode distribuir, com nome e instruções claros. Uma cópia limpa vale mais do que qualquer atalho duvidoso.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 27 — Disquete com erro
+## Casa 27 — Disquete com erro
 
-O drive tenta ler a mesma trilha mais de uma vez e devolve uma falha. Você recupera a última versão testada em outro disco e refaz apenas os ajustes recentes. O incidente vira uma regra: cópia de segurança só é boa quando pode ser lida.
+- **Tipo:** fatalidade | **Efeito:** −18 projeto · volte 2 casas
+- **Anterior:** Na hora de abrir a cópia de trabalho, o drive insiste e devolve erro de leitura. Você resgata o último backup e refaz as mudanças que não chegaram a ser salvas.
+- **Revisada:** O drive tenta ler a mesma trilha, insiste, faz um ruído diferente e devolve um erro. Por um segundo, você imagina todas as noites de trabalho desaparecendo naquele círculo de plástico. A cópia de segurança finalmente responde, mas as últimas mudanças precisam ser refeitas. Esta casa tem o som do pânico: um disquete que falha.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 28 — Revista especializada
+## Casa 28 — Revista especializada
 
-Uma revista técnica publica uma explicação sobre como reduzir repetições no BASIC. Você percebe que a mesma sequência se espalhou por várias partes do seu programa e reorganiza a rotina. O ganho não é só espaço: agora os erros ficam mais fáceis de encontrar.
+- **Tipo:** evento | **Efeito:** +16 projeto
+- **Anterior:** Você encontra numa revista técnica um exemplo de organização de código e reescreve a rotina mais confusa. O programa fica menor e mais fácil de testar.
+- **Revisada:** Uma revista especializada explica como tornar rotinas BASIC menos repetitivas. Você reconhece no exemplo o mesmo trecho que reescreveu várias vezes sem necessidade. Ao reorganizar o programa, economiza espaço e torna os testes mais simples. A descoberta não brilha na tela, mas muda tudo por trás dela.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 29 — Concurso de programas
+## Casa 29 — Concurso de programas
 
-Uma revista anuncia um concurso para trabalhos de leitores. Você prepara uma demonstração curta, identifica as mídias, escreve instruções claras e envia o pacote antes do prazo. Pela primeira vez, desconhecidos poderão avaliar seu jogo.
+- **Tipo:** evento | **Efeito:** +20 projeto · jogue outra vez
+- **Anterior:** Uma revista anuncia um concurso para programas de leitores. Você prepara uma versão demonstrável, revisa as instruções e envia o material dentro do prazo.
+- **Revisada:** A revista anuncia um concurso para programas de leitores. De repente, seu jogo pode chegar a olhos que nunca viram sua mesa de trabalho. Você prepara uma demonstração, escreve instruções compreensíveis e identifica o disquete com cuidado. Ao deixar o envelope no correio, sente que a aventura acaba de sair de casa.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 30 — Ato 4 · FINAL
+## Casa 30 — Ato 4 · FINAL
 
-Chega pelo correio uma resposta animadora: o projeto pode entrar num catálogo, desde que a edição definitiva seja confiável. Você separa um disco mestre, revisa o manual e confere a capa. A fase agora é transformar a demonstração em algo que outras pessoas consigam receber e usar.
+- **Tipo:** marco | **Efeito:** +20 projeto
+- **Anterior:** Chega pelo correio uma resposta animadora: há interesse em publicar o jogo, desde que a edição seja estável e compreensível. Você separa o disquete mestre, revisa as instruções, testa o joystick e confere a arte da capa. Agora não basta que o programa rode uma vez; cada cópia precisa carregar, cada página precisa orientar e o seu nome precisa acompanhar o trabalho até o catálogo.
+- **Revisada:** Uma carta chega pelo correio com uma possibilidade concreta: o jogo poderá aparecer num catálogo. A alegria dura até você enxergar a lista de tarefas. É preciso testar controles, preparar o mestre, imprimir instruções, fazer cópias e conferir etiquetas. O último ato não pede mais uma boa ideia; pede cuidado suficiente para que a aventura funcione também longe da sua mesa.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 31 — Teste do controle
+## Casa 31 — Teste do controle
 
-No teste final, alguém que nunca viu o jogo tenta usar o joystick sem explicações. A pessoa confunde dois comandos e fica presa logo na abertura. Você simplifica a instrução impressa e testa de novo: o problema não era a habilidade do jogador.
+- **Tipo:** evento | **Efeito:** +16 projeto
+- **Anterior:** Uma última partida com joystick revela um comando pouco intuitivo. Você troca a combinação de botões e evita que o jogador fique preso na primeira fase.
+- **Revisada:** É a hora de conferir o joystick com alguém que não conhece nenhum comando. O visitante tenta avançar e fica preso logo na primeira fase. A culpa não é dele: uma instrução que parecia óbvia para quem programou é um enigma para qualquer outra pessoa. Você simplifica o controle e salva o futuro jogador da frustração.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 32 — Impressora emperrada
+## Casa 32 — Impressora emperrada
 
-A impressora matricial engole o papel no meio das instruções. A fita de tinta marca algumas linhas, outras ficam desalinhadas, e a tiragem inteira precisa ser revista. Você recoloca o formulário contínuo e recomeça pacientemente.
+- **Tipo:** fatalidade | **Efeito:** −14 projeto · perca 1 jogada
+- **Anterior:** O papel prende na impressora matricial durante a tiragem das instruções. Você perde a noite ajustando a fita e reimprimindo as páginas manchadas.
+- **Revisada:** A impressora matricial estala em ritmo acelerado, até que o formulário contínuo prende no trator de papel. A cabeça ainda tenta imprimir sobre uma folha torta; tinta e letras se amontoam como uma mensagem de socorro. Você desliga o equipamento, realinha o papel e recomeça a tiragem do manual. A noite acaba de ficar mais longa.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 33 — Disquetes mestres
+## Casa 33 — Disquetes mestres
 
-Você grava a versão definitiva num disco mestre, confere a leitura e guarda outro exemplar em local separado. Agora existe um arquivo de referência: qualquer cópia distribuída deverá ser comparada com essa versão, e não com uma experiência inacabada.
+- **Tipo:** evento | **Efeito:** +18 projeto
+- **Anterior:** Você grava o mestre, testa a leitura e guarda uma cópia separada antes de duplicar. Pela primeira vez, consegue entregar a mesma versão a todos.
+- **Revisada:** Chegou o ritual do disquete mestre. Você grava a versão definitiva, confere a leitura e guarda uma segunda cópia em lugar seguro. Nada de usar esse disco para experimentos: ele será a referência de todas as duplicações. Pela primeira vez, o jogo parece menos um improviso e mais uma edição pronta.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 34 — A capa
+## Casa 34 — A capa
 
-Com papel, letras de transferência e uma prova de impressão, você monta a capa da aventura. Há pouco espaço para explicar tudo, então escolhe uma imagem que sugira o mundo do jogo antes de o micro sequer ser ligado.
+- **Tipo:** evento | **Efeito:** +18 projeto · avance 1 casa
+- **Anterior:** Com papel, letras de transferência e uma prova impressa, você monta a capa do jogo. O visual conta a aventura antes mesmo de o disquete entrar no drive.
+- **Revisada:** Com papel, letras de transferência e uma prova impressa, você monta a capa do jogo. O desenho precisa prometer aventura mesmo para quem nunca viu o programa funcionando. Quando afasta a folha para enxergar o conjunto, percebe que o projeto ganhou uma cara própria — uma que pode sobreviver até dentro de uma vitrine.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 35 — Duplicação em série
+## Casa 35 — Duplicação em série
 
-Cada disquete recebe uma cópia do mestre e passa por uma verificação de leitura. O trabalho repetitivo leva horas, mas revela a mídia defeituosa antes da embalagem. Pela primeira vez, você consegue entregar a mesma edição a várias pessoas.
+- **Tipo:** evento | **Efeito:** +18 projeto
+- **Anterior:** Cada cópia é gravada e conferida em outro leitor. A rotina é lenta, mas evita mandar ao público um disco que só funciona na sua máquina.
+- **Revisada:** O drive repete seu pequeno concerto mecânico enquanto você duplica os disquetes, um por um. Cada exemplar é lido e conferido antes de receber etiqueta. A tarefa é paciente e pouco glamourosa, mas evita a pior estreia possível: um comprador levando para casa um jogo que não carrega.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 36 — Caixas trocadas
+## Casa 36 — Caixas trocadas
 
-Na pressa de fechar o lote, as etiquetas foram parar nas caixas erradas. Você interrompe a remessa, confere os discos com as capas e refaz a identificação. Uma falha de organização quase estragou o lançamento.
+- **Tipo:** fatalidade | **Efeito:** −14 projeto · volte 1 casa
+- **Anterior:** As etiquetas foram coladas nas caixas erradas. Você interrompe o envio, abre o lote e confere uma por uma antes que o engano chegue às lojas.
+- **Revisada:** A remessa está quase pronta quando você nota o pesadelo logístico: etiquetas e caixas foram trocadas. A capa de uma aventura acompanha o disco de outra. Você abre as embalagens, espalha tudo sobre a mesa e confere cada conjunto. Melhor perder uma noite do que mandar esse pequeno terror para as lojas.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 37 — Crítica na revista
+## Casa 37 — Crítica na revista
 
-Um redator recebe uma versão de demonstração antes do lançamento e publica uma crítica favorável. Ele elogia o controle e a clareza das instruções, embora avise que a edição comercial ainda está a caminho. Você guarda o recorte com cuidado.
+- **Tipo:** evento | **Efeito:** +18 projeto
+- **Anterior:** A revista publica uma análise favorável e destaca a clareza das instruções. Você recorta a página: ela ajuda outros leitores a descobrir o jogo.
+- **Revisada:** Uma revista recebe a versão de demonstração antes do lançamento e publica uma crítica animadora. O redator elogia a resposta dos controles e a clareza das instruções, embora a edição comercial ainda esteja a caminho. Você recorta a página com mãos cuidadosas: pela primeira vez alguém de fora está contando a história do seu jogo.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 38 — A errata grave
+## Casa 38 — A errata grave
 
-Na prova das instruções que acompanharão o lançamento, um revisor encontra uma tecla indicada incorretamente. Você prepara uma errata e corrige as folhas antes de encerrar a tiragem. Uma linha no papel quase comprometeu um jogo inteiro.
+- **Tipo:** fatalidade | **Efeito:** −18 projeto · perca 1 jogada
+- **Anterior:** Um leitor encontra uma instrução impressa com a tecla errada. Você avisa a revista e prepara uma errata antes que mais cópias saiam com o defeito.
+- **Revisada:** Na última revisão das folhas impressas, uma tecla aparece indicada de forma errada. Quem seguisse o manual ficaria preso na primeira tela — um defeito de papel capaz de condenar meses de código. Você prepara uma errata, corrige as provas e atrasa a distribuição para impedir que o erro chegue às caixas.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 39 — Prêmio dos leitores
+## Casa 39 — Prêmio dos leitores
 
-Os participantes do concurso e do clube comentam a demonstração, e a revista anuncia seu protótipo entre os preferidos dos leitores. O reconhecimento vem antes da edição comercial; serve de incentivo para fechar com capricho os detalhes que faltam.
+- **Tipo:** marco | **Efeito:** +22 projeto
+- **Anterior:** Numa votação da revista, leitores citam seu jogo entre os favoritos. O reconhecimento anima você a revisar os últimos detalhes da edição.
+- **Revisada:** O resultado da votação da revista chega pelo correio: os leitores colocaram sua demonstração entre as favoritas do concurso. Ainda falta a publicação comercial, mas o reconhecimento faz o quarto parecer maior. Você prende o recorte na parede, bem acima do micro, como um lembrete de que valeu a pena insistir.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-### Casa 40 — Seu nome no catálogo
+## Casa 40 — Seu nome no catálogo
 
-O catálogo chega pelo correio. Entre os títulos anunciados está o jogo que começou com uma listagem de revista, passou por fitas rebeldes, disquetes falhos e noites de teste. Ao ver seu nome impresso, você entende: aquela primeira linha de BASIC chegou muito mais longe do que imaginava.
+- **Tipo:** final | **Efeito:** +10 projeto · vitória
+- **Anterior:** O catálogo chega pelo correio com a prova do anúncio. Quem alcança a casa 40 primeiro publica o jogo. Os pontos de projeto ficam no placar e no desempate; não há retorno à casa 30.
+- **Revisada:** O catálogo finalmente chega. Entre capas, descrições e preços está o título do seu jogo — e, ao lado dele, seu nome impresso. Você lembra do chiado do cassete, da tela azul, dos bugs teimosos e das madrugadas de BASIC. O medo de não conseguir ficou para trás: aquela aventura agora pode começar na casa de outra pessoa.
+- **Conferência com ilustração:** PENDENTE — Codex verificará figura, título/legenda impressos e compatibilidade com a narrativa.
 
-## Prólogo, atos e desfecho — propostas somente textuais
+## Regras de aceite
 
-**Introdução (sem alterar o título visual 'Você é um desenvolvedor em 1985'):**
-
-> O monitor ilumina a mesa; ao lado do teclado, uma revista de BASIC e um gravador de cassete esperam o primeiro experimento. Ainda não existe um jogo, apenas alguns rabiscos no caderno e uma vontade enorme de descobrir como fazer as ideias ganharem movimento.
-
-> Cada casa representa um episódio possível daquele ano: a descoberta de um comando, a falha de uma fita, uma conversa com outros programadores. O dado decide o caminho; os pontos de projeto registram os avanços e os contratempos.
-
-> Todos começam na casa 1. O primeiro a alcançar a casa 40 publica o jogo. Os atos registram conquistas ao longo da jornada, mas nenhuma delas substitui a corrida até o catálogo.
-
-**Casa 01 / texto do ato 1 (ao inspecionar):**
-
-> É 1985. O micro leva alguns segundos para mostrar o cursor, e a revista aberta no canto da mesa parece um mapa de território desconhecido. Você aprende os primeiros comandos e guarda cada experiência em fita. A meta do começo é simples: digitar RUN e ver alguma coisa funcionar.
-
-**Casa 10 / Ato 2 · BBS (nome permanece):**
-
-> A primeira versão já pode ser jogada, e o clube de usuários conhece sua criação. Entre comentários sobre gráficos e controles, alguém lhe entrega um número de BBS: quando o programa estiver mais robusto, você poderá pedir ajuda sem sair de casa. Antes disso, é hora de dominar disquetes, memória e linguagem de máquina.
-
-**Casa 20 / Ato 3 · DEBUG (nome permanece):**
-
-> Os testes de amigos revelaram falhas que você jamais perceberia sozinho. Com uma lista de erros no caderno e o micro ligado, você começa outra rodada de correções. No clube e na BBS, cada pergunta encontra alguém que já lutou contra um problema parecido; depurar agora também é aprender em comunidade.
-
-**Casa 30 / Ato 4 · FINAL (nome permanece):**
-
-> Uma resposta pelo correio abre a possibilidade de publicação. Para que a demonstração vire uma edição pronta, cada disco precisa ser conferido, cada instrução precisa orientar corretamente e a capa precisa apresentar a aventura. O código está quase pronto; agora o desafio é entregar o jogo ao mundo.
-
-**Endgame (conservar efeito '+10 projeto · vitória' fora da narrativa):**
-
-> Seu nome aparece no catálogo, impresso ao lado do título do jogo. Você passa o dedo sobre o papel para ter certeza de que não está imaginando. Da primeira listagem em BASIC ao último disquete conferido, cada erro corrigido trouxe você até aqui. A aventura finalmente saiu da sua mesa.
-
-## Recomendações para aprovação
-
-- Títulos reproduzidos **exatamente conforme `src/data/casas.ts`**, não necessariamente conforme a arte rasterizada (a arte ainda requer conferência visual). Não renomear atos ou casas para corresponder ao texto novo; adaptar apenas a descrição.
-- As sugestões mantêm todos os efeitos, valores, recuos, avanços, turnos e coordenadas existentes; nada deste arquivo é consumido pelo jogo.
-- A casa 2 utiliza o drive de um colega; a 11 apresenta o drive próprio. A 37 descreve a crítica de uma demonstração; a 39 uma votação da prévia; a 40 o lançamento. São soluções editoriais para uma ordem visual fixa.
-- Se os blocos do inspetor ficarem grandes, revisar extensão por casa durante a integração, nunca tamanho ou posição de cards nesta etapa.
-- Próxima sequência combinada: aprovação editorial PT-BR → inglês → seletor de linguagem → narração Gemma 4 → áudio da trajetória ElevenLabs.
+- A casa deve ser identificada pelo **número e pela posição real na imagem**, não por suposição a partir do título.
+- Se o desenho/legenda apontar para objeto ou fato diferente do texto, propor **correção do texto**, nunca da arte.
+- Se a arte for ambígua, sinalizar como 'indeterminado' e explicar o limite; não inventar elementos observados.
+- Após feedback visual, revisar apenas os textos e voltar a conferir todos os rótulos e efeitos no código.
+- Sequência posterior: fechar revisão PT-BR → tradução EN → seletor PT/EN → narração Gemma 4 → ouvir/baixar trajetória ElevenLabs.
