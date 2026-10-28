@@ -71,7 +71,7 @@ app.innerHTML = `
         <div class="audio-console" aria-label="Controle da trilha sonora">
           <button id="btn-audio" type="button" aria-pressed="true">AUDIO ON</button>
           <span id="audio-track">INTRO</span>
-          <label>VOL <input id="audio-volume" type="range" min="0" max="100" value="55" aria-label="Volume da trilha sonora" /></label>
+          <label>VOL <span class="volume-ruler"><span class="volume-scale" aria-hidden="true"><span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span></span><span class="volume-track"><input id="audio-volume" type="range" min="0" max="100" value="55" aria-label="Volume da trilha sonora" /></span></span></label>
         </div>
       </div>
     </header>

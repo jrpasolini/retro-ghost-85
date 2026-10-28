@@ -274,6 +274,100 @@ button { font: inherit; }
 .audio-console label { display: flex; align-items: center; gap: .4rem; color: #668a83; font-size: .52rem; }
 .audio-console input { width: 100%; accent-color: var(--cyan); }
 
+/* Physical audio controls in the board's pixel-art palette. */
+.audio-console button {
+  position: relative;
+  width: 60px;
+  min-height: 44px;
+  padding: 28px 3px 4px;
+  background: #071713;
+  font-size: .55rem;
+  line-height: 1;
+  letter-spacing: .025em;
+}
+.audio-console button::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: calc(50% - 20px);
+  width: 40px;
+  height: 16px;
+  border: 2px solid #54746a;
+  background: #010706;
+  box-shadow: inset 0 2px #000, 0 1px #173b32;
+}
+.audio-console button::after {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: calc(50% + 1px);
+  width: 15px;
+  height: 10px;
+  border: 2px solid #b6fff0;
+  background: var(--cyan);
+  box-shadow: -2px 0 #075e54, 0 2px #075e54;
+}
+.audio-console button[aria-pressed="false"]::after {
+  left: calc(50% - 16px);
+  border-color: #78938d;
+  background: #344c44;
+  box-shadow: 2px 0 #152720, 0 2px #152720;
+}
+.audio-console button:focus-visible,
+.audio-console input:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+.audio-console label { gap: .35rem; }
+.volume-ruler { display: flex; flex: 1; min-width: 0; flex-direction: column; }
+.volume-scale {
+  display: flex;
+  justify-content: space-between;
+  height: 11px;
+  padding: 0 5px;
+  color: #b8a56d;
+  font: 600 8px/9px "Chakra Petch", monospace;
+}
+.volume-track {
+  display: flex;
+  align-items: flex-end;
+  height: 16px;
+  padding-top: 5px;
+  background: repeating-linear-gradient(90deg, #7a713f 0 1px, transparent 1px 5%);
+}
+.audio-console input {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  min-width: 0;
+  height: 8px;
+  margin: 0;
+  border: 1px solid #627568;
+  border-radius: 0;
+  background: #010706;
+  box-shadow: inset 0 2px #000;
+  cursor: pointer;
+}
+.audio-console input::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 16px;
+  border: 2px solid #b6fff0;
+  border-radius: 0;
+  background: linear-gradient(90deg, #527d6c 0 4px, var(--amber) 4px 6px, #527d6c 6px);
+  box-shadow: 2px 2px #020806;
+}
+.audio-console input::-moz-range-thumb {
+  width: 10px;
+  height: 12px;
+  border: 2px solid #b6fff0;
+  border-radius: 0;
+  background: linear-gradient(90deg, #527d6c 0 4px, var(--amber) 4px 6px, #527d6c 6px);
+  box-shadow: 2px 2px #020806;
+}
+
+
 .game-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(260px, 20vw);
