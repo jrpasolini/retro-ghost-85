@@ -85,16 +85,16 @@
 **PR COM AJUSTES PENDENTES.** A arte foi efetivamente vista, mas há 15 pontes textuais recomendadas, uma casa visualmente indeterminada (19), repetição concorrente do título na UI e um teste quebrado. Esta conclusão não autoriza merge.
 
 
-## Revisão posterior — texto e pictogramas v2 na branch
+## Decisão posterior — auditoria gráfica encerrada, narrativas preservadas
 
-> Esta seção é uma atualização da auditoria inicial do Codex. Os números **24 OK / 15 AJUSTAR TEXTO / 1 INDETERMINADO** descrevem o estado **anterior** à revisão. Não são o resultado final homologado.
+A tabela 40/40 acima é um **retrato da inspeção inicial**, não uma lista de mudanças gráficas a executar.
 
-- **15 casas com ponte narrativa revisada no código**: 3, 7, 8, 9, 11, 12, 13, 16, 17, 18, 21, 23, 24, 28 e 35.
-- **9 desenhos substituídos exclusivamente por uma imagem SVG transparente**: 3, 11, 12, 17, 18, 21, 23, 28 e 35. A imagem-base WebP e os 40 hotspots continuam intactos.
-- **6 símbolos originais preservados, agora contextualizados no texto**: 7 (manutenção da fita), 8 (caixa-surpresa do joystick), 9 (café e cartucho), 13 (`C:\>` do MS-DOS de um PC em 1985), 16 (caixa de ferramentas de programação) e 24 (terminal e grupo de usuários).
-- **Casa 19:** permanece visualmente indeterminada, por sobreposição com o marco 20. Não houve mudança do desenho, do texto-base, da geometria ou do hotspot.
-- **Ato 2, Ato 3, Ato 4:** os rótulos literais foram reinseridos no prólogo, sem repetir a ambientação de 1985; a causa do teste quebrado está corrigida, sujeita à execução da suíte completa.
-- **Repetição do logo:** permanece uma recomendação opcional de UX, sem alteração nesta branch.
-- **Visual final:** pendente de confirmar no navegador que não há recortes, encavalamentos, faixas escuras ou desenhos antigos parcialmente visíveis nas nove casas atualizadas. Não foi feito merge.
+- As **15 casas identificadas para ajuste textual** receberam pontes narrativas na branch: 3, 7, 8, 9, 11, 12, 13, 16, 17, 18, 21, 23, 24, 28 e 35. Os ícones originais continuam inalterados.
+- O desenho v2 das nove casas **foi descartado**, e seu overlay foi removido do código e da branch. Nada no tabuleiro original foi substituído.
+- A casa 13 mantém o símbolo `C:\\>`, interpretado como MS-DOS em um PC de 1985. Não exige mudança de desenho.
+- A casa 19 continua indeterminada visualmente; registrar a limitação, **não** mexer em hotspots nem na arte.
+- Referências explícitas a Ato 2, Ato 3 e Ato 4 foram restauradas no prólogo, sem a repetição literal da ambientação.
+- **Novos critérios de aceite:** revisão histórica e editorial, coesão entre episódios, gramática e estilo, fidelidade de efeitos, `npm test` e `npm run build`. Sem testes de máscaras e pictogramas.
+- Repetição do logotipo é uma observação antiga de UX e não será abordada nesta etapa.
 
-**Ver também:** [DIRECAO_EDITORIAL_1985.md](DIRECAO_EDITORIAL_1985.md) e [PROPOSTA_TEXTUAL_40_CASAS.md](PROPOSTA_TEXTUAL_40_CASAS.md).
+**A partir desta decisão, novas propostas gráficas não integram o PR #5.** Veja [DIRECAO_EDITORIAL_1985.md](DIRECAO_EDITORIAL_1985.md).
