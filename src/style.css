@@ -179,6 +179,64 @@ button { font: inherit; }
 
 .top-actions { display: flex; align-items: stretch; gap: .55rem; }
 
+
+/* Locale flags: 1985 console styling, native emoji flags with readable text. */
+.language-switch {
+  position: relative;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .27rem;
+  flex: 0 0 auto;
+  padding: .3rem;
+  border: 1px solid rgba(16, 242, 223, .42);
+  border-radius: .3rem;
+  background: rgba(2, 13, 13, .93);
+  white-space: nowrap;
+}
+.language-switch button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  min-height: 2.25rem;
+  padding: .35rem .48rem;
+  border: 1px solid transparent;
+  border-radius: .17rem;
+  background: transparent;
+  color: #85aca5;
+  font: 600 .67rem/1 "Chakra Petch", sans-serif;
+  letter-spacing: .075em;
+  cursor: pointer;
+}
+.language-switch button span:first-child { font-size: 1.1rem; line-height: 1; }
+.language-switch button.is-selected,
+.language-switch button[aria-pressed="true"] {
+  border-color: #12dfc8;
+  background: #062b29;
+  color: #e6fff8;
+  box-shadow: inset 0 0 0 1px rgba(16, 242, 223, .17);
+}
+.language-switch button:hover { color: #efffff; background: #093b37; }
+.language-switch button:focus-visible { outline: 2px solid #ffc247; outline-offset: 2px; }
+.language-separator { color: #ffb51c; font: .8rem/1 "Press Start 2P", monospace; }
+.language-switch-popup {
+  position: absolute;
+  top: clamp(1rem, 3vw, 1.7rem);
+  right: clamp(1rem, 4vw, 2.6rem);
+}
+.setup-step > .intro-kicker { padding-right: 155px; min-height: 2.25rem; }
+.language-switch-top { align-self: center; }
+@media (max-width: 520px) {
+  .setup-step { padding-top: 4.6rem; }
+  .setup-step > .intro-kicker { padding-right: 0; min-height: 0; }
+  .language-switch-popup { top: .65rem; right: .7rem; }
+}
+@media (max-width: 1100px) {
+  .top-actions { flex-wrap: wrap; justify-content: flex-end; }
+}
+
 .audio-console {
   display: grid;
   grid-template-columns: auto minmax(90px, 1fr);
