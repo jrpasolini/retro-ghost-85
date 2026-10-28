@@ -24,9 +24,11 @@ const NARRATION_MODELS = [
   "@cf/google/gemma-4-26b-a4b-it",
 ];
 const TTS_MODEL = "eleven_multilingual_v2";
-const PROMPT_VERSION = "v4";
+const PROMPT_VERSION = "v5";
 const MAX_NAME = 24;
 const MAX_SQUARES = 10;
+const MAX_BEATS_ENDGAME = 5;
+const MAX_BEATS_ACT = 2;
 const MAX_DESC = 700;
 
 const CORS = {
@@ -296,6 +298,33 @@ export function extractText(result) {
   return "";
 }
 
+// Seleção por saliência: o troféu não é o diário. Escolhe poucos momentos,
+// sempre do próprio jogador, e devolve em ordem cronológica.
+export function selectBeats(squares, endgame) {
+  const limit = endgame ? MAX_BEATS_ENDGAME : MAX_BEATS_ACT;
+  if (squares.length <= limit) return squares;
+
+  const peso = (s) => {
+    const tipo = String(s.tipo || "").toLowerCase();
+    const base = tipo.includes("fatal") ? 30 : tipo === "marco" ? 20 : 10;
+    const mag = Math.abs(Number(s.magnitude) || 0);
+    return base + mag;
+  };
+
+  const escolhidos = new Set([0, squares.length - 1]);
+  const rank = squares
+    .map((s, i) => ({ i, score: peso(s) }))
+    .sort((a, b) => b.score - a.score)
+    .map((x) => x.i);
+
+  for (const i of rank) {
+    if (escolhidos.size >= limit) break;
+    escolhidos.add(i);
+  }
+
+  return [...escolhidos].sort((a, b) => a - b).map((i) => squares[i]);
+}
+
 // Passada 1: reduz cada casa a uma frase factual. O texto original NÃO segue
 // para a narração — é o que impede o modelo pequeno de copiar a carta.
 async function extractFacts(env, model, squares, lang) {
@@ -322,9 +351,11 @@ async function narrate(request, env) {
 
   if (!squares.length) return json({ error: "sem_casas", expected: "{ player, lang, squares[] }" }, 400);
 
-  const facts = env.AI ? await extractFacts(env, NARRATION_MODELS[0], squares, lang) : squares.map((s) => s.titulo);
-  const material = squares.map((s, i) => ({ ...s, descricao: facts[i] || s.titulo }));
-  const prompt = buildPrompt({ player, lang, act: Number(body.act) || 2, endgame: Boolean(body.endgame), squares: material });
+  const endgame = Boolean(body.endgame);
+  const escolhidas = selectBeats(squares, endgame);
+  const facts = env.AI ? await extractFacts(env, NARRATION_MODELS[0], escolhidas, lang) : escolhidas.map((s) => s.titulo);
+  const material = escolhidas.map((s, i) => ({ ...s, descricao: facts[i] || s.titulo }));
+  const prompt = buildPrompt({ player, lang, act: Number(body.act) || 2, endgame, squares: material });
   const key = "narr:" + (await sha256([PROMPT_VERSION, lang, NARRATION_MODELS.join(','), prompt].join("|")));
 
   if (env.CACHE) {
@@ -376,7 +407,7 @@ async function narrate(request, env) {
 
 
   if (env.CACHE) await env.CACHE.put(key, text, { expirationTtl: 60 * 60 * 24 * 180 });
-  return json({ text, cached: false, key, lang, model: usedModel });
+  return json({ text, cached: false, key, lang, model: usedModel, beats: material.length, chars: text.length });
 }
 
 /* --------------------------------------------------------------------- voz */
