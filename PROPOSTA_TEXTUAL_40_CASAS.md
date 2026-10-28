@@ -31,7 +31,7 @@ A arte original foi **preservada**; os nove desenhos corrigidos estão numa cama
 
 **Antes (master):** Depois de horas copiando uma listagem impressa, um único caractere trocado faz o BASIC parar com erro. Você compara linha por linha com a revista até encontrar o engano.
 
-**Depois (branch):** Você conecta o joystick para conferir os comandos copiados da revista e digita RUN. Em vez de movimento, o BASIC devolve uma mensagem de erro que corta a madrugada como um grito. O problema não é a alavanca: uma única vírgula foi transcrita como ponto na listagem. O controle permanece imóvel enquanto você revisa as linhas, uma por uma. O conserto custa tempo — e uma casa no caminho.
+**Depois (branch):** A revista ensina a ler os comandos de um joystick, e você copia a rotina imaginando o dia em que poderá testá-la com um controle emprestado. Mas, ao digitar RUN, o BASIC devolve um erro seco, assustador como um estalo no quarto silencioso. Uma vírgula virou ponto na transcrição. O joystick da ilustração continua sendo uma promessa enquanto você procura o caractere intruso linha por linha — e perde terreno.
 
 ## Casa 04 — RUN e a tela azul
 
