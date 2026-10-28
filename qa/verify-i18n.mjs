@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
+import http from "node:http";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { casas } from "../src/data/casas.ts";
 import { casasEn, localizarCasa, prologoEn, atosEn } from "../src/i18n/content.ts";
@@ -21,6 +22,19 @@ server.stdout.on("data", b => { stdout += String(b); });
 let browser;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+// Readiness probe via node:http. The global fetch (undici) honours HTTP(S)_PROXY
+// and fails against 127.0.0.1 when a proxy is configured, which broke these jobs.
+function probeStatus(url, timeout = 2000) {
+  return new Promise((resolve) => {
+    const req = http.get(url, { timeout }, (res) => {
+      res.resume();
+      resolve(res.statusCode);
+    });
+    req.on("error", () => resolve(null));
+    req.on("timeout", () => { req.destroy(); resolve(null); });
+  });
+}
+
 try {
   assert.equal(casasEn.length, 40, "All 40 English narratives must exist");
   for (const orig of casas) {
@@ -40,7 +54,9 @@ try {
   let ready = false;
   for (let i = 0; i < 75; i++) {
     if (server.exitCode !== null) throw new Error("Vite exited: " + stderr);
-    try { const response = await fetch(origin); lastHttp = String(response.status) + " " + (response.ok ? "OK" : (await response.text()).slice(0,400)); if (response.ok) { ready = true; break; } } catch (e) { lastHttp = String(e); }
+    const status = await probeStatus(origin);
+    lastHttp = status === null ? "no response" : String(status);
+    if (status !== null && status < 400) { ready = true; break; }
     await sleep(160);
   }
   assert.ok(ready,"Vite is not ready: "+JSON.stringify({stderr,stdout,lastHttp,exitCode:server.exitCode}));

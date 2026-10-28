@@ -5,6 +5,7 @@
  */
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
+import http from "node:http";
 import { mkdir, writeFile } from "node:fs/promises";
 
 const origin = "http://127.0.0.1:4173";
@@ -20,14 +21,25 @@ server.stderr.on("data", (v) => { stderr += String(v); });
 let browser;
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Readiness probe via node:http. The global fetch (undici) honours HTTP(S)_PROXY
+// and fails against 127.0.0.1 when a proxy is configured, which broke these jobs.
+function probeStatus(url, timeout = 2000) {
+  return new Promise((resolve) => {
+    const req = http.get(url, { timeout }, (res) => {
+      res.resume();
+      resolve(res.statusCode);
+    });
+    req.on("error", () => resolve(null));
+    req.on("timeout", () => { req.destroy(); resolve(null); });
+  });
+}
+
 try {
   let ready = false;
   for (let attempt = 0; attempt < 65; attempt++) {
     if (server.exitCode !== null) throw new Error("Vite terminou antes de ficar pronto: " + stderr);
-    try {
-      const response = await fetch(origin);
-      if (response.ok) { ready = true; break; }
-    } catch {}
+    const status = await probeStatus(origin);
+    if (status !== null && status < 400) { ready = true; break; }
     await delay(150);
   }
   if (!ready) throw new Error("Vite não iniciou: " + stderr);

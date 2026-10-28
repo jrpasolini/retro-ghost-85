@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
+import http from "node:http";
 import { mkdir, writeFile } from "node:fs/promises";
 import { casas } from "../src/data/casas.ts";
 import { novoEstadoRng } from "../src/motor/dado.ts";
@@ -17,12 +18,26 @@ const server = spawn(process.execPath, ["./node_modules/vite/bin/vite.js", "--ho
 let stderr = "";
 server.stderr.on("data", (data) => stderr += String(data));
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Readiness probe via node:http. The global fetch (undici) honours HTTP(S)_PROXY
+// and fails against 127.0.0.1 when a proxy is configured, which broke these jobs.
+function probeStatus(url, timeout = 2000) {
+  return new Promise((resolve) => {
+    const req = http.get(url, { timeout }, (res) => {
+      res.resume();
+      resolve(res.statusCode);
+    });
+    req.on("error", () => resolve(null));
+    req.on("timeout", () => { req.destroy(); resolve(null); });
+  });
+}
 let browser;
 try {
   let ready = false;
   for (let i = 0; i < 70; i++) {
     if (server.exitCode !== null) throw new Error("Vite não iniciou: " + stderr);
-    try { if ((await fetch(origin)).ok) { ready = true; break; } } catch {}
+    const status = await probeStatus(origin);
+    if (status !== null && status < 400) { ready = true; break; }
     await sleep(150);
   }
   if (!ready) throw new Error("Vite indisponível: " + stderr);
