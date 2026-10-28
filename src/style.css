@@ -455,18 +455,22 @@ button { font: inherit; }
   z-index: 7;
   width: 25%;
   height: 8.8%;
+  border: 1px solid #52766c;
+  background: #07110f;
+  box-shadow: inset 0 2px #274239, inset 0 -2px #020706;
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .8));
 }
 
 .cassette-deck > img {
   position: absolute;
   top: -33%;
-  left: 0;
+  left: 50%;
   display: block;
-  width: 100%;
+  width: auto;
   height: 167%;
-  object-fit: fill;
-  clip-path: inset(19.76% 0 20.36%);
+  transform: translateX(-50%);
+  /* Preserve the source proportions; only expose the central tape compartment. */
+  clip-path: inset(19.76% 27% 20.36%);
   pointer-events: none;
 }
 
@@ -488,8 +492,8 @@ button { font: inherit; }
   cursor: pointer;
 }
 
-.tape-key-save { left: 4.3%; }
-.tape-key-load { right: 4.3%; }
+.tape-key-save { left: 4.3%; background: url("/assets/cassette-save-load.png") 6% 51% / 500% 260% no-repeat; }
+.tape-key-load { right: 4.3%; background: url("/assets/cassette-save-load.png") 95% 51% / 500% 260% no-repeat; }
 .tape-key b { font: clamp(.38rem, .65vw, .7rem)/1 "Press Start 2P", monospace; }
 .tape-key span { margin-top: .2rem; font-size: clamp(.34rem, .55vw, .6rem); font-weight: 700; }
 .tape-key:hover, .tape-key:focus-visible { outline: 2px solid #fff; outline-offset: -2px; box-shadow: 0 0 10px var(--cyan); }
