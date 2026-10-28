@@ -207,3 +207,30 @@ Registrado porque é o desenho da etapa 2 e vale confirmar que está de pé:
 - Se o efeito persistir no navegador do autor, obter captura **durante o desvio** com dimensões da janela, porcentagem de zoom, e, se possível, casa/participantes envolvidos. Não inferir a causa sem esse registro.
 
 **Decisão neste PR:** manter o diagnóstico e os testes reexecutáveis; nenhuma mudança de produção até decisão sobre o comportamento responsivo no mobile.
+
+---
+
+## Fechamento — correções implementadas e testes de regressão (28/10)
+
+Os achados 1 e 2 deste relatório são registros históricos do playtest; **ambos já foram corrigidos no código da PR #6**, sem modificar o WebP, os hotspots ou as coordenadas do tabuleiro.
+
+### Penalidade solo
+
+- Nas casas 17, 23, 32 e 38, `perdeTurno` permanece pendente até a próxima ação do único jogador.
+- O botão muda para **PASSAR TURNO**; ao ser acionado, consome exatamente uma penalidade sem rolar o dado, sem avançar a peça, sem pontuar e sem consumir RNG.
+- Um registro `dado1: null` fica no game log e na trajetória. O schema JSON do save permanece **1**, e a penalidade é restaurada após REC/PLAY.
+- Jogos com dois a quatro participantes continuam consumindo penalidades na rotação de turnos como antes.
+- Endgame exibe o número de **rolagens reais**, excluindo turnos pulados da contagem; a trajetória do Mestre descreve o turno perdido sem inventar resultado de dado.
+
+### Ranking do Endgame
+
+- Os nomes deixam de receber número manual em cada `<li>`; o `<ol>` já cuida da numeração sem duplicá-la.
+
+### Evidência reexecutável
+
+- **59 testes unitários passaram, 0 falhas**, TypeScript e build aprovados em [GitHub Actions](https://github.com/jrpasolini/retro-ghost-85/actions/runs/40725979502).
+- [Teste de navegador com Chromium e Playwright aprovado](https://github.com/jrpasolini/retro-ghost-85/actions/runs/40726785489): resize sem recarga com quatro participantes, quatro rolagens e teste de interface específico do modo solo.
+- O teste de UI carrega um save com penalidade pendente, confirma **PASSAR TURNO → ROLAR DADO**, verifica a entrada no log e a posição inalterada da peça, e carrega um Endgame com pulo para conferir **nome sem número duplicado e contagem de duas rolagens reais**.
+- [Capturas e medições](https://github.com/jrpasolini/retro-ghost-85/actions/runs/40726785489/artifacts/12832763738) disponíveis como artefato.
+
+O cenário de descontinuidade visual em `max-width: 680px` segue documentado como **melhoria de UX futura**, não como defeito geométrico comprovado. Preservado fora deste fechamento para não alterar o tabuleiro antes da internacionalização.

@@ -1,7 +1,7 @@
-name: QA — Redimensionamento dinâmico do tabuleiro
+name: Retro-Ghost-85 — QA de gameplay e resize
 on:
   push:
-    branches: [docs/playtest-qa-2026-10-28]
+    branches: [master]
   pull_request:
     branches: [master]
     paths:
