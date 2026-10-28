@@ -36,15 +36,18 @@ O leitor acompanha uma pessoa que tenta criar e publicar um jogo em 1985. A aven
 7. Quanto à casa 19, o Codex não encontrou seu número/ícone discernível, mas o hotspot existe e a narrativa permanece válida. Não mover a 19 nem a 20.
 8. Evitar reescrever o passado: MS-DOS 1 já existia desde 1981, MS-DOS 2 desde 1983 e MSX-DOS 1 tornou-se disponível em 1985, cada qual em contexto de máquina diferente.
 
-## Integridade visual da versão 2
+## Escopo atual: tabuleiro original congelado
 
-A base original `public/assets/board-reference-edited.webp` continua carregada. O segundo arquivo, `public/assets/board-icon-overlay-v2.svg`, é uma **nova camada de desenho transparente**, do mesmo espaço de coordenadas, aplicada **por cima** da base para corrigir **somente** os símbolos das casas 3, 11, 12, 17, 18, 21, 23, 28 e 35. É deliberadamente uma composição não destrutiva, mais segura do que gerar um novo tabuleiro completo.
+**Decisão do autor em 27/10/2026:** interromper o redesenho das casas. A experiência com pictogramas e novas imagens teve custo técnico/artístico desproporcional ao valor para o challenge. Esta etapa é **exclusivamente histórica e editorial**, não gráfica.
 
-O tamanho lógico da camada é **1668×939**, conforme a arte inspecionada pelo Codex. O desenho tem apenas formas internas aos hotspots; não altera molduras, textos impressos, números, bordas, dimensões, centros, efeitos, coordenação, jogabilidade nem posições da CPU/humanos. `posicaoDaPeca` e `caixas` não foram modificados.
-
-**Testes de proteção:** `src/motor/editorial-1985.test.ts` fixa o checksum da geometria original (`ca843612`), verifica centros e ocupação para 1, 2, 3 e 4 personagens em todas as casas, verifica a composição base+overlay e os títulos dos atos.
-
-**Limite do aceite:** as verificações estáticas de geometria passaram na conferência de código da Bruna, mas a camada composta ainda precisa de inspeção final no navegador do projeto e execução completa de `npm test` e `npm run build` antes do merge. O arquivo não é um único WebP achatado: as duas camadas garantem a reversão sem restaurar uma imagem binária anterior.
+- Fonte visual definitiva: `public/assets/board-reference-edited.webp`, **sem alterações** (Git blob SHA-1 `9207fc16a5bf28e2dbdba298090375986f7b3afe`).
+- A sobreposição SVG experimental foi **retirada** do renderizador e da branch. Não gerar, substituir ou recortar imagens de casas nesta etapa.
+- Preservar inalterados `caixas` em `src/data/casas.ts`, hotspots, `posicaoDaPeca`, 1–4 peças em uma casa, layout e imagens existentes.
+- Priorizar **conteúdo textual**: cada história deve ser interessante por si, dar contexto ao símbolo mesmo quando ele é abstrato, explicar naturalmente ganhos/perdas/turnos, evitar anacronismos e fortalecer a progressão entre os quatro atos.
+- Ambiguidades dos símbolos (inclusive casa 19) são limitações gráficas aceitas e **não bloqueiam o fechamento editorial**.
+- O `C:\\>` da casa 13 permanece exatamente como está; sua narrativa indica um PC com MS-DOS da época, sem precisar redesenhar o terminal.
+- `src/motor/editorial-1985.test.ts` verifica a geometria original e o blob da arte, além de posições de até quatro personagens. Reexecutar `npm test` e `npm run build` antes do merge.
+- Conservar a análise histórica do Codex em `MATRIZ_VALIDACAO_VISUAL.md` como evidência editorial; ela **não** é autorização para voltar a editar os ícones.
 
 ## Etapas posteriores (fora deste PR)
 
