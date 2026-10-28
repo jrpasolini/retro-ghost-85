@@ -6,11 +6,11 @@ import { casas } from "../src/data/casas.ts";
 import { casasEn, localizarCasa, prologoEn, atosEn } from "../src/i18n/content.ts";
 import { desserializarSave } from "../src/estado/save.ts";
 
-const origin = "http://127.0.0.1:4190";
+const origin = "http://127.0.0.1:4173";
 const output = "qa/output/i18n";
 await mkdir(output, { recursive: true });
 const server = spawn(process.execPath,
-  ["./node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "4190", "--strictPort"],
+  ["./node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "4173", "--strictPort"],
   { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, CI: "true" } }
 );
 let stderr = "";
