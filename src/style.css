@@ -255,6 +255,7 @@ button { font: inherit; }
 
 @media (min-width: 1051px) {
   .audio-console { width: max(260px, 20vw); }
+  .language-switch-top { margin-right: calc(1rem - .55rem); }
 }
 
 .audio-console button {
