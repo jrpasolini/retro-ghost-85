@@ -6,6 +6,7 @@ on:
     branches: [master]
     paths:
       - "qa/verify-resize.mjs"
+      - "qa/verify-solo-ui.mjs"
       - ".github/workflows/resize-audit.yml"
       - "src/**"
       - "public/**"
@@ -30,6 +31,8 @@ jobs:
         run: npm install --no-save --package-lock=false playwright@1.56.1
       - name: Dynamic browser resize, image projection and tokens
         run: node qa/verify-resize.mjs
+      - name: Browser regression — solo penalty, save/load and Endgame
+        run: node qa/verify-solo-ui.mjs
       - name: Attach screenshots and measurements
         if: always()
         uses: actions/upload-artifact@v4
