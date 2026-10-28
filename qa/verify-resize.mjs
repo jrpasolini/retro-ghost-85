@@ -249,7 +249,7 @@ try {
       const players = all.map(token => {
         const label = token.getAttribute("aria-label") ?? "";
         const id = Number(token.dataset.player);
-        const match = label.match(/casa (\d+)/);
+        const match = label.match(/(?:casa|square) (\d+)/);
         if(!match) throw new Error("Peça sem casa em aria-label: " + label);
         const houseNumber=Number(match[1]);
         const house=document.querySelector(`.house-hotspot[data-house="${houseNumber}"]`);
@@ -265,7 +265,7 @@ try {
           w:Number.parseFloat(house.style.getPropertyValue("--w")),
           h:Number.parseFloat(house.style.getPropertyValue("--h")),
         };
-        const same=all.filter(el=>(el.getAttribute("aria-label") ?? "").includes(`casa ${houseNumber},`));
+        const same=all.filter(el=>(el.getAttribute("aria-label") ?? "").match(new RegExp(`(?:casa|square) ${houseNumber},`)));
         const ix=same.findIndex(el=>Number(el.dataset.player)===id);
         const form={
           1:[[0,0]],
