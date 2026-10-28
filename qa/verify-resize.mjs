@@ -151,6 +151,15 @@ try {
   // renderizados pelo jogo, todos na casa 1, antes e depois do resize.
   await page.evaluate(() => {
     for (let i = 1; i < 4; i++) document.querySelector("#btn-mais-player").click();
+    // O botão + acrescenta CPUs por padrão. Transformar os quatro em humanos
+    // para que a rotação seja controlada pelo próprio teste, não por timers da CPU.
+    document.querySelectorAll(".player-config-row select").forEach((select) => {
+      select.value = "humano";
+    });
+    document.querySelectorAll(".player-config-row input").forEach((input, index) => {
+      input.disabled = false;
+      input.value = `QA-P${index + 1}`;
+    });
     document.querySelector("#btn-iniciar-jornada").click();
   });
   await page.waitForFunction(() => document.querySelectorAll(".player-token").length === 4);
