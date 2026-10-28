@@ -6,6 +6,9 @@ import "./style.css";
 import { casas } from "./data/casas";
 import { atos } from "./data/atos";
 import { prologo } from "./data/intro";
+import { guardarIdioma, idiomaGuardado, localizarAto, localizarCasa, prologoEn, textoTipo, tituloTrofeu, type Idioma } from "./i18n/content";
+import { erroLocalizado, nomePadrao, nomeScore, textoDado, textoJogador, textoVitoria, ui } from "./i18n/ui";
+import { instalarTradutorDaInterface } from "./i18n/dom";
 import type { Casa, Jogador } from "./types";
 import { criarRngComEstado, novoEstadoRng, rolarD6 } from "./motor/dado";
 import { podeIniciarJogada } from "./motor/turnos";
@@ -20,8 +23,10 @@ import { ControleDeAudio } from "./audio";
 import { criarNarradorLocal, type PedidoNarracao } from "./narrador/narrador";
 import { desserializarSave, serializarSave } from "./estado/save";
 
-const narrador = criarNarradorLocal();
-let rascunho: ConfiguracaoJogador[] = [{ controle: "humano", nome: "Jogador 1" }];
+let idioma: Idioma = idiomaGuardado();
+const u = (texto: string) => ui(texto, idioma);
+const narrador = criarNarradorLocal(idioma);
+let rascunho: ConfiguracaoJogador[] = [{ controle: "humano", nome: nomePadrao(1, idioma) }];
 let confirmados: ConfiguracaoJogador[] = [];
 let sessao: EstadoPartida | null = null;
 let jogadores: Jogador[] = criarJogadores(rascunho);
@@ -58,6 +63,11 @@ app.innerHTML = `
         <p class="masthead-subtitle">AN 8-BIT JOURNEY THROUGH CODE, CHAOS &amp; CASSETTES</p>
       </div>
       <div class="top-actions">
+        <div class="language-switch language-switch-top" role="group" aria-label="Language / Idioma">
+          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><span aria-hidden="true">🇺🇸</span><span>USA</span></button>
+          <span class="language-separator" aria-hidden="true">/</span>
+          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><span aria-hidden="true">🇧🇷</span><span>BR</span></button>
+        </div>
         <div class="audio-console" aria-label="Controle da trilha sonora">
           <button id="btn-audio" type="button" aria-pressed="true">AUDIO ON</button>
           <span id="audio-track">INTRO</span>
@@ -152,6 +162,11 @@ app.innerHTML = `
 
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
       <div id="setup-step" class="intro-terminal setup-step">
+        <div class="language-switch language-switch-popup" role="group" aria-label="Language / Idioma">
+          <button type="button" data-language="en-US" lang="en-US" aria-label="English (United States)" title="English (United States)"><span aria-hidden="true">🇺🇸</span><span>USA</span></button>
+          <span class="language-separator" aria-hidden="true">/</span>
+          <button type="button" data-language="pt-BR" lang="pt-BR" aria-label="Português (Brasil)" title="Português (Brasil)"><span aria-hidden="true">🇧🇷</span><span>BR</span></button>
+        </div>
         <p class="intro-kicker">${prologo.kicker}</p>
         <span class="intro-act">${prologo.rotulo}</span>
         <h2 id="intro-title">${prologo.titulo}</h2>
@@ -271,7 +286,7 @@ const trilha = new ControleDeAudio((ligado, nome) => {
   btnAudio.textContent = ligado ? "AUDIO ON" : "AUDIO OFF";
   btnAudio.setAttribute("aria-pressed", String(ligado));
   audioTrack.textContent = nome;
-});
+}, idioma);
 function ligarTrilhaNoPrimeiroGesto() {
   const tentar = () => {
     void trilha.desbloquear().then((ok) => {
@@ -300,22 +315,22 @@ function renderSetup() {
   let numeroCpu = 0;
   playerConfigList.innerHTML = rascunho.map((configuracao, index) => {
     if (configuracao.controle === "cpu") numeroCpu += 1;
-    const nome = configuracao.controle === "cpu" ? `CPU-${numeroCpu}` : (configuracao.nome ?? `Jogador ${index + 1}`);
+    const nome = configuracao.controle === "cpu" ? `CPU-${numeroCpu}` : (configuracao.nome ?? nomePadrao(index + 1, idioma));
     return `<div class="player-config-row">
       <b>P${index + 1}</b>
-      <select data-config-control="${index}" aria-label="Controle do participante ${index + 1}">
-        <option value="humano"${configuracao.controle === "humano" ? " selected" : ""}>HUMANO</option>
-        <option value="cpu"${configuracao.controle === "cpu" ? " selected" : ""}>CPU LOCAL</option>
+      <select data-config-control="${index}" aria-label="${idioma === "pt-BR" ? "Controle do participante" : "Player control"} ${index + 1}">
+        <option value="humano"${configuracao.controle === "humano" ? " selected" : ""}>${u("HUMANO")}</option>
+        <option value="cpu"${configuracao.controle === "cpu" ? " selected" : ""}>${u("CPU LOCAL")}</option>
       </select>
-      <input data-config-name="${index}" value="${escaparHtml(nome)}" maxlength="24" aria-label="Nome do participante ${index + 1}"${configuracao.controle === "cpu" ? " disabled" : ""} />
+      <input data-config-name="${index}" value="${escaparHtml(nome)}" maxlength="24" aria-label="${idioma === "pt-BR" ? "Nome do participante" : "Player name"} ${index + 1}"${configuracao.controle === "cpu" ? " disabled" : ""} />
     </div>`;
   }).join("");
   try {
-    setupSummary.textContent = confirmarAssentos(lerAssentosDoFormulario()).resumo;
+    setupSummary.textContent = confirmarAssentos(lerAssentosDoFormulario(), idioma).resumo;
     setupError.textContent = "";
   } catch (erro) {
     setupSummary.textContent = "";
-    setupError.textContent = erro instanceof Error ? erro.message : "Configuração inválida";
+    setupError.textContent = erroLocalizado(erro, idioma, "Configuração inválida");
   }
 
   playerConfigList.querySelectorAll<HTMLSelectElement>("[data-config-control]").forEach((select) => {
@@ -349,7 +364,7 @@ function atualizarTrilha(venceu = false) {
 }
 
 function prepararBotoesNarracao(ouvir: HTMLButtonElement, baixar: HTMLButtonElement) {
-  const motivo = narrador.motivoIndisponivel;
+  const motivo = u("narração em breve");
   ouvir.disabled = !narrador.disponivel;
   baixar.disabled = !narrador.disponivel;
   ouvir.title = motivo;
@@ -366,6 +381,7 @@ function pedidoNarracao(chave: ChaveTrofeu): PedidoNarracao | null {
     tipo: chave === "endgame" ? "endgame" : "ato",
     chave,
     jogadorId: trofeu.jogadorId,
+    idioma,
     trajetoria: getPlayerTrajectory(sessao.log, trofeu.jogadorId),
   };
 }
@@ -404,13 +420,13 @@ function estadoParaSalvar(): EstadoPartida {
 }
 
 function salvarPartida() {
-  const arquivo = new Blob([serializarSave(paraEstadoSalvo(estadoParaSalvar()))], { type: "text/markdown;charset=utf-8" });
+  const arquivo = new Blob([serializarSave(paraEstadoSalvo(estadoParaSalvar()), idioma)], { type: "text/markdown;charset=utf-8" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(arquivo);
   link.download = `retro-ghost-85-save-${new Date().toISOString().slice(0, 10)}.md`;
   link.click();
   URL.revokeObjectURL(link.href);
-  mostrarFeedbackCassete("REC · PARTIDA GRAVADA");
+  mostrarFeedbackCassete(u("REC · PARTIDA GRAVADA"));
 }
 
 function sincronizarVista() {
@@ -427,11 +443,11 @@ function sincronizarVista() {
 function renderLog() {
   const entradas = sessao?.log ?? [];
   if (!entradas.length) {
-    gameLogList.innerHTML = `<li class="is-latest"><span>SISTEMA PRONTO · CONFIGURE A PARTIDA</span></li>`;
+    gameLogList.innerHTML = `<li class="is-latest"><span>${u("SISTEMA PRONTO · CONFIGURE A PARTIDA")}</span></li>`;
     return;
   }
   gameLogList.innerHTML = entradas.map((entrada, indice) => {
-    const linha = formatarLinhaLog(entrada);
+    const linha = formatarLinhaLog(entrada, idioma);
     return `<li class="${indice === entradas.length - 1 ? "is-latest" : ""}" style="--player-color:${entrada.cor}" title="${escaparHtml(linha)}"><i class="log-pip" aria-hidden="true"></i><span>${escaparHtml(linha)}</span></li>`;
   }).join("");
   boardGameLog.scrollTop = boardGameLog.scrollHeight;
@@ -540,9 +556,9 @@ function assumirSessao(partida: EstadoPartida) {
 async function carregarPartida(arquivo: File) {
   try {
     assumirSessao(daEstadoSalvo(desserializarSave(await arquivo.text())));
-    mostrarFeedbackCassete("PLAY · PARTIDA CARREGADA");
+    mostrarFeedbackCassete(u("PLAY · PARTIDA CARREGADA"));
   } catch (erro) {
-    mostrarFeedbackCassete(erro instanceof Error ? erro.message : "SAVE INVÁLIDO", true);
+    mostrarFeedbackCassete(erroLocalizado(erro, idioma, "SAVE INVÁLIDO"), true);
   } finally {
     inputLoad.value = "";
   }
@@ -789,7 +805,7 @@ function agendarTurnoCpu() {
 
 function iniciarJornada() {
   try {
-    const confirmacao = confirmarAssentos(lerAssentosDoFormulario());
+    const confirmacao = confirmarAssentos(lerAssentosDoFormulario(), idioma);
     confirmados = confirmacao.assentos;
     rascunho = clonarAssentos(confirmacao.assentos);
     setupError.textContent = "";
@@ -808,7 +824,7 @@ function iniciarJornada() {
     agendarTurnoCpu();
     if (!btnRolarDado.disabled) btnRolarDado.focus();
   } catch (erro) {
-    setupError.textContent = erro instanceof Error ? erro.message : "Configuração inválida";
+    setupError.textContent = erroLocalizado(erro, idioma, "Configuração inválida");
   }
 }
 
