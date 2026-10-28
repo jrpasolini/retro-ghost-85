@@ -497,7 +497,7 @@ function abrirEndgame() {
   if (!sessao) return;
   const tela = montarTelaEndgame(sessao);
   if (!tela) return;
-  document.querySelector<HTMLElement>("#endgame-winner")!.textContent = `CONGRATULATIONS, ${tela.vencedorNome}! Você chegou ao Endgame e publicou o jogo.`;
+  document.querySelector<HTMLElement>("#endgame-winner")!.textContent = `${tela.vencedorNome}, seu nome entrou no catálogo!`;
   document.querySelector<HTMLElement>("#endgame-score")!.textContent = `Projeto final: ${tela.projeto}/100 · Rolagens de ${tela.vencedorNome}: ${tela.rolamentosVencedor} · Rolagens da mesa: ${tela.rolamentosMesa}`;
   document.querySelector<HTMLElement>("#endgame-narration")!.textContent = tela.narracao;
   document.querySelector<HTMLElement>("#endgame-path")!.innerHTML = tela.trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada))}</li>`).join("");
