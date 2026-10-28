@@ -226,13 +226,23 @@ try {
   // Sem áudio no teste: dispensa desbloqueio multimídia e não altera regras.
   await page.evaluate(() => document.querySelector("#btn-audio").click());
   for (let turn = 0; turn < 4; turn++) {
+    // The die is legitimately disabled while a milestone trophy dialog is open.
+    // Dismiss the trophy before the next gameplay roll, just as a player would.
+    await page.evaluate(() => {
+      const popup = document.querySelector("#trophy-dialog");
+      if (popup?.open) document.querySelector("#btn-continuar-trofeu").click();
+    });
     await page.waitForFunction(() => {
       const b = document.querySelector("#btn-rolar-dado");
       return b && !b.disabled;
-    }, { timeout: 7000 });
+    }, undefined, { timeout: 12000 });
     const beforeCount = await page.locator("#game-log-list li").count();
     await page.evaluate(() => document.querySelector("#btn-rolar-dado").click());
-    await page.waitForFunction((previous) => document.querySelectorAll("#game-log-list li").length > previous, beforeCount, { timeout: 10000 });
+    await page.waitForFunction((previous) => document.querySelectorAll("#game-log-list li").length > previous, beforeCount, { timeout: 12000 });
+    await page.evaluate(() => {
+      const popup = document.querySelector("#trophy-dialog");
+      if (popup?.open) document.querySelector("#btn-continuar-trofeu").click();
+    });
   }
   const afterMoves = [];
   for (const [width, height] of [[1440,900],[1051,800],[1050,800],[681,800],[680,800],[390,844],[680,800],[1440,900]]) {
