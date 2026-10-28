@@ -1,9 +1,11 @@
+import type { Idioma } from "../i18n/content.ts";
 import type { ChaveTrofeu, EntradaLog } from "../motor/log.ts";
 
 export type PedidoNarracao = {
   tipo: "ato" | "endgame";
   chave: ChaveTrofeu;
   jogadorId: number;
+  idioma?: Idioma;
   trajetoria: readonly EntradaLog[];
 };
 
@@ -21,8 +23,8 @@ export type ServicoNarrador = {
   baixarTrofeu(pedido: PedidoNarracao): Promise<ResultadoNarrador>;
 };
 
-export function criarNarradorLocal(): ServicoNarrador {
-  const motivo = "narração em breve";
+export function criarNarradorLocal(idioma: Idioma = "pt-BR"): ServicoNarrador {
+  const motivo = idioma === "pt-BR" ? "narração em breve" : "narration coming soon";
   const indisponivel = async (): Promise<ResultadoNarrador> => ({ status: "unavailable", motivo });
   return {
     disponivel: false,

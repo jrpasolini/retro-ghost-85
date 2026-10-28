@@ -1,3 +1,4 @@
+import type { Idioma } from "../i18n/content.ts";
 import type { Casa, Jogador } from "../types.ts";
 import type { EstadoSalvo, JogadorSalvo } from "../estado/save.ts";
 import { criarJogadores, type ConfiguracaoJogador } from "./jogadores.ts";
@@ -235,7 +236,7 @@ function trofeusDoJogador(trofeus: Trofeus, jogadorId: number): ChaveTrofeu[] {
   return (Object.keys(trofeus) as ChaveTrofeu[]).filter((chave) => trofeus[chave]?.jogadorId === jogadorId);
 }
 
-export function montarTelaEndgame(estado: EstadoPartida): TelaEndgame | null {
+export function montarTelaEndgame(estado: EstadoPartida, idioma: Idioma = "pt-BR"): TelaEndgame | null {
   const trofeu = estado.trofeus.endgame;
   if (!estado.partidaEncerrada || !trofeu) return null;
   const vencedor = estado.jogadores.find((jogador) => jogador.id === trofeu.jogadorId);
@@ -259,7 +260,7 @@ export function montarTelaEndgame(estado: EstadoPartida): TelaEndgame | null {
     rolamentosVencedor: trajetoria.filter((entrada) => entrada.turno > 0 && entrada.dado1 !== null).length,
     rolamentosMesa: estado.log.filter((entrada) => entrada.turno > 0 && entrada.dado1 !== null).length,
     trajetoria,
-    narracao: textoMestre(trajetoria, vencedor.nome),
+    narracao: textoMestre(trajetoria, vencedor.nome, idioma),
     ranking,
   };
 }

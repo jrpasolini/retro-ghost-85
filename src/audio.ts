@@ -1,3 +1,4 @@
+import type { Idioma } from "./i18n/content.ts";
 import { trilhaDeveRepetir, type TrilhaId } from "./motor/trilha.ts";
 
 const arquivos: Record<TrilhaId, string> = {
@@ -18,15 +19,22 @@ const nomes: Record<TrilhaId, string> = {
   endgame: "CONGRATULATIONS",
 };
 
+const trackNamesEn: Record<TrilhaId, string> = {
+  intro: "INTRO", "act-1": "PROLOGUE", "act-2": "ACT 2 · BBS",
+  "act-3": "ACT 3 · DEBUG", "act-4": "ACT 4 · FINAL", endgame: "CONGRATULATIONS",
+};
+
 export class ControleDeAudio {
   private readonly audio = new Audio();
   private readonly aoAtualizar: (ligado: boolean, nome: string) => void;
+  private idioma: Idioma;
   private desbloqueado = false;
   private ligado = true;
   private trilha: TrilhaId = "intro";
 
-  constructor(aoAtualizar: (ligado: boolean, nome: string) => void) {
+  constructor(aoAtualizar: (ligado: boolean, nome: string) => void, idioma: Idioma = "pt-BR") {
     this.aoAtualizar = aoAtualizar;
+    this.idioma = idioma;
     this.audio.preload = "metadata";
     this.audio.volume = 0.55;
     // O reinício é controlado pelo evento `ended`. Isso evita que alguns
@@ -38,7 +46,14 @@ export class ControleDeAudio {
       this.audio.currentTime = 0;
       void this.reproduzir();
     });
-    this.aoAtualizar(this.ligado, nomes[this.trilha]);
+    this.aoAtualizar(this.ligado, this.nomeAtual());
+  }
+
+  private nomeAtual(): string { return (this.idioma === "pt-BR" ? nomes : trackNamesEn)[this.trilha]; }
+
+  definirIdioma(idioma: Idioma): void {
+    this.idioma = idioma;
+    this.aoAtualizar(this.ligado, this.nomeAtual());
   }
 
   private async reproduzir(): Promise<boolean> {
@@ -73,7 +88,7 @@ export class ControleDeAudio {
     this.audio.src = arquivos[trilha];
     this.audio.currentTime = 0;
     this.audio.loop = false;
-    this.aoAtualizar(this.ligado, nomes[trilha]);
+    this.aoAtualizar(this.ligado, this.nomeAtual());
     if (this.desbloqueado && this.ligado) {
       await this.reproduzir();
     }
@@ -83,7 +98,7 @@ export class ControleDeAudio {
     this.ligado = !this.ligado;
     if (this.ligado) await this.desbloquear();
     else this.audio.pause();
-    this.aoAtualizar(this.ligado, nomes[this.trilha]);
+    this.aoAtualizar(this.ligado, this.nomeAtual());
   }
 
   definirVolume(valor: number): void {

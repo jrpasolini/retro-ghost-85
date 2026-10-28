@@ -1,3 +1,6 @@
+import type { Idioma } from "../i18n/content.ts";
+import { efeitoDeEntrada, tituloTrofeu } from "../i18n/content.ts";
+
 export const CHAVES_TROFEU = ["act10", "act20", "act30", "endgame"] as const;
 export type ChaveTrofeu = (typeof CHAVES_TROFEU)[number];
 
@@ -66,7 +69,23 @@ export function getPlayerTrajectory(log: readonly EntradaLog[], jogadorId: numbe
   return log.filter((entrada) => entrada.jogadorId === jogadorId);
 }
 
-export function formatarLinhaLog(entrada: EntradaLog): string {
+export function formatarLinhaLog(entrada: EntradaLog, idioma: Idioma = "pt-BR"): string {
+  if (idioma === "en-US") {
+    const trophies = entrada.trofeus.length ? ` · trophy ${entrada.trofeus.map(k => tituloTrofeu(k, idioma)).join(", ")}` : "";
+    if (entrada.turno === 0) return `T0 · ${entrada.jogador} · start · square 1 · ${efeitoDeEntrada(entrada.efeito, 1, idioma)}${trophies}`;
+    if (entrada.dado1 === null) return `T${entrada.turno} · ${entrada.jogador} · LOST TURN · no roll · square ${entrada.casaFinal} · ${entrada.projeto}/100`;
+    const rolled = entrada.dado2 === null ? String(entrada.dado1) : `${entrada.dado1}+${entrada.dado2}=${(entrada.dado1 ?? 0) + entrada.dado2}`;
+    const move = entrada.casaDestino === entrada.casaFinal
+      ? `${entrada.casaOrigem}→${entrada.casaFinal}`
+      : `${entrada.casaOrigem}→${entrada.casaDestino}→${entrada.casaFinal}`;
+    const passed = entrada.casasPassadas.length ? ` · passed ${entrada.casasPassadas[0]}–${entrada.casasPassadas.at(-1)}` : "";
+    const acts = entrada.atosEntrados.length ? ` · Acts ${entrada.atosEntrados.map(n => n === 10 ? 2 : n === 20 ? 3 : n === 30 ? 4 : 1).join(",")}` : "";
+    const delta = entrada.deltaProjeto > 0 ? `+${entrada.deltaProjeto}` : String(entrada.deltaProjeto);
+    const bonus = entrada.jogadaExtra ? " · roll again" : entrada.perdeTurno ? " · lose a turn" : "";
+    const skipped = entrada.perderamVez.length ? ` · skipped ${entrada.perderamVez.join(", ")}` : "";
+    const victory = entrada.vitoria ? " · VICTORY" : "";
+    return `T${entrada.turno} · ${entrada.jogador} · DIE ${rolled} · ${move}${passed}${acts} · ${efeitoDeEntrada(entrada.efeito, entrada.casaDestino, idioma)} · ${delta} progress · ${entrada.projeto}/100${bonus}${skipped}${trophies}${victory}`;
+  }
   const trofeus = entrada.trofeus.length ? ` · troféu ${entrada.trofeus.map((chave) => NOME_TROFEU[chave]).join(", ")}` : "";
   if (entrada.turno === 0) return `T0 · ${entrada.jogador} · início · casa 1 · ${entrada.efeito}${trofeus}`;
   if (entrada.dado1 === null) {
@@ -89,7 +108,29 @@ export function formatarLinhaLog(entrada: EntradaLog): string {
   return `T${entrada.turno} · ${entrada.jogador} · DADO ${dados} · ${destino}${passou}${atos} · ${entrada.efeito} · ${sinal} pts · ${entrada.projeto}/100${extra}${pulados}${trofeus}${vitoria}`;
 }
 
-export function textoMestre(trajetoria: readonly EntradaLog[], nome: string): string {
+export function textoMestre(trajetoria: readonly EntradaLog[], nome: string, idioma: Idioma = "pt-BR"): string {
+  if (idioma === "en-US") {
+    if (trajetoria.length === 0) return `${nome} has left no trace on the board yet.`;
+    const passos = trajetoria.map(entrada => {
+      if (entrada.turno === 0) return `You begin on square 1 (${efeitoDeEntrada(entrada.efeito, 1, idioma)}).`;
+      if (entrada.dado1 === null) return `On turn ${entrada.turno}, you serve a lost-turn penalty without rolling the die or leaving square ${entrada.casaFinal}.`;
+      const roll = entrada.dado2 === null ? String(entrada.dado1) : `${entrada.dado1} and ${entrada.dado2}`;
+      const destination = entrada.casaDestino === entrada.casaFinal
+        ? `reach square ${entrada.casaFinal}`
+        : `land on square ${entrada.casaDestino} and end on square ${entrada.casaFinal}`;
+      const change = entrada.deltaProjeto > 0 ? `gain ${entrada.deltaProjeto} progress`
+        : entrada.deltaProjeto < 0 ? `lose ${Math.abs(entrada.deltaProjeto)} progress`
+        : "your progress remains unchanged";
+      const notes = [
+        entrada.jogadaExtra ? "earn another roll" : "",
+        entrada.perdeTurno ? "lose your next turn" : "",
+        entrada.trofeus.length ? `claim ${entrada.trofeus.map(k => tituloTrofeu(k, idioma)).join(" and ")}` : "",
+        entrada.vitoria ? "publish your game" : "",
+      ].filter(Boolean);
+      return `On turn ${entrada.turno}, you roll ${roll} and ${destination}. ${efeitoDeEntrada(entrada.efeito, entrada.casaDestino, idioma)}: you ${change}, reaching ${entrada.projeto}/100.${notes.length ? " You " + notes.join("; ") + "." : ""}`;
+    });
+    return `${nome}'s story begins on square 1. ${passos.join(" ")}`;
+  }
   if (trajetoria.length === 0) return `${nome} ainda não deixou rastro no tabuleiro.`;
   const passos = trajetoria.map((entrada) => {
     if (entrada.turno === 0) return `Começou na casa 1 (${entrada.efeito}).`;
@@ -116,15 +157,14 @@ export function textoMestre(trajetoria: readonly EntradaLog[], nome: string): st
   });
   return `${nome} percorreu o tabuleiro desde a casa 1. ${passos.join(" ")}`;
 }
-
-export function formatarGameLogMarkdown(log: readonly EntradaLog[]): string {
-  if (log.length === 0) return "_Nenhum lance registrado._";
-  return log.map((entrada) => `- ${formatarLinhaLog(entrada)}`).join("\n");
+export function formatarGameLogMarkdown(log: readonly EntradaLog[], idioma: Idioma = "pt-BR"): string {
+  if (log.length === 0) return idioma === "pt-BR" ? "_Nenhum lance registrado._" : "_No turns recorded._";
+  return log.map((entrada) => `- ${formatarLinhaLog(entrada, idioma)}`).join("\n");
 }
 
-export function formatarTrajetoriaMarkdown(nome: string, trajetoria: readonly EntradaLog[]): string {
+export function formatarTrajetoriaMarkdown(nome: string, trajetoria: readonly EntradaLog[], idioma: Idioma = "pt-BR"): string {
   const corpo = trajetoria.length
-    ? trajetoria.map((entrada) => `- ${formatarLinhaLog(entrada)}`).join("\n")
-    : "_Sem lances._";
-  return `## Trajetória · ${nome}\n\n${corpo}`;
+    ? trajetoria.map((entrada) => `- ${formatarLinhaLog(entrada, idioma)}`).join("\n")
+    : idioma === "pt-BR" ? "_Sem lances._" : "_No turns._";
+  return `## ${idioma === "pt-BR" ? "Trajetória" : "Journey"} · ${nome}\n\n${corpo}`;
 }

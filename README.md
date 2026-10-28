@@ -1,82 +1,83 @@
-# Retro Ghost 85
+# Retro-Ghost-85
 
-Um jogo de tabuleiro digital ambientado em **1985**, onde até quatro jogadores percorrem
-a carreira de um desenvolvedor daquela época — da listagem em BASIC arrancada de uma
-revista até o dia em que o próprio projeto aparece no catálogo.
+**🇺🇸 English (default)** · [🇧🇷 Português brasileiro](./README.pt-BR.md)
 
-**40 casas. Quatro atos. Um mestre narrador.**
+A digital board game set in **1985**, where up to four players follow the journey of a budding computer game developer—from BASIC listings copied out of a magazine to the day their own game appears in a catalog.
+
+**40 squares. Four Acts. One Master storyteller.**
 
 ---
 
-## A ideia
+## The adventure
 
-O tabuleiro não é uma metáfora genérica de "desafios". É a carreira real de quem
-programava em 1985: a revista na banca, o erro de digitação que você não encontra, o
-cassete que não carrega, o drive de disquete, o modem acústico, a BBS, o grupo de
-usuários, o contrato com a revista especializada.
+This is not a generic board of random challenges. It is a trip through the real-world obstacles of writing games in 1985: an obscure typo in a magazine listing, a cassette that will not load, a floppy disk drive, a stubborn sprite, the modem's unmistakable handshake, the BBS, the local user group, and the final publication deadline.
 
-Cada casa é um marco verdadeiro — e carrega o que havia de maravilhoso e de cruel
-naquele mundo.
+Every square carries a moment of wonder—or a setback hidden in the machine.
 
-## O princípio que sustenta o jogo
+## The guiding rule
 
-> **O dado decide. A IA narra.**
+> **The die decides. The AI narrates.**
 
-O código rola o dado, move a peça e aplica o efeito. O modelo de linguagem recebe o
-resultado **já decidido** e devolve apenas a narração da cena. Ele nunca escolhe o que
-acontece, nunca move peças, nunca decide derrota.
+Local code rolls the die, moves tokens, and applies consequences. In a future integration, the language model will receive an **already-decided outcome** and narrate the scene. It will not roll, choose winners, alter progress, or control the CPU.
 
-Isso mantém o jogo justo, barato e rápido — e permite que ele funcione **offline**,
-com o texto-base escrito à mão, quando a API não está disponível.
+The complete local board remains playable without a model API. Story text is authored in advance in both English and Brazilian Portuguese.
 
-## O save é um arquivo
+## English / Portuguese localization
 
-O estado da partida é um `.md` legível: front matter com o estado, log narrativo
-abaixo. Baixa, guarda, carrega no dia seguinte, continua de onde parou.
+- **English (United States)** is the default on first launch, regardless of the browser's language.
+- **Brazilian Portuguese** is available from the **🇺🇸 USA / 🇧🇷 BR** flag switch in the opening setup dialog and the game toolbar.
+- You can switch languages without restarting the match, changing token positions, consuming random values, or losing progress.
+- The prologue, all forty squares, the four Acts, game log, player controls, trophy descriptions, Endgame, and readable Markdown exports follow the selected language.
+- Only an explicit choice is stored as a local preference. Language is not a gameplay property.
 
-Editar o arquivo à mão é permitido de propósito. Em 1985, quem sabia abrir o arquivo
-sabia mudar o jogo.
+## Save your match to Markdown
 
-## Arquitetura
+The REC/PLAY cassette controls export and import a readable `.md` file containing a structured JSON block plus a narrated log. The JSON is the source of truth; its schema and mechanical values stay the same across languages. A save exported in Portuguese can be loaded while playing in English, and vice versa.
 
-```
-jrpasolini.tech/retro-ghost-85      → Render (site estático, domínio próprio)
-GitHub Pages                        → espelho público do mesmo build
-Cloudflare Worker                   → único ponto com segredo: proxy do modelo
+## Run locally
+
+```bash
+npm ci
+npm run dev
 ```
 
-Sem banco de dados. Sem login. Sem servidor de estado.
+Vite runs the development server. To verify a release:
 
-## Stack
+```bash
+npm test
+npm run build
+```
 
-Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · ElevenLabs Music · Cloudflare Workers
+GitHub Actions also checks compilation, unit tests, layout/resize behavior, and English/Portuguese browser acceptance via Playwright.
 
-## Documentação
+## Architecture
 
-- [`ESTRUTURA.md`](./ESTRUTURA.md) — documento vivo do projeto: princípios,
-  arquitetura, modelo de dados, contrato do narrador, as 40 casas, roadmap e
-  registro de decisões.
-- [`HISTORICO_NARRATIVO.md`](./HISTORICO_NARRATIVO.md) — base histórica e regras das 40 casas nesta versão.
-- [`estrategia.md`](./estrategia.md) — decisões sobre modos de partida, participantes humanos e CPU local.
+```
+Vite + TypeScript + DOM         → static playable board
+GitHub Actions + Playwright    → automated game and UI checks
+Cloudflare Worker + Gemma 4    → planned: AI Master narration
+ElevenLabs                     → planned: narration voice delivery
+```
 
-## Status
+No account, database, or server-side game state is required for the local multiplayer experience. CPU decisions and die rolls remain local and deterministic with a saved RNG state.
 
-Protótipo local com abertura cinematográfica, tabuleiro, narrativa das 40 casas, configuração de 1 a 4 participantes humanos/CPU, um dado de seis faces, movimento, consequências determinísticas, save/load em Markdown e trilha dinâmica por ato. A abertura mostra o retrato de Antonio Pasolini, revela o crédito do Hacktoberfest após um segundo, apresenta a arte do jogo aos dois segundos e entrega o controle à preparação da jornada aos quatro segundos. As seis faixas originais — introdução, quatro atos e encerramento — foram criadas com a ElevenLabs. A integração com Gemma e a publicação ainda não fazem parte desta versão.
+## Documentation
 
-## Créditos e atribuição
+- [`ESTRUTURA.md`](./ESTRUTURA.md) — living architecture and design notes (Portuguese).
+- [`HISTORICO_NARRATIVO.md`](./HISTORICO_NARRATIVO.md) — historical background and the 40-square canon (Portuguese).
+- [`estrategia.md`](./estrategia.md) — local players and CPU game modes (Portuguese).
+- [`PLANO_I18N_EN_DEFAULT.md`](./PLANO_I18N_EN_DEFAULT.md) — localization checklist and compatibility requirements (Portuguese).
 
-**MSX** é marca registrada de seus respectivos titulares. Este projeto é uma obra
-independente, sem vínculo, patrocínio ou endosso de qualquer detentor da marca.
+## Credits and legal notes
 
-O projeto **não distribui** BIOS, ROMs, imagens de disco ou qualquer software
-proprietário. É um jogo de tabuleiro em texto e DOM — não emula hardware.
+**MSX** is a trademark of its respective owners. Retro-Ghost-85 is an independent project, unaffiliated with and neither sponsored nor endorsed by any trademark holder.
 
-Nomes de empresas, revistas, modems e equipamentos citados na narrativa pertencem a
-seus respectivos donos e aparecem em contexto histórico e descritivo.
+No proprietary ROMs, BIOS, disk images, or other proprietary software are distributed. This is a text-and-DOM board game; it does not emulate hardware.
 
-Trilha sonora original criada com a **ElevenLabs Music** para o Retro-Ghost-85.
+Historical references to companies, magazines, and equipment are descriptive and remain the property of their respective owners.
 
-## Licença
+The existing original soundtrack was created with **ElevenLabs Music**. AI narration through Cloudflare Worker/Gemma and subsequent voice synthesis are separate development stages.
 
-A definir.
+## License
 
+To be determined.
