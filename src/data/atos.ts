@@ -2,19 +2,19 @@
 export const atos = {
   1: {
     titulo: "Prólogo · Início",
-    narrativa: "É 1985. Você liga o micro, ajusta o brilho do monitor e espera o cursor aparecer. Na mesa há uma revista de programação, um gravador de cassete e a vontade de criar um jogo seu. Sem atalhos prontos, cada linha de BASIC será escrita, testada e guardada por você. A primeira missão é simples e enorme ao mesmo tempo: fazer uma ideia sair do papel e responder ao comando RUN.",
+    narrativa: "O cursor aguarda na tela, imóvel e paciente. Uma revista aberta, um caderno cheio de rabiscos e o gravador de cassete ocupam a mesa. Você ainda está aprendendo a transformar comandos em movimento; cada pequena vitória precisará ser testada e guardada com cuidado. O primeiro desafio não é vencer um monstro, mas fazer o BASIC obedecer.",
   },
   10: {
     titulo: "Ato 2 · BBS",
-    narrativa: "Seu primeiro programa enfim vai do início ao fim. Você o leva ao encontro de usuários, onde cada pessoa joga de um jeito e encontra algo que você não tinha previsto. Um colega anota o número de uma BBS e promete trocar dicas quando você conseguir se conectar. O jogo já existe; agora precisa crescer com as perguntas, críticas e descobertas de quem o experimenta.",
+    narrativa: "O protótipo funciona e já provoca sorrisos — e perguntas — no clube de usuários. Entre uma sugestão e outra, alguém escreve o número de uma BBS no seu caderno: a promessa de uma comunidade além daquela sala. Antes de discar, porém, você precisa dominar disquetes, memória, sprites e rotinas mais rápidas. O segundo ato abre portas para o mundo e para as entranhas do micro.",
   },
   20: {
     titulo: "Ato 3 · DEBUG",
-    narrativa: "A demonstração empolgou os amigos, mas as anotações voltam cheias de falhas: um sprite fora do lugar, uma colisão esquecida, uma tela que prende o jogador. Você abre o caderno de testes ao lado do teclado e compara cada erro com a versão salva em disco. Este ato é o trabalho paciente de transformar um jogo que funciona na sua máquina em um jogo que outras pessoas conseguem terminar.",
+    narrativa: "Os amigos conseguiram jogar, mas voltaram com uma lista de falhas maior do que você esperava. Agora, cada bug parece um fantasma escondido numa condição do BASIC ou num endereço errado. Com o caderno de testes em mãos, você procura respostas no clube, na BBS e nas revistas especializadas. Depurar é aprender a escutar quem joga — e a desconfiar do código que parecia perfeito.",
   },
   30: {
     titulo: "Ato 4 · FINAL",
-    narrativa: "Chega pelo correio uma resposta animadora: há interesse em publicar o jogo, desde que a edição seja estável e compreensível. Você separa o disquete mestre, revisa as instruções, testa o joystick e confere a arte da capa. Agora não basta que o programa rode uma vez; cada cópia precisa carregar, cada página precisa orientar e o seu nome precisa acompanhar o trabalho até o catálogo.",
+    narrativa: "Uma carta chega pelo correio com uma possibilidade concreta: o jogo poderá aparecer num catálogo. A alegria dura até você enxergar a lista de tarefas. É preciso testar controles, preparar o mestre, imprimir instruções, fazer cópias e conferir etiquetas. O último ato não pede mais uma boa ideia; pede cuidado suficiente para que a aventura funcione também longe da sua mesa.",
   },
 } as const;
 
