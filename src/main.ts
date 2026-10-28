@@ -243,6 +243,7 @@ app.innerHTML = `
     </dialog>
   </main>
 `;
+const tradutor = instalarTradutorDaInterface(app, idioma);
 
 const housesElement = document.querySelector<HTMLDivElement>(".houses")!;
 const tokensElement = document.querySelector<HTMLDivElement>(".tokens")!;
@@ -306,6 +307,76 @@ function escaparHtml(valor: string): string {
   return valor.replace(/[&<>'"]/g, (caractere) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;",
   })[caractere]!);
+}
+
+
+function renderPrologo() {
+  const p = idioma === "pt-BR" ? prologo : prologoEn;
+  document.querySelector<HTMLElement>(".setup-step .intro-kicker")!.textContent = p.kicker;
+  document.querySelector<HTMLElement>(".setup-step .intro-act")!.textContent = p.rotulo;
+  document.querySelector<HTMLElement>("#intro-title")!.textContent = p.titulo;
+  document.querySelector<HTMLElement>("#intro-copy")!.innerHTML =
+    p.paragrafos.map(paragrafo => `<p>${escaparHtml(paragrafo)}</p>`).join("");
+  document.querySelector<HTMLElement>(".narrative")!.lang = idioma;
+}
+
+function textoGamelogAtual(): string {
+  if (!sessao || !partidaIniciada) return u("Inicie a jornada para liberar o dado.");
+  const atual = jogadores[jogadorAtivo - 1];
+  if (!atual) return u("Inicie a jornada para liberar o dado.");
+  if (jogadores.length === 1 && atual.turnosPerdidos > 0) return textoJogador(atual.nome, "turnLost", idioma);
+  if (atual.controle === "cpu" && !partidaEncerrada) return textoJogador(atual.nome, "cpu", idioma);
+  const ultimo = sessao.log.at(-1);
+  if (ultimo?.turno && ultimo.dado1 === null) return textoJogador(ultimo.jogador, "turnServed", idioma);
+  if (ultimo?.turno && ultimo.dado1 !== null) {
+    return formatarGamelog({
+      jogador: ultimo.jogador, dado: ultimo.dado1,
+      casaDestino: ultimo.casaDestino, casaFinal: ultimo.casaFinal,
+      projeto: ultimo.projeto, venceu: ultimo.vitoria,
+      jogadaExtra: ultimo.jogadaExtra,
+      proximoJogador: ultimo.vitoria || ultimo.jogadaExtra ? undefined : atual.nome,
+      ignorados: ultimo.perderamVez,
+    }, idioma).completo;
+  }
+  return textoJogador(atual.nome, "turn", idioma);
+}
+
+function selecionarIdioma(proximo: Idioma) {
+  if (proximo === idioma) return;
+  const anterior = idioma;
+  if (introDialog.open) {
+    rascunho = lerAssentosDoFormulario().map((seat, index) => ({
+      ...seat,
+      nome: seat.controle === "humano" && seat.nome === nomePadrao(index + 1, anterior)
+        ? nomePadrao(index + 1, proximo) : seat.nome,
+    }));
+  }
+  idioma = proximo;
+  guardarIdioma(idioma);
+  tradutor.aplicar(idioma);
+  trilha.definirIdioma(idioma);
+  renderPrologo();
+  renderSetup();
+  renderHouses();
+  renderPlayers();
+  updateInspector(casas[casaAtiva - 1]);
+  renderLog();
+  document.querySelectorAll<HTMLElement>(".dice-face").forEach(face => renderDiceFace(face, Number(face.dataset.value || 1)));
+  prepararBotoesNarracao(btnOuvirMestre, btnBaixarTrofeu);
+  prepararBotoesNarracao(btnOuvirTrofeu, btnBaixarTrofeuAto);
+  const penalidadeSolo = Boolean(sessao && sessao.jogadores.length === 1 && sessao.jogadores[0].turnosPerdidos > 0 && !partidaEncerrada);
+  btnRolarDado.textContent = penalidadeSolo ? u("PASSAR TURNO") : u("ROLAR DADO");
+  document.querySelector<HTMLElement>(".dice-status")!.textContent = textoGamelogAtual();
+  const ultima = sessao?.log.at(-1);
+  document.querySelector<HTMLElement>(".dice-sub")!.textContent = ultima?.turno && ultima.dado1 === null
+    ? u("TURNO PERDIDO · SEM ROLAGEM") : ultima?.dado1
+      ? textoDado(ultima.dado1, idioma) : u("AGUARDANDO JOGADA");
+  if (trophyDialog.open && trofeuEmExibicao && sessao) {
+    const trofeu = sessao.trofeus[trofeuEmExibicao];
+    const dono = sessao.jogadores.find(player => player.id === trofeu?.jogadorId)?.nome ?? "";
+    apresentarTrofeu(trofeuEmExibicao, dono);
+  }
+  if (endgameDialog.open) abrirEndgame();
 }
 
 function renderSetup() {
@@ -891,6 +962,7 @@ function iniciarApresentacao() {
   }, 7_000);
 }
 
+renderPrologo();
 renderHouses();
 renderPlayers();
 updateInspector(casas[0]);
@@ -929,6 +1001,9 @@ inputLoad.addEventListener("change", () => {
   if (arquivo) void carregarPartida(arquivo);
 });
 btnIniciarJornada.addEventListener("click", iniciarJornada);
+document.querySelectorAll<HTMLButtonElement>("[data-language]").forEach(button => {
+  button.addEventListener("click", () => selecionarIdioma(button.dataset.language as Idioma));
+});
 btnReabrirEndgame.addEventListener("click", abrirEndgame);
 document.querySelector<HTMLButtonElement>("#btn-ver-tabuleiro")!.addEventListener("click", () => endgameDialog.close());
 document.querySelector<HTMLButtonElement>("#btn-nova-partida")!.addEventListener("click", novaPartida);
