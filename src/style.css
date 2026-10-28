@@ -450,32 +450,36 @@ button { font: inherit; }
 
 .cassette-deck {
   position: absolute;
-  left: 39.15%;
-  top: 88.5%;
+  left: 34%;
+  top: 89.6%;
   z-index: 7;
-  width: 13.7%;
-  aspect-ratio: 2 / 1;
+  width: 25%;
+  height: 8.8%;
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, .8));
 }
 
 .cassette-deck > img {
+  position: absolute;
+  top: -33%;
+  left: 0;
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: 167%;
+  object-fit: fill;
+  clip-path: inset(19.76% 0 20.36%);
   pointer-events: none;
 }
 
 .tape-key {
   position: absolute;
-  top: 25%;
+  top: 12%;
   z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   width: 21%;
-  height: 52%;
+  height: 76%;
   padding: 0;
   border: 0;
   background: transparent;
@@ -486,8 +490,8 @@ button { font: inherit; }
 
 .tape-key-save { left: 4.3%; }
 .tape-key-load { right: 4.3%; }
-.tape-key b { font: clamp(.28rem, .48vw, .5rem)/1 "Press Start 2P", monospace; }
-.tape-key span { margin-top: .28rem; font-size: clamp(.28rem, .42vw, .48rem); font-weight: 700; }
+.tape-key b { font: clamp(.38rem, .65vw, .7rem)/1 "Press Start 2P", monospace; }
+.tape-key span { margin-top: .2rem; font-size: clamp(.34rem, .55vw, .6rem); font-weight: 700; }
 .tape-key:hover, .tape-key:focus-visible { outline: 2px solid #fff; outline-offset: -2px; box-shadow: 0 0 10px var(--cyan); }
 .tape-key:active { transform: translateY(2px); }
 
@@ -1086,7 +1090,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .board-stage { overflow-x: auto; min-height: 390px; aspect-ratio: auto; }
   .board-art, .houses, .tokens, .scanlines { width: 694px; height: 390px; inset: 0 auto auto 0; }
   .endgame-cover { left: 51px; top: 42px; width: 72px; height: 44px; }
-  .cassette-deck { left: 272px; top: 345px; width: 95px; }
+  .cassette-deck { left: 236px; top: 349px; width: 174px; height: 34px; }
   .board-game-log { left: 432px; top: 361px; width: 226px; height: 20px; font-size: .36rem; }
   .easter-egg-screen { left: 294px; top: 133px; width: 95px; height: 66px; }
   .player-list { grid-template-columns: repeat(2, 1fr); }
