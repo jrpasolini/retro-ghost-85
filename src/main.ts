@@ -694,7 +694,7 @@ function renderPlayers() {
     const indiceNaCasa = ocupantes.findIndex((item) => item.id === jogador.id);
     const { x, y } = posicaoDaPeca(casa, indiceNaCasa, ocupantes.length);
     return `
-    <button class="player-token ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${escaparHtml(jogador.nome)}, ${jogador.controle === "cpu" ? (idioma === "pt-BR" ? "CPU local" : "local CPU") : (idioma === "pt-BR" ? "humano" : "human")}, ${idioma === "pt-BR" ? "casa" : "square"} ${jogador.casa}, ${idioma === "pt-BR" ? "projeto" : "progress"} ${jogador.projeto} ${idioma === "pt-BR" ? "de" : "of"} 100, ACTS ${jogador.actsVisitados.length} ${idioma === "pt-BR" ? "de" : "of"} 4" style="--player-color:${jogador.cor};--tx:${x}%;--ty:${y}%">
+    <button class="player-token ${jogador.controle === "cpu" ? "is-cpu" : ""} ${jogador.id === jogadorAtivo ? "is-active" : ""}" type="button" data-player="${jogador.id}" aria-label="${escaparHtml(jogador.nome)}, ${jogador.controle === "cpu" ? (idioma === "pt-BR" ? "CPU local" : "local CPU") : (idioma === "pt-BR" ? "humano" : "human")}, ${idioma === "pt-BR" ? "casa" : "square"} ${jogador.casa}, ${idioma === "pt-BR" ? "projeto" : "progress"} ${jogador.projeto} ${idioma === "pt-BR" ? "de" : "of"} 100, ACTS ${jogador.actsVisitados.length} ${idioma === "pt-BR" ? "de" : "of"} 4" style="--player-color:${jogador.cor};--tx:${x}%;--ty:${y}%;--house-width:${casa.width};--house-height:${casa.height};--piece-scale:${ocupantes.length === 1 ? .72 : .42}">
       <img src="${jogador.imagem}" alt="" />
       <span>P${jogador.id}</span>
     </button>

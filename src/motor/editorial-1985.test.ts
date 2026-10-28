@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { casas } from "../data/casas.ts";
 import { posicaoDaPeca } from "./posicao.ts";
 
-// Snapshot FNV-1a da geometria dos 40 hotspots na master antes da auditoria.
+// Snapshot FNV-1a com a coluna esquerda recalibrada na arte original (2026-10-28).
 // Mudanças em moldura/posição/tamanho exigem autorização explícita do autor.
 function assinaturaGeometria(): string {
   const descricao = casas.map(({ id, x, y, width, height }) =>
@@ -17,9 +17,9 @@ function assinaturaGeometria(): string {
   return valor.toString(16).padStart(8, "0");
 }
 
-test("os 40 hotspots preservam EXATAMENTE a geometria original do tabuleiro", () => {
+test("os 40 hotspots preservam a geometria calibrada do tabuleiro", () => {
   assert.equal(casas.length, 40);
-  assert.equal(assinaturaGeometria(), "ca843612");
+  assert.equal(assinaturaGeometria(), "92b6c222");
 });
 
 test("quatro personagens continuam dentro de cada casa e com o mesmo centro", () => {

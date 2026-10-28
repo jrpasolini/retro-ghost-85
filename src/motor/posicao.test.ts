@@ -27,3 +27,13 @@ test("uma peça fica no centro visual das casas da faixa inferior", () => {
     assert.ok(Math.abs(posicao.y - 82.5) < 0.01, `Centro Y incorreto na casa ${casaId}`);
   }
 });
+
+// Independent pixel landmarks measured in board-reference-edited.webp (1672 x 941).
+test("casas 31 a 39 seguem os centros visuais da coluna esquerda", () => {
+  const centrosY = [694, 637.5, 579.5, 521.5, 466, 409.5, 353.5, 299.5, 245.5];
+  centrosY.forEach((y, index) => {
+    const centro = posicaoDaPeca(casas[30 + index], 0, 1);
+    assert.ok(Math.abs(centro.x / 100 * 1672 - 234) < .01);
+    assert.ok(Math.abs(centro.y / 100 * 941 - y) < .01, 'Centro visual da casa ' + (31 + index));
+  });
+});
