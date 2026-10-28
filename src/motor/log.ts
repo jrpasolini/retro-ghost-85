@@ -69,6 +69,9 @@ export function getPlayerTrajectory(log: readonly EntradaLog[], jogadorId: numbe
 export function formatarLinhaLog(entrada: EntradaLog): string {
   const trofeus = entrada.trofeus.length ? ` · troféu ${entrada.trofeus.map((chave) => NOME_TROFEU[chave]).join(", ")}` : "";
   if (entrada.turno === 0) return `T0 · ${entrada.jogador} · início · casa 1 · ${entrada.efeito}${trofeus}`;
+  if (entrada.dado1 === null) {
+    return `T${entrada.turno} · ${entrada.jogador} · TURNO PERDIDO · sem rolagem · casa ${entrada.casaFinal} · ${entrada.projeto}/100`;
+  }
   const dados = entrada.dado2 === null
     ? String(entrada.dado1)
     : `${entrada.dado1}+${entrada.dado2}=${(entrada.dado1 ?? 0) + entrada.dado2}`;
@@ -90,6 +93,7 @@ export function textoMestre(trajetoria: readonly EntradaLog[], nome: string): st
   if (trajetoria.length === 0) return `${nome} ainda não deixou rastro no tabuleiro.`;
   const passos = trajetoria.map((entrada) => {
     if (entrada.turno === 0) return `Começou na casa 1 (${entrada.efeito}).`;
+    if (entrada.dado1 === null) return `No turno ${entrada.turno}, cumpriu a penalidade sem rolar o dado nem sair da casa ${entrada.casaFinal}.`;
     const paradeiro = entrada.casaDestino === entrada.casaFinal
       ? `caiu na casa ${entrada.casaFinal}`
       : `aplicou o efeito da casa ${entrada.casaDestino} e parou na casa ${entrada.casaFinal}`;

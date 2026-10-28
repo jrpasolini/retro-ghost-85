@@ -22,6 +22,12 @@ export function avancarTurno(jogadores: Jogador[], jogadorAtivo: number): Result
   let proximo = proximoJogadorId(jogadorAtivo, atualizados.length);
   const ignorados: string[] = [];
 
+  // Sem outro participante, a penalidade deve permanecer pendente até
+  // a próxima ação explícita. Consumir aqui a tornaria invisível no solo.
+  if (atualizados.length === 1) {
+    return { jogadores: atualizados, jogadorAtivo, ignorados };
+  }
+
   for (let i = 0; i < atualizados.length; i++) {
     const jogador = atualizados[proximo - 1];
     if (jogador.turnosPerdidos === 0) break;

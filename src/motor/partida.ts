@@ -93,6 +93,9 @@ export function registrarJogada(estado: EstadoPartida, dados: DadosJogada, casas
   }
   const atual = estado.jogadores[estado.jogadorAtivo - 1];
   if (!atual) throw new Error("Jogador ativo inválido");
+  if (estado.jogadores.length === 1 && atual.turnosPerdidos > 0) {
+    throw new Error("Jogada perdida pendente: passe o turno antes de rolar");
+  }
   const resultado = aplicarJogada(atual, dados.dado, casas);
   const destino = resultado.casa.id;
   const casaFinal = resultado.jogador.casa;
@@ -171,6 +174,49 @@ export function registrarJogada(estado: EstadoPartida, dados: DadosJogada, casas
   };
 }
 
+/** Cumpre uma penalidade de partida solo sem rolar dado, mover peça ou consumir RNG.
+ * O evento integra o game log e a trajetória, preservando o schema de save 1.
+ */
+export function consumirTurnoPerdidoSolo(estado: EstadoPartida): EstadoPartida {
+  if (!estado.partidaIniciada || estado.partidaEncerrada || estado.jogadores.length !== 1) {
+    throw new Error("Só uma partida solo em andamento pode cumprir essa penalidade");
+  }
+  const atual = estado.jogadores[0];
+  if (atual.turnosPerdidos < 1) throw new Error("Não há jogada perdida pendente");
+
+  const entrada: EntradaLog = {
+    turno: estado.turno + 1,
+    jogadorId: atual.id,
+    jogador: atual.nome,
+    controle: atual.controle,
+    cor: atual.cor,
+    dado1: null,
+    dado2: null,
+    casaOrigem: atual.casa,
+    casaDestino: atual.casa,
+    casaFinal: atual.casa,
+    casasPassadas: [],
+    atosEntrados: [],
+    efeito: "Penalidade cumprida · sem rolar o dado",
+    deltaProjeto: 0,
+    projeto: atual.projeto,
+    jogadaExtra: false,
+    perdeTurno: false,
+    perderamVez: [atual.nome],
+    trofeus: [],
+    vitoria: false,
+  };
+
+  return {
+    ...estado,
+    jogadores: [{ ...atual, turnosPerdidos: atual.turnosPerdidos - 1 }],
+    turno: estado.turno + 1,
+    log: [...estado.log, entrada],
+    jogadorSelecionado: atual.id,
+    casaAtiva: atual.casa,
+  };
+}
+
 export type LinhaRanking = { id: number; nome: string; controle: Jogador["controle"]; casa: number; projeto: number; trofeus: ChaveTrofeu[] };
 
 export type TelaEndgame = {
@@ -210,8 +256,8 @@ export function montarTelaEndgame(estado: EstadoPartida): TelaEndgame | null {
     vencedorId: vencedor.id,
     vencedorNome: vencedor.nome,
     projeto: vencedor.projeto,
-    rolamentosVencedor: trajetoria.filter((entrada) => entrada.turno > 0).length,
-    rolamentosMesa: estado.turno,
+    rolamentosVencedor: trajetoria.filter((entrada) => entrada.turno > 0 && entrada.dado1 !== null).length,
+    rolamentosMesa: estado.log.filter((entrada) => entrada.turno > 0 && entrada.dado1 !== null).length,
     trajetoria,
     narracao: textoMestre(trajetoria, vencedor.nome),
     ranking,

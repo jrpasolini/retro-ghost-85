@@ -14,7 +14,7 @@ import { criarJogadores, turnoDaCpu, type ConfiguracaoJogador } from "./motor/jo
 import { formatarGamelog } from "./motor/gamelog";
 import { formatarLinhaLog, getPlayerTrajectory, NOME_TROFEU, textoMestre, trofeusVazios, type ChaveTrofeu } from "./motor/log";
 import { posicaoDaPeca } from "./motor/posicao";
-import { daEstadoSalvo, iniciarPartida, montarTelaEndgame, paraEstadoSalvo, registrarJogada, type EstadoPartida } from "./motor/partida";
+import { consumirTurnoPerdidoSolo, daEstadoSalvo, iniciarPartida, montarTelaEndgame, paraEstadoSalvo, registrarJogada, type EstadoPartida } from "./motor/partida";
 import { ajustarQuantidade, clonarAssentos, confirmarAssentos } from "./motor/setup";
 import { ControleDeAudio } from "./audio";
 import { criarNarradorLocal, type PedidoNarracao } from "./narrador/narrador";
@@ -502,9 +502,9 @@ function abrirEndgame() {
   document.querySelector<HTMLElement>("#endgame-score")!.textContent = `Projeto final: ${tela.projeto}/100 · Rolagens de ${tela.vencedorNome}: ${tela.rolamentosVencedor} · Rolagens da mesa: ${tela.rolamentosMesa}`;
   document.querySelector<HTMLElement>("#endgame-narration")!.textContent = tela.narracao;
   document.querySelector<HTMLElement>("#endgame-path")!.innerHTML = tela.trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada))}</li>`).join("");
-  document.querySelector<HTMLElement>("#endgame-ranking")!.innerHTML = tela.ranking.map((linha, indice) => {
+  document.querySelector<HTMLElement>("#endgame-ranking")!.innerHTML = tela.ranking.map((linha) => {
     const trofeus = linha.trofeus.length ? linha.trofeus.map((chave) => NOME_TROFEU[chave]).join(", ") : "sem troféu de ato";
-    return `<li><b>${indice + 1}. ${escaparHtml(linha.nome)}</b> · casa ${linha.casa} · ${linha.projeto}/100 · ${escaparHtml(trofeus)}</li>`;
+    return `<li><b>${escaparHtml(linha.nome)}</b> · casa ${linha.casa} · ${linha.projeto}/100 · ${escaparHtml(trofeus)}</li>`;
   }).join("");
   if (!endgameDialog.open) endgameDialog.showModal();
   document.querySelector<HTMLElement>("#endgame-title")!.focus();
@@ -661,6 +661,21 @@ async function executarSorteioDado(automatico = false) {
   if (!partidaIniciada || !podeIniciarJogada(rolandoDado, partidaEncerrada)) return;
   const cpuAtual = turnoDaCpu(jogadores, jogadorAtivo, partidaIniciada, partidaEncerrada);
   if ((cpuAtual && !automatico) || (!cpuAtual && automatico)) return;
+
+  // O turno perdido do solo é uma ação real da partida, mas sem dado.
+  // Deve funcionar também imediatamente após carregar um save pendente.
+  if (sessao && sessao.jogadores.length === 1 && sessao.jogadores[0].turnosPerdidos > 0) {
+    const nome = sessao.jogadores[0].nome;
+    sessao = consumirTurnoPerdidoSolo(sessao);
+    sincronizarVista();
+    document.querySelector<HTMLElement>(".dice-value")!.textContent = "–";
+    document.querySelector<HTMLElement>(".dice-sub")!.textContent = "TURNO PERDIDO · SEM ROLAGEM";
+    document.querySelector<HTMLElement>(".dice-status")!.textContent = `${nome} cumpriu a penalidade sem rolar o dado nem avançar. Próxima jogada liberada.`;
+    renderLog();
+    agendarTurnoCpu();
+    return;
+  }
+
   await trilha.desbloquear();
   rolandoDado = true;
 
@@ -759,7 +774,13 @@ function agendarTurnoCpu() {
     return;
   }
   const cpu = turnoDaCpu(jogadores, jogadorAtivo, partidaIniciada, partidaEncerrada);
+  const penalidadeSolo = Boolean(sessao && sessao.jogadores.length === 1 && sessao.jogadores[0].turnosPerdidos > 0 && partidaIniciada && !partidaEncerrada);
+  btnRolarDado.textContent = penalidadeSolo ? "PASSAR TURNO" : "ROLAR DADO";
   btnRolarDado.disabled = !partidaIniciada || partidaEncerrada || cpu;
+  if (penalidadeSolo) {
+    document.querySelector<HTMLElement>(".dice-status")!.textContent =
+      `${jogadores[0].nome} perdeu uma jogada. Clique em PASSAR TURNO para cumprir a penalidade sem rolar o dado.`;
+  }
   if (!cpu) return;
   const atual = jogadores[jogadorAtivo - 1];
   document.querySelector<HTMLElement>(".dice-status")!.innerHTML = `<strong>${escaparHtml(atual.nome)}</strong> está preparando a jogada automática...`;
@@ -810,6 +831,8 @@ function novaPartida() {
   if (endgameDialog.open) endgameDialog.close();
   document.querySelector<HTMLElement>("#einstein-easter-egg")!.hidden = true;
   document.querySelector<HTMLElement>(".dice-status")!.textContent = "Inicie a jornada para liberar o dado.";
+  btnRolarDado.textContent = "ROLAR DADO";
+  btnRolarDado.disabled = true;
   renderHouses();
   renderPlayers();
   updateInspector(casas[0]);
