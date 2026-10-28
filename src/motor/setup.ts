@@ -1,3 +1,4 @@
+import type { Idioma } from "../i18n/content.ts";
 import type { Jogador } from "../types.ts";
 import { criarJogadores, type ConfiguracaoJogador } from "./jogadores.ts";
 
@@ -16,23 +17,26 @@ export function ajustarQuantidade(assentos: ConfiguracaoJogador[], quantidade: n
   return proximo;
 }
 
-export function resumoJogadores(jogadores: Pick<Jogador, "controle">[]): string {
+export function resumoJogadores(jogadores: Pick<Jogador, "controle">[], idioma: Idioma = "pt-BR"): string {
   const total = jogadores.length;
   const humanos = jogadores.filter((jogador) => jogador.controle === "humano").length;
   const cpus = total - humanos;
+  if (idioma === "en-US") {
+    return `The match starts on square 1 · ${total} ${total === 1 ? "player" : "players"} · ${humanos} ${humanos === 1 ? "HUMAN" : "HUMANS"}${cpus ? ` · ${cpus} CPU` : ""} · 1D6`;
+  }
   const textoHumano = `${humanos} HUMANO${humanos === 1 ? "" : "S"}`;
   const textoCpu = cpus > 0 ? ` · ${cpus} CPU` : "";
   return `A partida começa na casa 1 · ${total} participante${total === 1 ? "" : "s"} · ${textoHumano}${textoCpu} · 1D6`;
 }
 
 /** O rodapé do boot usa os assentos visíveis, não um contador separado. */
-export function resumoAssentos(assentos: Pick<Jogador, "controle">[]): string {
-  return resumoJogadores(assentos);
+export function resumoAssentos(assentos: Pick<Jogador, "controle">[], idioma: Idioma = "pt-BR"): string {
+  return resumoJogadores(assentos, idioma);
 }
 
 /** Resumo e elenco saem da mesma lista de assentos. */
-export function confirmarAssentos(assentos: ConfiguracaoJogador[]): { assentos: ConfiguracaoJogador[]; jogadores: Jogador[]; resumo: string } {
+export function confirmarAssentos(assentos: ConfiguracaoJogador[], idioma: Idioma = "pt-BR"): { assentos: ConfiguracaoJogador[]; jogadores: Jogador[]; resumo: string } {
   const confirmados = clonarAssentos(assentos);
   const jogadores = criarJogadores(confirmados);
-  return { assentos: confirmados, jogadores, resumo: resumoJogadores(jogadores) };
+  return { assentos: confirmados, jogadores, resumo: resumoJogadores(jogadores, idioma) };
 }

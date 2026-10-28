@@ -1,3 +1,5 @@
+import type { Idioma } from "../i18n/content.ts";
+import { nomePadrao } from "../i18n/ui.ts";
 import type { Jogador } from "../types";
 import { formatarGameLogMarkdown, formatarTrajetoriaMarkdown, getPlayerTrajectory, trofeusVazios, CHAVES_TROFEU, type ChaveTrofeu, type EntradaLog, type Trofeu, type Trofeus } from "../motor/log.ts";
 import type { EstadoRng } from "../motor/dado.ts";
@@ -133,14 +135,18 @@ export function validarEstadoSalvo(valor: unknown): EstadoSalvo {
   };
 }
 
-export function serializarSave(estado: EstadoSalvo): string {
+export function serializarSave(estado: EstadoSalvo, idioma: Idioma = "pt-BR"): string {
   const validado = validarEstadoSalvo(estado);
   const salvoEm = new Date().toISOString();
   const trajetos = validado.jogadores.map((jogador) => formatarTrajetoriaMarkdown(
-    jogador.nome ?? `Jogador ${jogador.id}`,
+    jogador.nome ?? nomePadrao(jogador.id, idioma),
     getPlayerTrajectory(validado.log, jogador.id),
+    idioma,
   )).join("\n\n");
-  return `---\nschema: ${SAVE_SCHEMA}\njogo: retro-ghost-85\nversao: 0.6.0\nsalvo_em: ${salvoEm}\n---\n\n# Retro Ghost 85 — save da partida\n\nO bloco JSON é a fonte da verdade. O Game Log e as trajetórias abaixo são a leitura humana do mesmo histórico.\n\n## Game Log\n\n${formatarGameLogMarkdown(validado.log)}\n\n${trajetos}\n\n\`\`\`json\n${JSON.stringify(validado, null, 2)}\n\`\`\`\n`;
+  const cabecalho = idioma === "pt-BR"
+    ? "# Retro Ghost 85 — save da partida\n\nO bloco JSON é a fonte da verdade. O Game Log e as trajetórias abaixo são a leitura humana do mesmo histórico."
+    : "# Retro Ghost 85 — match save\n\nThe JSON block is the source of truth. The match log and journeys below are human-readable views of the same history.";
+  return `---\nschema: ${SAVE_SCHEMA}\njogo: retro-ghost-85\nversao: 0.6.0\nsalvo_em: ${salvoEm}\n---\n\n${cabecalho}\n\n## Game Log\n\n${formatarGameLogMarkdown(validado.log, idioma)}\n\n${trajetos}\n\n\`\`\`json\n${JSON.stringify(validado, null, 2)}\n\`\`\`\n`;
 }
 
 export function desserializarSave(markdown: string): EstadoSalvo {
