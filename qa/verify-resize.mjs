@@ -146,6 +146,70 @@ try {
       await page.screenshot({ path: `${output}/step-${i}-${width}x${height}.png`, fullPage: false });
     }
   }
+
+  // Um segundo cenário na mesma instância do navegador: quatro humanos
+  // renderizados pelo jogo, todos na casa 1, antes e depois do resize.
+  await page.evaluate(() => {
+    for (let i = 1; i < 4; i++) document.querySelector("#btn-mais-player").click();
+    document.querySelector("#btn-iniciar-jornada").click();
+  });
+  await page.waitForFunction(() => document.querySelectorAll(".player-token").length === 4);
+  const fourPlayerMeasurements = [];
+  for (let i = 0; i < 10; i++) {
+    const dims = [[1440, 900], [1051, 800], [1050, 800], [681, 800], [680, 800], [390, 844], [680, 800], [681, 800], [1051, 800], [1440, 900]][i];
+    await page.setViewportSize({ width: dims[0], height: dims[1] });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    if (dims[0] === 390) await page.evaluate(() => document.querySelector(".board-stage").scrollLeft = 160);
+    else await page.evaluate(() => document.querySelector(".board-stage").scrollLeft = 0);
+
+    const result = await page.evaluate(() => {
+      const img = document.querySelector(".board-art");
+      const ir = img.getBoundingClientRect();
+      const house = document.querySelector('.house-hotspot[data-house="1"]');
+      const hr = house.getBoundingClientRect();
+      const style = house.style;
+      const nx = Number.parseFloat(style.getPropertyValue("--x"));
+      const ny = Number.parseFloat(style.getPropertyValue("--y"));
+      const nw = Number.parseFloat(style.getPropertyValue("--w"));
+      const nh = Number.parseFloat(style.getPropertyValue("--h"));
+      const shifts = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+      const items = [...document.querySelectorAll(".player-token")].map((el, idx) => {
+        const token = el.getBoundingClientRect();
+        const tx = Number.parseFloat(el.style.getPropertyValue("--tx"));
+        const ty = Number.parseFloat(el.style.getPropertyValue("--ty"));
+        const expectedPcX = nx + nw / 2 + shifts[idx][0] * Math.min(1, nw * .18);
+        const expectedPcY = ny + nh / 2 + shifts[idx][1] * Math.min(1.35, nh * .18);
+        const errorInCSSPc = Math.hypot(tx - expectedPcX, ty - expectedPcY);
+        const visualCX = token.left + token.width / 2;
+        const visualCY = token.top + token.height / 2;
+        const expectedBrowserX = ir.left + ir.width * tx / 100;
+        const expectedBrowserY = ir.top + ir.height * ty / 100;
+        const visualErrorPx = Math.hypot(visualCX - expectedBrowserX, visualCY - expectedBrowserY);
+        const insideHouse = visualCX >= hr.left && visualCX <= hr.right && visualCY >= hr.top && visualCY <= hr.bottom;
+        return { player: idx + 1, errorInCSSPc, visualErrorPx, insideHouse, tx, ty };
+      });
+      return {
+        viewport: [innerWidth, innerHeight],
+        pieceCount: items.length,
+        items,
+        maxVisualErrorPx: Math.max(...items.map((x) => x.visualErrorPx)),
+        maxCSSPositionErrorPc: Math.max(...items.map((x) => x.errorInCSSPc)),
+      };
+    });
+    if (result.pieceCount !== 4) throw new Error("Participantes desaparecidos durante resize");
+    if (result.items.some((item) => !item.insideHouse)) throw new Error("Uma das quatro peças ficou fora dos limites da casa 1");
+    fourPlayerMeasurements.push(result);
+    if ([0, 4, 5, 9].includes(i)) {
+      await page.screenshot({ path: `${output}/four-player-${i}-${dims[0]}x${dims[1]}.png`, fullPage: false });
+    }
+  }
+  const maxFourPlayerPixelError = Math.max(...fourPlayerMeasurements.map((m) => m.maxVisualErrorPx));
+  const maxFourPlayerPositionError = Math.max(...fourPlayerMeasurements.map((m) => m.maxCSSPositionErrorPc));
+  await writeFile(`${output}/four-player-measurements.json`, JSON.stringify({ maxFourPlayerPixelError, maxFourPlayerPositionError, fourPlayerMeasurements }, null, 2));
+  console.log("4-player dynamic resize:", JSON.stringify({ maxFourPlayerPixelError, maxFourPlayerPositionError, fourPlayerMeasurements }, null, 2));
+  if (maxFourPlayerPixelError > 1.25) throw new Error(`Peças x arte fora de sincronia: ${maxFourPlayerPixelError.toFixed(3)}px`);
+  if (maxFourPlayerPositionError > 0.001) throw new Error("Algum jogador divergiu da formação prevista em posicaoDaPeca");
+
   const worst = Math.max(...measurements.map((x) => x.maxImageOffsetPx));
   const worstLayer = Math.max(...measurements.map((x) => x.layerToArtPx));
   const worstToken = Math.max(...measurements.map((x) => x.tokenVsHotspotPx));
