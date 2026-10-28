@@ -10,7 +10,7 @@ export const atos = {
   },
   20: {
     titulo: "Ato 3 · DEBUG",
-    narrativa: "Os amigos conseguiram jogar, mas voltaram com uma lista de falhas maior do que você esperava. Agora, cada bug parece um fantasma escondido numa condição do BASIC ou num endereço errado. Com o caderno de testes em mãos, você procura respostas no clube, na BBS e nas revistas especializadas. Depurar é aprender a escutar quem joga — e a desconfiar do código que parecia perfeito.",
+    narrativa: "A demonstração impressionou os amigos, mas o caderno voltou cheio de defeitos: um sprite fora do lugar, uma colisão falha, uma tela que não se atualiza. Agora cada bug parece um pequeno fantasma escondido numa condição do BASIC ou num endereço errado. Você retoma os testes com o grupo e prepara a conexão com a BBS para trocar descobertas. Depurar também é aprender a escutar quem joga — e a desconfiar do código que parecia perfeito.",
   },
   30: {
     titulo: "Ato 4 · FINAL",
