@@ -14,7 +14,10 @@ const server = spawn(process.execPath,
   { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, CI: "true" } }
 );
 let stderr = "";
+let stdout = "";
+let lastHttp = "none";
 server.stderr.on("data", b => { stderr += String(b); });
+server.stdout.on("data", b => { stdout += String(b); });
 let browser;
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -37,10 +40,10 @@ try {
   let ready = false;
   for (let i = 0; i < 75; i++) {
     if (server.exitCode !== null) throw new Error("Vite exited: " + stderr);
-    try { if ((await fetch(origin)).ok) { ready = true; break; } } catch {}
+    try { const response = await fetch(origin); lastHttp = String(response.status) + " " + (response.ok ? "OK" : (await response.text()).slice(0,400)); if (response.ok) { ready = true; break; } } catch (e) { lastHttp = String(e); }
     await sleep(160);
   }
-  assert.ok(ready,"Vite is not running: "+stderr);
+  assert.ok(ready,"Vite is not ready: "+JSON.stringify({stderr,stdout,lastHttp,exitCode:server.exitCode}));
   browser = await chromium.launch({ channel: "chrome", headless: true, args: ["--no-sandbox"] });
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
   const page = await context.newPage();
