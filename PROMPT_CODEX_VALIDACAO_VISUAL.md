@@ -40,3 +40,33 @@ Se puder editar documentação, atualize exclusivamente `MATRIZ_VALIDACAO_VISUAL
 - https://www.msxarchive.nl/pub/msx/docs/manuals/msxtech.pdf
 
 Retorne comentário no PR. Se não puder, apresente o relatório na sessão, pronto para a Bruna revisar.
+
+## Atualização — leitura visual feita por Bruna com a captura do autor (28/10)
+
+A captura agora permite verificar os símbolos reais. **Atenção: a leitura visual não confirma automaticamente a coerência temática.** Pontos críticos identificados:
+
+| Casa | Símbolo visível | Tema textual | Resultado preliminar |
+|---|---|---|---|
+| 3 | joystick vermelho | erro na listagem | divergência temática; precisa ponte textual |
+| 5 | pilha rosa de mídias | salvar no cassete | ambíguo; pode representar arquivos/mídias |
+| 7 | chave inglesa | fitas virgens | divergência; símbolo de reparo |
+| 8 | caixa com interrogação | joystick emprestado | divergência; surpresa não é joystick |
+| 9 | xícara fumegante | cartucho do amigo | divergência; evoca madrugada/café |
+| 11 | gravador cinza | drive de disquete | ambíguo; confirmar equipamento em alta resolução |
+| 12 | osso | formatar disco | divergência simbólica |
+| 15 | inseto vermelho | sprite fora do lugar | metáfora de bug aceitável |
+| 17 | chip | colisão que não colide | divergência temática |
+| 18 | ampulheta | música em PSG | divergência temática |
+| 21 | troféu | modem emprestado | divergência temática |
+| 23 | engrenagens | linha ocupada | divergência temática |
+| 24 | terminal >A_ | grupo de usuários | metáfora tecnológica possível |
+| 28 | estrela | revista especializada | divergência temática |
+| 35 | chave amarela | duplicação em série | divergência temática |
+| 36 | caixa com ? | caixas trocadas | compatível |
+| 38 | caveira | errata grave | compatível com fatalidade |
+| 39 | troféu | prêmio dos leitores | compatível |
+| 40 | ENDGAME PUBLICAÇÃO | nome no catálogo | compatível |
+
+**Verificar as demais casas individualmente, não apenas as linhas acima.** Na captura, os marcos 10 (ACT 2 BBS), 20 (ACT 3 DEBUG), 30 (ACT 4 FINAL), 40 (ENDGAME PUBLICAÇÃO) estão claramente escritos e não devem ser renomeados. A casa 19 está muito próxima do marco 20; examinar em alta resolução. Em qualquer divergência, sugerir **somente** redação que preserve o acontecimento e o efeito; não mover histórias, não trocar ícones, não editar a arte. Se não houver conciliação convincente, registrar como limitação editorial para aprovação do autor.
+
+O autor enviou a captura diretamente na conversa ChatGPT. Caso Codex não tenha acesso ao anexo, use o arquivo de imagem do próprio repositório. Produza tabela de 40 casas com resultado e confiança e **não faça merge**.
