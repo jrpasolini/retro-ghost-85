@@ -32,7 +32,8 @@ try {
   page.on("pageerror", err => errors.push(err.message));
   await page.goto(origin, {waitUntil:"domcontentloaded"});
   await page.addStyleTag({content:"#opening-sequence, #intro-dialog, #trophy-dialog {display:none!important}"});
-  await page.waitForSelector("#input-load");
+  // O input file é oculto por design: exigir só presença no DOM.
+  await page.waitForSelector("#input-load", { state: "attached" });
 
   const fresh = iniciarPartida([{controle:"humano",nome:"QA-Solo"}], novoEstadoRng(1985));
   const setup = {...fresh,jogadores:[{...fresh.jogadores[0],casa:16,projeto:50}]};
