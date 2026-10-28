@@ -210,6 +210,77 @@ try {
   if (maxFourPlayerPixelError > 1.25) throw new Error(`Peças x arte fora de sincronia: ${maxFourPlayerPixelError.toFixed(3)}px`);
   if (maxFourPlayerPositionError > 0.001) throw new Error("Algum jogador divergiu da formação prevista em posicaoDaPeca");
 
+
+  // Cenário mais parecido com o relato: executar 4 rolagens REAIS (uma para
+  // cada jogador), manter a sessão em andamento e redimensionar sem reload.
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const dice = page.locator("#btn-rolar-dado");
+  for (let turn = 0; turn < 4; turn++) {
+    await page.waitForFunction(() => {
+      const b = document.querySelector("#btn-rolar-dado");
+      return b && !b.disabled;
+    }, { timeout: 7000 });
+    const beforeCount = await page.locator("#game-log-list li").count();
+    await dice.click({ timeout: 7000 });
+    await page.waitForFunction((previous) => document.querySelectorAll("#game-log-list li").length > previous, beforeCount, { timeout: 10000 });
+  }
+  const afterMoves = [];
+  for (const [width, height] of [[1440,900],[1051,800],[1050,800],[681,800],[680,800],[390,844],[680,800],[1440,900]]) {
+    await page.setViewportSize({ width, height });
+    await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    const measure = await page.evaluate(() => {
+      const img = document.querySelector(".board-art");
+      const ir = img.getBoundingClientRect();
+      const scale = Math.max(ir.width / img.naturalWidth, ir.height / img.naturalHeight);
+      const ow = img.naturalWidth * scale, oh = img.naturalHeight * scale;
+      const imgL = ir.left + (ir.width - ow) / 2;
+      const imgT = ir.top + (ir.height - oh) / 2;
+      const all = [...document.querySelectorAll(".player-token")];
+      const players = all.map(token => {
+        const label = token.getAttribute("aria-label") ?? "";
+        const id = Number(token.dataset.player);
+        const match = label.match(/casa (\d+)/);
+        if(!match) throw new Error("Peça sem casa em aria-label: " + label);
+        const houseNumber=Number(match[1]);
+        const house=document.querySelector(`.house-hotspot[data-house="${houseNumber}"]`);
+        const tx=Number.parseFloat(token.style.getPropertyValue("--tx"));
+        const ty=Number.parseFloat(token.style.getPropertyValue("--ty"));
+        const rect=token.getBoundingClientRect();
+        const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+        const visualError=Math.hypot(cx-(imgL+tx/100*ow),cy-(imgT+ty/100*oh));
+        const hr=house.getBoundingClientRect();
+        const housePc={
+          x:Number.parseFloat(house.style.getPropertyValue("--x")),
+          y:Number.parseFloat(house.style.getPropertyValue("--y")),
+          w:Number.parseFloat(house.style.getPropertyValue("--w")),
+          h:Number.parseFloat(house.style.getPropertyValue("--h")),
+        };
+        const same=all.filter(el=>(el.getAttribute("aria-label") ?? "").includes(`casa ${houseNumber},`));
+        const ix=same.findIndex(el=>Number(el.dataset.player)===id);
+        const form={
+          1:[[0,0]],
+          2:[[-1,0],[1,0]],
+          3:[[-1,-1],[1,-1],[0,1]],
+          4:[[-1,-1],[1,-1],[-1,1],[1,1]],
+        }[same.length][ix];
+        const expectedTx=housePc.x+housePc.w/2+form[0]*Math.min(1,housePc.w*.18);
+        const expectedTy=housePc.y+housePc.h/2+form[1]*Math.min(1.35,housePc.h*.18);
+        const formationError=Math.hypot(tx-expectedTx,ty-expectedTy);
+        return {id,houseNumber,visualError,formationError,tokenPc:[tx,ty]};
+      });
+      return {viewport:[innerWidth,innerHeight],players,maxImageError:Math.max(...players.map(x=>x.visualError)),maxFormationError:Math.max(...players.map(x=>x.formationError))};
+    });
+    if (measure.players.length !== 4) throw new Error("Perdeu jogadores após rolagens");
+    afterMoves.push(measure);
+    if ([680,390,1440].includes(width)) await page.screenshot({path:`${output}/after-gameplay-${width}x${height}.png`});
+  }
+  const maxAfterMovesImageError=Math.max(...afterMoves.map(x=>x.maxImageError));
+  const maxAfterMovesFormationError=Math.max(...afterMoves.map(x=>x.maxFormationError));
+  console.log("Post-gameplay resize:",JSON.stringify({maxAfterMovesImageError,maxAfterMovesFormationError,afterMoves},null,2));
+  await writeFile(`${output}/post-gameplay-measurements.json`,JSON.stringify({maxAfterMovesImageError,maxAfterMovesFormationError,afterMoves},null,2));
+  if(maxAfterMovesImageError>2)throw new Error("Desalinhamento visual após jogadas: "+maxAfterMovesImageError);
+  if(maxAfterMovesFormationError>.001)throw new Error("Desalinhamento do motor após jogadas: "+maxAfterMovesFormationError);
+
   const worst = Math.max(...measurements.map((x) => x.maxImageOffsetPx));
   const worstLayer = Math.max(...measurements.map((x) => x.layerToArtPx));
   const worstToken = Math.max(...measurements.map((x) => x.tokenVsHotspotPx));
