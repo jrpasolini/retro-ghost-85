@@ -562,7 +562,6 @@ button { font: inherit; }
 }
 
 .houses, .tokens { position: absolute; inset: 0; }
-.tokens { container-type: size; }
 
 .house-hotspot {
   position: absolute;
@@ -591,7 +590,7 @@ button { font: inherit; }
 .house-hotspot:focus-visible { border-width: 3px; }
 
 .player-token {
-  --size: min(clamp(20px, 2.45vw, 42px), calc(var(--house-width) * .72 * 1cqw), calc(var(--house-height) * var(--piece-scale) * 1cqh));
+  --size: clamp(20px, 2.45vw, 42px);
   position: absolute;
   left: var(--tx);
   top: var(--ty);
