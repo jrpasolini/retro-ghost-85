@@ -53,6 +53,6 @@ test("marcos dos atos e efeito das casas seguem íntegros", () => {
   assert.deepEqual([10, 20, 30, 40].map((id) => casas[id - 1].tipo), ["marco", "marco", "marco", "final"]);
   assert.deepEqual([10, 20, 30].map((id) => casas[id - 1].titulo), ["Ato 2 · BBS", "Ato 3 · DEBUG", "Ato 4 · FINAL"]);
   assert.equal(casas[12].titulo, "Prompt do DOS");
-  assert.match(casas[12].narrativa, /C:\\\\>/);
+  assert.ok(casas[12].narrativa.includes("C:\\>"));
   assert.deepEqual(casas[39].consequencia, { projeto: 10 });
 });
