@@ -1,6 +1,6 @@
-# Estratégia de partida — Retro-Ghost-85
+# Estratégia de partida — Retro-Ghost-85 (decisões históricas)
 
-> Documento vivo para registrar decisões de produto e evolução dos modos de jogo.
+> **Histórico de decisão (27/10/2026).** Os marcos "Momento 2: narrador" e "Momento 3: voz" foram posteriormente implementados na `master`. Regras em vigor e integração: [STATUS_ATUAL.md](STATUS_ATUAL.md) e [workers/narrator/README.md](workers/narrator/README.md). Este arquivo preserva metas antigas (Gemma 4, voz por escolher, cache R2/ID3, quatro narrações fixas), **não garante** que todas essas propostas foram realizadas. O código tem Gemma **7B** como padrão e troféus 2/3/4/Endgame com voz sob demanda.
 
 ## 27/10/2026 — Participantes humanos e CPU local
 
