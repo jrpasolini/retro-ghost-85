@@ -1,12 +1,12 @@
 # Worker do Mestre — narração e voz
 
-O jogo determina os acontecimentos. Os beats aprovados, um para cada uma das 40 casas, determinam a narrativa em português e inglês. A Gemma acrescenta somente uma frase curta do Mestre.
+Os beats aprovados narram os fatos. O código seleciona e ordena os acontecimentos; a Gemma 7B acrescenta somente um comentário breve **depois** da história. Os parágrafos completos em português e inglês são preservados.
 
-## Fluxo e contrato
+## Contrato e seleção
 
-`prepareNarrationRequest()` recebe o snapshot do log do troféu, o jogador, o ato e o idioma. Só considera as casas em que aquele participante parou, incluindo o destino de um deslocamento por efeito; ignora casas apenas atravessadas e turnos perdidos. Não deve receber acontecimentos posteriores ao troféu.
+`prepareNarrationRequest(logSnapshot, jogadorId, act, lang)` usa o snapshot histórico do troféu, somente com os pousos daquele participante. Ignora casas atravessadas e turnos perdidos. Um deslocamento por efeito registra seu destino. Não passar acontecimentos posteriores ao troféu.
 
-O cliente seleciona até **dois beats por ato** ou **cinco no endgame**. A seleção prioriza fatalidades, marcos e magnitude do efeito, mantém a ordem temporal e o pouso mais recente; no encerramento também reserva o início e a publicação. Repetições usam a ocorrência mais recente.
+Cliente e Worker compartilham a seleção de até **dois beats por ato** ou **cinco no Endgame**. Priorizam fatalidades, marcos e magnitude dos efeitos, preservando a ordem temporal e o pouso mais recente. No encerramento, reservam também a abertura e a publicação; repetições usam a ocorrência mais recente.
 
 ```json
 {
@@ -18,48 +18,43 @@ O cliente seleciona até **dois beats por ato** ou **cinco no endgame**. A sele�
 }
 ```
 
-`POST /narrate` aceita `act` igual a `"2"`, `"3"`, `"4"` ou `"endgame"`; `lang` é `pt-BR`, `en` ou `en-US`. `squares` permanece como alias de entrada para `beats`. A casa 40 só entra no endgame, e deve ser a última entrada. O Worker aceita até 256 IDs válidos, mas refaz a seleção **antes de chamar o modelo**. Textos, títulos e pontuações enviados pelo cliente são ignorados: os IDs resolvem os beats canônicos no idioma solicitado.
+`POST /narrate` aceita atos `"2"`, `"3"`, `"4"`, `"endgame"`, idiomas `pt-BR`, `en`, `en-US` e até 256 IDs válidos. `squares` é alias de `beats`. O Worker refaz a seleção antes da inferência e resolve os textos pelo ID canônico; títulos, textos e pontuações arbitrários do cliente são ignorados. A casa 40 só é aceita no Endgame e deve ser a última entrada.
 
-Resposta: `{ text, body, master, chars, lang, model, beats, ids, cached, fallback, key, inferenceMs }`. `inferenceMs` mede o intervalo da chamada ao binding AI, incluindo o atendimento pelo serviço; em hit de cache vale zero. Não representa tempo isolado de GPU. O serviço do navegador converte `text` para o resultado `{ ok, narration, model, fallback, cached }`.
+Resposta: `{ text, body, master, chars, lang, model, beats, ids, cached, fallback, key, inferenceMs, generation }`. `body` contém exclusivamente os beats originais. `text` é `body` seguido de `master`, separados por uma linha em branco. O cliente converte `text` para `{ ok, narration, model, fallback, cached }`.
 
-O corpo é montado sem inferência. Em falta de cache, há no máximo **uma chamada** à Gemma, com `max_tokens: 96`, solicitando uma frase de até 20 palavras e 220 caracteres. Respostas vazias, longas, com várias frases, números ou termos de regras são recusadas. Erros e respostas recusadas entregam o corpo aprovado com `fallback: true`, sem retry ou cascata de modelos. Esse filtro não comprova fidelidade semântica de toda frase gerada.
+## Chamada correta da Gemma 7B
 
-O modelo padrão é `@cf/google/gemma-7b-it-lora`, substituível pelo binding `NARRATION_MODEL`. O cache de composição inclui versão do prompt, modelo, idioma, nome, ato e beats. É consultado antes da inferência; composições com frase válida são armazenadas por 180 dias. Fallback não é armazenado, permitindo recuperação futura. KV tem consistência eventual: chamadas concorrentes ainda podem repetir trabalho.
+Modelo padrão: `@cf/google/gemma-7b-it-lora`, substituível por `NARRATION_MODEL`. A versão `v9-gemma-brief-closing-comment` envia **uma única mensagem `user`**, com as instruções antes dos dados e uma indicação curta de resposta depois deles. Não usa um turno `system` separado. Ver [formatação oficial do Google](https://ai.google.dev/gemma/docs/core/prompt-structure) e [catálogo Cloudflare do modelo](https://developers.cloudflare.com/workers-ai/models/gemma-7b-it-lora/).
 
-## Áudio
+O pedido é uma frase curta, idealmente de 12 a 24 palavras, com tolerância de **até 40 palavras e 600 caracteres**. Há somente uma tentativa, `max_tokens: 96`, temperatura 0,3, sem cascata ou retry. O comentário usa o nome do participante, evita marcação de gênero, não reconta nem altera fatos e pode provocar com uma pergunta sobre o desafio vivido. No Endgame deve encerrar uma publicação que já aconteceu, sem anunciar outro desafio futuro.
 
-`POST /tts` recebe `{ "text": "...", "lang": "pt-BR" }` e retorna `audio/mpeg`. Limite de **2.800 caracteres**, igual ao máximo da composição. Usa exclusivamente `ELEVENLABS_VOICE_ID`, modelo `eleven_multilingual_v2`, estabilidade 0,75, similaridade 0,8, estilo 0,15 e speaker boost. Não usa tags de emoção. Sem voz configurada retorna erro; sem chave retorna 503. Falhas do provedor retornam erro sanitizado, sem expor seu corpo.
+A validação recusa saída vazia, acima dos limites, formatação indevida, termos de regras/números fora do nome e comentário sem pontuação final. Quantidade de frases é apenas diagnóstico, não motivo autônomo de rejeição. Nenhum filtro comprova toda a fidelidade semântica do texto gerado.
 
-O cache de áudio inclui texto, idioma, modelo, voz e parâmetros de voz. Um hit evita uma nova geração. A síntese tem timeout de 15 segundos. Trocar a voz ou o texto gera uma nova chave.
+O prazo da inferência é **20 segundos**: o Worker limita a espera e envia um AbortSignal ao binding AI. O cliente espera até **25 segundos**, cobrindo transporte e tratamento da resposta. Cancelamento da chamada não garante ausência de processamento/cobrança remota. O jogo não depende da inferência.
 
-## Operação e limites
+`generation.status` distingue `accepted`, `rejected`, `timeout`, `model_error`, `unavailable`. Motivos, contagens e metadados de uso são sanitizados; não se expõem o texto recusado, mensagens internas do provedor ou segredos. `inferenceMs` mede o intervalo da chamada ao binding (incluindo atendimento pelo serviço), não apenas GPU; em hit de cache vale zero.
 
-- `GET /health` retorna modelo efetivo, versão do prompt e presença da configuração da voz, sem inferência.
-- `/probe` e `/selftest` não ficam disponíveis publicamente.
+O cache de composição é consultado antes da inferência e inclui versão do prompt, modelo, idioma, nome, ato e beats. Armazena composições aceitas por 180 dias. Fallback retorna o corpo aprovado e não é cacheado, permitindo recuperação. KV tem consistência eventual: concorrência pode repetir trabalho.
+
+## Áudio e operação
+
+`POST /tts` recebe `{ "text": "...", "lang": "pt-BR" }`, retorna `audio/mpeg` e aceita até **2.800 caracteres**, mesmo limite da composição. Voz exclusivamente de `ELEVENLABS_VOICE_ID`, modelo `eleven_multilingual_v2`, estabilidade 0,75, similaridade 0,8, estilo 0,15 e speaker boost. A chave fica em `ELEVENLABS_API_KEY`, nunca no código. Falhas são sanitizadas; geração tem timeout de 15 segundos.
+
+O cache de áudio inclui texto, idioma, voz, modelo e parâmetros, com versão separada da versão do prompt do narrador. Atualizar instruções da Gemma não invalida áudios existentes com o mesmo texto. Nenhum teste desta correção gerou áudio no ElevenLabs.
+
+- `GET /health`: modelo efetivo, versão do prompt e presença da configuração de voz, sem inferência.
 - JSON limitado a 32 KiB; pedidos inválidos não chamam provedores.
-- CORS permite os domínios do projeto e as origens locais enumeradas em `worker.js`. CORS não autentica chamadas diretas.
-- Os limites são por pedido. **Ainda não há quota autenticada por partida, rate limit global ou garantia de custo zero.** Não afirmar que existem só quatro chamadas por partida no servidor. Essa proteção deve ser definida antes da abertura dos botões de narração ao público.
-- A interface continua usando o narrador local. Este commit integra o contrato e o Worker; a conexão dos botões é uma etapa posterior.
+- `/probe` e `/selftest` não são rotas públicas.
+- CORS permite apenas origens enumeradas no código; CORS não autentica chamadas diretas.
+- Os limites são por pedido. Não há quota autenticada por partida ou rate limit global. Cache não garante custo zero.
+- A interface ainda usa o narrador local; a ligação dos botões e a etapa ElevenLabs são posteriores.
 
-## Configuração e deploy
+## Publicação e verificação
 
-Bindings: `AI` (Workers AI), `CACHE` (KV), `ELEVENLABS_VOICE_ID` (variável), `ELEVENLABS_API_KEY` (secret). Preservar os bindings existentes ao publicar. Nunca colocar a chave no repositório.
+Bindings existentes `AI`, `CACHE`, `ELEVENLABS_VOICE_ID`, `ELEVENLABS_API_KEY` devem ser preservados. O Worker importa dados e seletor TypeScript do projeto, portanto precisa de bundle. Com Wrangler, executar `wrangler deploy` na pasta `workers/narrator`.
 
-O Worker importa o seletor e os dados TypeScript do projeto. O deploy precisa fazer bundle dessas dependências; Wrangler usa `wrangler.toml`:
+Na raiz, `npm test` inclui testes de contrato, limites, cache, prazo e fallback com provedores simulados; `npm run build` verifica TypeScript, Vite e assets relativos. A validação real dos quatro atos em ambos os idiomas é registrada separadamente, distinguindo inferência de cache e saída aceita de fallback.
 
-```sh
-cd workers/narrator
-wrangler deploy
-```
+## Diagnóstico que motivou a correção
 
-Na raiz, `npm test` inclui os testes do Worker com AI, KV e ElevenLabs simulados. Os testes não geram áudio pago. `npm run build` valida o cliente e os caminhos dos assets.
-
-## Validação real de 28/10/2026
-
-Quatro chamadas sem cache (Ato 2, Ato 3, Ato 4 e Endgame) levaram 8,657 s, 8,725 s, 8,231 s e 7,941 s no total. Os intervalos do binding AI foram 8,308 s, 7,971 s, 8,006 s e 7,692 s. Uma amostra por ato, sem teste de carga. Todas devolveram o corpo autoral por fallback; a frase da Gemma ainda precisa ser calibrada e validada. Uma chamada separada de diagnóstico respondeu com 73 palavras e quatro frases, excedendo o formato. Não considerar o prompt aprovado apenas por HTTP 200. Nenhum áudio foi gerado.
-
-## Diagnóstico do fallback
-
-A resposta inclui generation com status accepted, rejected, timeout, model_error ou unavailable. Uma rejeição informa apenas motivos, contagem de caracteres/palavras/frases e completionTokens/finishReason quando fornecidos pelo provedor. Não exporta o texto recusado, mensagens de erro do provedor ou segredos.
-
-Repetição real dos quatro atos: todos retornaram rejected, com excesso de caracteres e palavras, múltiplas frases e formatação. Ato 2: 505 caracteres/80 palavras/3 frases; Ato 3: 399/73/4; Ato 4: 391/72/4; Endgame: 449/74/3. Todos reportaram 96 tokens de conclusão, o teto configurado. Nenhum foi classificado como timeout ou erro do modelo. O provedor não informou finishReason nessas amostras; atingir o teto sugere limitação da saída, mas não demonstra por si só se a última frase foi cortada. Próximo ajuste: calibrar aderência ao formato; aumentar o timeout não corrige estas rejeições.
+A versão antiga enviava as instruções em `system`. Quatro chamadas retornaram 72–80 palavras e consumiram os 96 tokens de saída, com rejeição, sem timeout. No controle do Endgame, resumir os beats de 1.694 para 516 caracteres reduziu a entrada informada de 420 para 137 tokens, mas não resolveu a resposta longa. Preservar os beats completos e mover as instruções para `user` produziu uma frase com 27 tokens de saída em 2,966 segundos, embora suas 23 palavras ainda excedessem o antigo filtro de vinte. As medições históricas não representam a versão atual e não são uma garantia de latência.

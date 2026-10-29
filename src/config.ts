@@ -4,7 +4,7 @@ export const DEFAULT_NARRATOR_URL = "https://retro-ghost-85-narrator.antonio-pas
 /** Workers AI model id served by that Worker. */
 export const NARRATOR_MODEL = "@cf/google/gemma-7b-it-lora";
 
-export const NARRATOR_TIMEOUT_MS = 12_000;
+export const NARRATOR_TIMEOUT_MS = 25_000;
 
 type NarratorEnv = { VITE_NARRATOR_URL?: string } | undefined;
 

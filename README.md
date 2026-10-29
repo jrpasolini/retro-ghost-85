@@ -65,7 +65,7 @@ The public site is served at `https://jrpasolini.tech/retro-ghost-85/`. `vite.co
 
 ## Narration worker
 
-The Master uses authored Portuguese and English beats for all forty squares. A shared selector keeps at most two beats per act and five at the ending, before inference. Gemma 7B adds only one short sentence; it never changes gameplay. The UI still uses the local narration stub.
+The Master uses authored Portuguese and English beats for all forty squares. A shared selector keeps at most two beats per act and five at the ending, before inference. Gemma 7B adds a brief closing comment after the authored story; it never changes gameplay. The UI still uses the local narration stub.
 
 | | |
 | --- | --- |
@@ -73,9 +73,9 @@ The Master uses authored Portuguese and English beats for all forty squares. A s
 | Default model | `@cf/google/gemma-7b-it-lora`, overridable by `NARRATION_MODEL` |
 | Client | `prepareNarrationRequest(logSnapshot, playerId, act, lang)`, `checkNarratorHealth()`, `requestNarration({ player, act, lang, beats })` |
 | Contract | `POST /narrate → { text, model, fallback, cached, ... }`; `POST /tts → audio/mpeg` |
-| Bounds | One model call per uncached request, 96 output tokens; composed text and TTS at most 2,800 characters |
+| Bounds | One model call per uncached request, 96 output tokens, up to 40 comment words; 20-second inference deadline and 25-second client timeout; composed text and TTS at most 2,800 characters |
 
-The Worker resolves canonical text by ID and language, validates inputs, and checks its versioned cache before inference. On model failure it returns the authored body. TTS uses the configured voice and a separate audio cache. These are per-request bounds, not authenticated per-game quotas or a zero-cost guarantee. See [the Worker documentation](workers/narrator/README.md) for contracts, configuration, and remaining safeguards before enabling narration buttons.
+The Worker resolves canonical text by ID and language, validates inputs, and checks its versioned cache before inference. Gemma 7B receives the instructions and full beats in one user message, without a separate system turn. The story remains unchanged and the model only adds its closing comment. On model failure it returns the authored body. TTS uses the configured voice and a separate audio cache. These are per-request bounds, not authenticated per-game quotas or a zero-cost guarantee. See [the Worker documentation](workers/narrator/README.md) for contracts, configuration, and remaining safeguards before enabling narration buttons.
 
 ## Documentation
 

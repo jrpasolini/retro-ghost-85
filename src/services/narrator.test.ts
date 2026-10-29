@@ -51,7 +51,7 @@ test('all forty beats exist in both languages with publication only at the end',
     const all = localizeNarrationBeats(Array.from({ length: 40 }, (_, i) => ({ id: i + 1 })), lang);
     assert.equal(all.length, 40); assert.ok(all.every(b => b.beat.length > 100 && b.titulo));
     const longest = all.map(b => b.beat.length).sort((a, b) => b - a).slice(0, 5).reduce((a, b) => a + b, 0);
-    assert.ok(longest + 228 <= 2800, `${lang}: maximum composed body ${longest}`);
+    assert.ok(longest + 608 <= 2800, `${lang}: maximum composed body ${longest}`);
   }
   assert.match(localizeNarrationBeats([{ id: 40 }], 'en')[0].beat, /catalog arrived/);
 });

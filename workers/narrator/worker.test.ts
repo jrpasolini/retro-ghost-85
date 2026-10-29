@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import worker from './worker.js';
+import worker, { runInference } from './worker.js';
 
 function cache() {
   const entries = new Map<string, string | ArrayBuffer>();
@@ -11,7 +11,10 @@ const call = (data: unknown, env: object = {}, path = '/narrate', origin?: strin
 test('canonical English body ignores caller prose and limits before inference', async () => {
   let calls = 0;
   const response = await call({ ...body, beats: Array.from({ length: 39 }, (_, i) => ({ id: i + 1, beat: 'INJECTED' })) }, { AI: { run: async (_model: string, input: any) => {
-    calls++; assert.equal(input.max_tokens, 96); assert.equal(JSON.parse(input.messages[1].content).journey.length, 2);
+    calls++; assert.equal(input.max_tokens, 96); assert.equal(input.messages.length, 1); assert.equal(input.messages[0].role, 'user');
+    assert.match(input.messages[0].content, /Write ONLY ONE short sentence/);
+    const facts=JSON.parse(input.messages[0].content.split('\n\n')[1]);
+    assert.equal(facts.journey.length, 2);
     return { response: 'Ju, the shadows still remember your persistence.' };
   } } });
   const value = await response.json();
@@ -75,11 +78,10 @@ test('TTS provider failures return sanitized errors', async () => {
 });
 
 test('diagnostics distinguish rejected output, provider errors and timeouts without leaking details', async () => {
-  const long = await (await call(body, { AI: { run: async () => ({ response: 'A long narrative. '.repeat(25), usage: { completion_tokens: 96 } }) } })).json();
+  const long = await (await call(body, { AI: { run: async () => ({ response: 'A long narrative. '.repeat(50), usage: { completion_tokens: 96 } }) } })).json();
   assert.equal(long.generation.status, 'rejected');
   assert.ok(long.generation.reasons.includes('too_many_words'));
   assert.ok(long.generation.reasons.includes('too_many_characters'));
-  assert.ok(long.generation.reasons.includes('multiple_sentences'));
   assert.equal(long.generation.completionTokens, 96);
   for (const [name, status] of [['TimeoutError', 'timeout'], ['Error', 'model_error']]) {
     const value = await (await call(body, { AI: { run: async () => {
@@ -91,4 +93,28 @@ test('diagnostics distinguish rejected output, provider errors and timeouts with
   }
   const missing = await (await call(body)).json();
   assert.equal(missing.generation.status, 'unavailable');
+});
+
+test('accepts up to forty words and appends the comment after unchanged beats', async () => {
+  for (const count of [23, 40]) {
+    const comment = 'Ju, ' + Array.from({ length: count - 1 }, () => 'remember').join(' ') + '.';
+    const value = await (await call(body, { AI: { run: async () => ({ response: comment }) } })).json();
+    assert.equal(value.fallback, false); assert.equal(value.generation.words, count);
+    assert.equal(value.text, value.body + '\n\n' + comment);
+  }
+  const comment = 'Ju, ' + Array.from({ length: 40 }, () => 'remember').join(' ') + '.';
+  const value = await (await call(body, { AI: { run: async () => ({ response: comment }) } })).json();
+  assert.equal(value.fallback, true); assert.ok(value.generation.reasons.includes('too_many_words'));
+});
+test('short complete comments and digits in player names are accepted; cut-off output is rejected', async () => {
+  const env = { AI: { run: async () => ({ response: 'Alex1, persista.' }) } };
+  assert.equal((await (await call({ ...body, player: 'Alex1' }, env)).json()).fallback, false);
+  const cut = await (await call(body, { AI: { run: async () => ({ response: 'Ju, the shadows still remember your' }) } })).json();
+  assert.equal(cut.fallback, true); assert.ok(cut.generation.reasons.includes('incomplete_comment'));
+});
+test('deadline aborts the provider and releases callers even when the provider stays pending', async () => {
+  let signal;
+  const ai = { run: (_model, _input, options) => { signal = options.signal; return new Promise(() => {}); } };
+  await assert.rejects(runInference(ai, 'gemma', {}, 10), { name: 'TimeoutError' });
+  assert.equal(signal.aborted, true);
 });
