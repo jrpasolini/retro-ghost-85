@@ -18,9 +18,9 @@ Every square carries a moment of wonder—or a setback hidden in the machine.
 
 > **The die decides. The AI narrates.**
 
-Local code rolls the die, moves tokens, and applies consequences. In a future integration, the language model will receive an **already-decided outcome** and narrate the scene. It will not roll, choose winners, alter progress, or control the CPU.
+Local code rolls the die, moves tokens, and applies consequences. At Act trophies and Endgame, the Cloudflare Worker receives selected canonical story beats from the **already-decided outcome**, and Gemma appends a short closing comment. The model does not roll, choose winners, alter progress, or control the CPU.
 
-The complete local board remains playable without a model API. Story text is authored in advance in both English and Brazilian Portuguese.
+The complete local board remains playable when the model API is unavailable, using the authored English and Brazilian Portuguese stories. This is **local gameplay resilience**, not a claim that the hosted site and TTS work fully offline.
 
 ## English / Portuguese localization
 
@@ -56,12 +56,12 @@ GitHub Actions also checks compilation, unit tests, layout/resize behavior, and 
 https://jrpasolini.tech/retro-ghost-85/   → static site (Vite base "./")
 GitHub Actions + Playwright               → automated game and UI checks
 Cloudflare Worker + Gemma 7B              → authored journeys and brief closing comments in trophy/Endgame dialogs
-ElevenLabs                                → planned: narration voice delivery
+ElevenLabs API                            → on-demand voice for Act trophies / Endgame (via Worker)
 ```
 
 No account, database, or server-side game state is required for the local multiplayer experience. CPU decisions and die rolls remain local and deterministic with a saved RNG state.
 
-The public site is served at `https://jrpasolini.tech/retro-ghost-85/`. `vite.config.ts` keeps `base: "./"` so scripts and assets resolve on that subpath.
+The documented project entry points are `https://jrpasolini.tech/retro-ghost-85/` and `https://retro-ghost-85.onrender.com/`. Verify the deployed demo and Worker from a private browsing session before submission. `vite.config.ts` keeps `base: "./"` so scripts and assets resolve on the subpath.
 
 ## Narration worker
 
@@ -79,10 +79,12 @@ The Worker resolves canonical text by ID and language, validates inputs, and che
 
 ## Documentation
 
-- [`ESTRUTURA.md`](./ESTRUTURA.md) — living architecture and design notes (Portuguese).
+- [`STATUS_ATUAL.md`](./STATUS_ATUAL.md) — **current** gameplay, integration, decisions and known limitations (Portuguese).
+- [`SUBMISSAO_WEEK4_2026.md`](./SUBMISSAO_WEEK4_2026.md) — challenge submission and release checklist (Portuguese).
+- [`ESTRUTURA.md`](./ESTRUTURA.md) — historical design evolution and implementation log (Portuguese).
 - [`HISTORICO_NARRATIVO.md`](./HISTORICO_NARRATIVO.md) — historical background and the 40-square canon (Portuguese).
 - [`estrategia.md`](./estrategia.md) — local players and CPU game modes (Portuguese).
-- [`PLANO_I18N_EN_DEFAULT.md`](./PLANO_I18N_EN_DEFAULT.md) — localization checklist and compatibility requirements (Portuguese).
+- [`PLANO_I18N_EN_DEFAULT.md`](./PLANO_I18N_EN_DEFAULT.md) — **historical** localization plan (Portuguese); localization has since been implemented.
 
 ## Credits and legal notes
 
@@ -92,8 +94,14 @@ No proprietary ROMs, BIOS, disk images, or other proprietary software are distri
 
 Historical references to companies, magazines, and equipment are descriptive and remain the property of their respective owners.
 
-The existing original soundtrack was created with **ElevenLabs Music**. AI narration through Cloudflare Worker/Gemma and subsequent voice synthesis are separate development stages.
+The six soundtrack tracks are attributed to **ElevenLabs Music**. The separate **ElevenLabs API TTS** path generates spoken narration on demand for the Act trophies and Endgame. The short dynamic closing comment is generated with **Gemma 7B by default**; its exact deployed model can be overridden with `NARRATION_MODEL`. Asset rights must be checked before public release.
 
-## License
+## License and media rights
 
-To be determined.
+Original source code and accompanying software documentation are under the **MIT License** (`LICENSE`). Original artwork, images, audio, voice and other media are **not automatically licensed under MIT**; see [`ASSETS_E_CREDITOS.md`](./ASSETS_E_CREDITOS.md) for the publication rights checklist. Dependencies and fonts retain their respective licenses.
+
+## Hacktoberfest Week 4 — Ghost in the Machine
+
+The project and repository were created on **October 26, 2026**, within Week 4 of the Hacktoberfest Open-Source AI Challenge. The open-weight Gemma model supplies an intentionally small, variable **narrative closing comment** during Act trophies and Endgame; handcrafted stories and the deterministic local board are distinct components. This is real but limited AI involvement, not a claim that the model generates all stories or drives the game mechanics. The article will explain the open-weight choice, demonstrate the runtime response and discuss fallback behavior.
+
+The repository stays **private until the DEV publication day** by the author's decision; then it will become public with the final submission. See [`STATUS_ATUAL.md`](./STATUS_ATUAL.md) for the authoritative implementation state and [`SUBMISSAO_WEEK4_2026.md`](./SUBMISSAO_WEEK4_2026.md) for official rules and publication checks. Any commits made after the challenge deadline must be disclosed here with dates.
