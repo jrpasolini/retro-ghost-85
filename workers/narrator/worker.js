@@ -24,7 +24,7 @@ const NARRATION_MODELS = [
   "@cf/google/gemma-4-26b-a4b-it",
 ];
 const TTS_MODEL = "eleven_multilingual_v2";
-const PROMPT_VERSION = "v5";
+const PROMPT_VERSION = "v6";
 const MAX_NAME = 24;
 const MAX_SQUARES = 10;
 const MAX_BEATS_ENDGAME = 5;
@@ -341,6 +341,27 @@ async function extractFacts(env, model, squares, lang) {
   return squares.map((s) => s.titulo);
 }
 
+function joinBeats(beats, player) {
+  return beats
+    .map((b) => String(b.beat || "").replace(/\{nome\}/g, player).trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
+async function masterLine(env, model, { player, lang, beats, endgame }) {
+  const ptbr = lang !== "en";
+  const resumo = beats.map((b) => "- " + String(b.beat || "").replace(/\{nome\}/g, player)).join("\n");
+  const ask = ptbr
+    ? `Você é o Mestre de Retro Ghost 85: sombrio, elegante, paciente. Escreva UMA frase curta (máximo vinte palavras) comentando a trajetória abaixo. Pode instigar e duvidar ("será que ele aguenta o que vem?"), mas NÃO revele o futuro, NÃO invente fato e NÃO use algarismos. Responda só a frase.\n\nTrajetória:\n${resumo}`
+    : `You are the Master of Retro Ghost 85: grim, elegant, patient. Write ONE short sentence (twenty words maximum) commenting on the journey below. You may taunt and doubt, but do NOT reveal the future, do NOT invent facts and do NOT use digits. Answer with the sentence only.\n\nJourney:\n${resumo}`;
+  try {
+    const r = await env.AI.run(model, { messages: [{ role: "user", content: ask }], max_tokens: 120, temperature: 0.9 });
+    const line = wordify(extractText(r), lang).replace(/\s+/g, " ").trim();
+    if (line && !violates(line) && line.length > 20) return line;
+  } catch (e) { /* sem fala do Mestre */ }
+  return "";
+}
+
 async function narrate(request, env) {
   const body = await request.json();
   const debug = new URL(request.url).searchParams.get("debug") === "1";
@@ -349,7 +370,20 @@ async function narrate(request, env) {
   const lang = body && body.lang === "en" ? "en" : "pt-BR";
   const squares = sanitizeSquares(body && body.squares);
 
-  if (!squares.length) return json({ error: "sem_casas", expected: "{ player, lang, squares[] }" }, 400);
+  const beatsIn = Array.isArray(body && body.beats)
+    ? body.beats.filter((b) => b && typeof b.beat === "string" && b.beat.trim()).slice(0, MAX_SQUARES)
+    : [];
+
+  // Caminho novo: o corpo é autoral (beats), o modelo só faz a fala do Mestre.
+  if (beatsIn.length) {
+    const endgameB = Boolean(body.endgame);
+    const corpo = joinBeats(beatsIn, player);
+    const fala = env.AI ? await masterLine(env, NARRATION_MODELS[0], { player, lang, beats: beatsIn, endgame: endgameB }) : "";
+    const texto = fala ? fala + "\n\n" + corpo : corpo;
+    return json({ text: texto, body: corpo, master: fala || null, chars: texto.length, lang });
+  }
+
+  if (!squares.length) return json({ error: "sem_casas", expected: "{ player, lang, beats[{id,titulo,beat}] }" }, 400);
 
   const endgame = Boolean(body.endgame);
   const escolhidas = selectBeats(squares, endgame);
