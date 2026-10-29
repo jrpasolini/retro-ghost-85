@@ -1,8 +1,8 @@
-# Retro Ghost 85 — Estrutura do Projeto
+# Retro Ghost 85 — Arquitetura: registro de decisões e evolução (histórico)
 
 > Documento vivo. Toda decisão tomada entra aqui, com data.
 > Criado em **26/10/2026** por Melissa, a pedido do Junior.
-> Status: **arquitetura em consolidação; mecânicas e 40 casas são propostas, ainda não aprovadas**.
+> **STATUS ATUAL (29/10/2026):** jogo, 40 casas, internacionalização, Gemma 7B por padrão, troféus e TTS estão implementados no commit-base `a4f7998`. As seções abaixo preservam decisões antigas, rascunhos e logbook. **A referência vigente é [STATUS_ATUAL.md](STATUS_ATUAL.md); não aplicar contratos antigos de Gemma 4/`trajectory` nem planos de funcionalidades futuras como especificação atual.**
 > Integração de decisões revisada em **26/10/2026**. A auditoria da infraestrutura precede a implementação.
 
 ---
@@ -53,7 +53,7 @@ com revista.
 - **Nada de BIOS ou ROM** no pacote. O jogo é web, roda em texto e DOM, e não emula
   hardware.
 
-## 4. Arquitetura de execução e construção (MVP aprovado)
+## 4. Arquitetura de execução e construção (plano inicial — histórico)
 
 ```text
      1 a 4 pessoas, 1 navegador / dispositivo
@@ -116,7 +116,7 @@ Gemini (ferramenta auxiliar de codificação, sem integração financeira ao Goo
 
 ---
 
-## 6. Estrutura de arquivos proposta
+## 6. Estrutura de arquivos proposta (histórica; conferir árvore real no repositório)
 
 ```text
 retro-ghost-85/
@@ -228,7 +228,7 @@ O programa rodou. Ele não sabia por quê, e isso foi o começo.
 
 ---
 
-## 8. Contrato do narrador econômico — Gemma 4
+## 8. Contrato antigo do narrador — planejamento Gemma 4 (substituído pela integração atual descrita após o item 8)
 
 **Gemma é mestre de cerimônias, não árbitro.** O conteúdo, o resultado do dado, a casa, o desfecho e o efeito já foram definidos localmente; o modelo apenas apresenta um texto aprovado com tom retrô. **Não solicitar plano, raciocínio, criação de desafios, decisão de regras, escolha de dados ou uso de ferramentas de jogo.**
 
@@ -321,7 +321,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 
 ---
 
-## 10. Roteiro por etapas (gates) — semana 4
+## 10. Roteiro inicial por etapas (histórico) — semana 4
 
 | Etapa | Entrega / critério de saída |
 |---|---|
@@ -337,7 +337,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 
 ---
 
-## 11. Riscos e decisões abertas
+## 11. Riscos e decisões abertas no planejamento inicial (histórico)
 
 | Risco | Estado | Diretriz |
 |---|---|---|
@@ -382,7 +382,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 - **Codex / Grok Bot / Cursor Pro:** apoio opcional em revisão independente, testes e auditoria; evitar agentes sobrescrevendo os mesmos arquivos simultaneamente.
 - **GitHub:** fonte canônica; `master` protegida por revisão humana quando possível; segredos e dados privados fora do código/commits.
 
-## 15. Decisões pendentes de aprovação
+## 15. Decisões pendentes no planejamento inicial (histórico)
 
 1. Prova controlada de acesso à Gemma 4 pelo Cloudflare Workers AI Free, com medição de Neurons e fallback.
 2. Política de economia da Gemma (quais marcos acionam IA, limites por partida, cache, métricas de Neurons).
