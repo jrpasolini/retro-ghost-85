@@ -159,7 +159,10 @@ app.innerHTML = `
 
     <footer>
       <span>BUILD 0.6.0</span>
-      <span class="footer-credits"><span>CRÉDITOS</span> · ElevenLabs · Google Gemma · Cloudflare Workers / AI / KV · Render · .Tech Domains · GitHub / Copilot Pro</span>
+      <span class="footer-credits">
+        <span class="footer-spec">40 CASAS · 1–4 JOGADORES/CPU · 1D6 · SAVE/LOAD · TRILHA DINÂMICA</span>
+        <span>CRÉDITOS · Gemma 7B no Cloudflare Workers AI · ElevenLabs (voz e trilha) · Render · .Tech Domains · GitHub Actions</span>
+      </span>
     </footer>
 
     <dialog id="intro-dialog" class="intro-dialog" aria-labelledby="intro-title" aria-describedby="intro-copy">
