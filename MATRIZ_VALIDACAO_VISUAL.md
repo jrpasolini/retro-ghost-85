@@ -1,5 +1,8 @@
 # MATRIZ DE VALIDAÇÃO VISUAL — TABULEIRO IMUTÁVEL
 
+> **REGISTRO HISTÓRICO DE QA VISUAL (29/10/2026).** Achados, aprovações de PR e propostas de ajuste nesta matriz descrevem a auditoria original. Para comportamento atual do software e estado de integração, consultar [STATUS_ATUAL.md](STATUS_ATUAL.md). Não usar esta matriz para iniciar redesenho da arte congelada.
+
+
 > Inspeção realizada em 27/10/2026 sobre os pixels de public/assets/board-reference-edited.webp (1668×939), com ampliação separada das quatro bordas, e de public/assets/casa-40-endgame.webp. Nenhuma imagem, coordenada, regra, título ou efeito foi alterado.
 
 ## Resultado consolidado
