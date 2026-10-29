@@ -1,6 +1,6 @@
-# Próxima etapa — tradução integral do Retro-Ghost-85 (English default)
+# Plano histórico — internacionalização en-US por padrão (etapa concluída)
 
-> **PLANEJAMENTO APENAS.** O PR #5 fecha o cânone narrativo em português; não contém tradução nem seletor. Esta lista impede que a etapa posterior traduza somente as 40 casas e deixe mensagens, acessibilidade, logs ou o áudio em português.
+> **ARQUIVO HISTÓRICO.** O plano abaixo registrou a etapa anterior à localização. **A alternância en-US/pt-BR já está incorporada à `master`**, assim como a interface de troféus e TTS. Manter este checklist como memória do processo, não como lista de implementação ainda pendente. Estado vigente: [STATUS_ATUAL.md](STATUS_ATUAL.md).
 
 ## Diretriz de produto
 
