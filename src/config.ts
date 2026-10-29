@@ -1,8 +1,8 @@
-/** Cloudflare Worker that will narrate with Gemma 4. The UI does not call it yet. */
+/** Cloudflare Worker that narrates authored beats with a short Gemma commentary. The UI does not call it yet. */
 export const DEFAULT_NARRATOR_URL = "https://retro-ghost-85-narrator.antonio-pasolini.workers.dev";
 
 /** Workers AI model id served by that Worker. */
-export const NARRATOR_MODEL = "@cf/google/gemma-4-26b-a4b-it";
+export const NARRATOR_MODEL = "@cf/google/gemma-7b-it-lora";
 
 export const NARRATOR_TIMEOUT_MS = 12_000;
 

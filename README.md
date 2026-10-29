@@ -55,7 +55,7 @@ GitHub Actions also checks compilation, unit tests, layout/resize behavior, and 
 ```
 https://jrpasolini.tech/retro-ghost-85/   → static site (Vite base "./")
 GitHub Actions + Playwright               → automated game and UI checks
-Cloudflare Worker + Gemma 4               → narration client is configured, not shown in the UI yet
+Cloudflare Worker + Gemma 7B              → narration client is configured, not shown in the UI yet
 ElevenLabs                                → planned: narration voice delivery
 ```
 
@@ -65,24 +65,17 @@ The public site is served at `https://jrpasolini.tech/retro-ghost-85/`. `vite.co
 
 ## Narration worker
 
-Gemma 4 is the Master storyteller for the Hacktoberfest category **Best use of Gemma**. It does not roll the die or change the board. The screens still use the local “narration coming soon” stub. Nothing in the UI calls the Worker yet.
+The Master uses authored Portuguese and English beats for all forty squares. A shared selector keeps at most two beats per act and five at the ending, before inference. Gemma 7B adds only one short sentence; it never changes gameplay. The UI still uses the local narration stub.
 
 | | |
 | --- | --- |
 | Worker | `https://retro-ghost-85-narrator.antonio-pasolini.workers.dev` |
-| Model | `@cf/google/gemma-4-26b-a4b-it` (Cloudflare Workers AI, Gemma 4) |
-| Env | `VITE_NARRATOR_URL` in `.env.example`. `src/config.ts` uses that value, or the Worker URL above when it is missing. |
-| Client | `checkNarratorHealth()` and `requestNarration({ player, act, trajectory })` in `src/services/narrator.ts`. They time out and return `{ ok: false, error }` instead of throwing. |
+| Default model | `@cf/google/gemma-7b-it-lora`, overridable by `NARRATION_MODEL` |
+| Client | `prepareNarrationRequest(logSnapshot, playerId, act, lang)`, `checkNarratorHealth()`, `requestNarration({ player, act, lang, beats })` |
+| Contract | `POST /narrate → { text, model, fallback, cached, ... }`; `POST /tts → audio/mpeg` |
+| Bounds | One model call per uncached request, 96 output tokens; composed text and TTS at most 2,800 characters |
 
-`trajectory` is Markdown produced from `getPlayerTrajectory`, at most 20 000 characters. `act` is `"2"`, `"3"`, `"4"`, or `"endgame"`.
-
-```
-GET  /health   → { ok, model }
-POST /narrate  → { player, act, trajectory }
-               ← { narration, model } or { error }
-```
-
-CORS on the Worker allows only `https://jrpasolini.tech`, `https://www.jrpasolini.tech`, `http://localhost:5173`, and `http://localhost:4173`.
+The Worker resolves canonical text by ID and language, validates inputs, and checks its versioned cache before inference. On model failure it returns the authored body. TTS uses the configured voice and a separate audio cache. These are per-request bounds, not authenticated per-game quotas or a zero-cost guarantee. See [the Worker documentation](workers/narrator/README.md) for contracts, configuration, and remaining safeguards before enabling narration buttons.
 
 ## Documentation
 

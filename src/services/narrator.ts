@@ -1,130 +1,54 @@
 import { NARRATOR_TIMEOUT_MS, resolveNarratorUrl } from "../config.ts";
+import { prepareNarrationBeats, selectNarrationBeats, type NarrationBeat } from "../narrador/beats.ts";
+import type { EntradaLog } from "../motor/log.ts";
 
-/** Acts the Worker accepts. Square 1 has no narration. */
 export const NARRATOR_ACTS = ["2", "3", "4", "endgame"] as const;
+export type NarratorAct = typeof NARRATOR_ACTS[number];
+export type NarrationRequest = { player: string; act: NarratorAct; lang: "pt-BR" | "en" | "en-US"; beats: NarrationBeat[] };
+export type NarratorHealthResult = { ok: true; model: string } | { ok: false; error: string };
+export type NarrationResult = { ok: true; narration: string; model: string; fallback: boolean; cached: boolean } | { ok: false; error: string };
+export type NarratorCallOptions = { fetchImpl?: typeof fetch; timeoutMs?: number; baseUrl?: string };
 
-export type NarratorAct = (typeof NARRATOR_ACTS)[number];
-
-/** Markdown from `getPlayerTrajectory`, capped by the Worker contract. */
-export const MAX_TRAJECTORY_CHARS = 20_000;
-
-export type NarrationRequest = {
-  player: string;
-  act: NarratorAct;
-  trajectory: string;
-};
-
-export type NarratorHealthResult =
-  | { ok: true; model: string }
-  | { ok: false; error: string };
-
-export type NarrationResult =
-  | { ok: true; narration: string; model: string }
-  | { ok: false; error: string };
-
-export type NarratorCallOptions = {
-  fetchImpl?: typeof fetch;
-  timeoutMs?: number;
-  baseUrl?: string;
-};
-
-function isAct(value: string): value is NarratorAct {
-  return (NARRATOR_ACTS as readonly string[]).includes(value);
+/** Supply the trophy's historical log snapshot, not another participant's path. */
+export function prepareNarrationRequest(log: readonly EntradaLog[], jogadorId: number, act: NarratorAct, lang: NarrationRequest["lang"]): NarrationRequest {
+  const own = log.filter(e => e.jogadorId === jogadorId);
+  return { player: own.at(-1)?.jogador ?? "", act, lang, beats: prepareNarrationBeats(own, jogadorId, lang, act === "endgame") };
 }
 
-function errorMessage(error: unknown): string {
-  if (error instanceof Error && (error.name === "AbortError" || error.name === "TimeoutError")) {
-    return "Request timed out.";
-  }
-  if (error instanceof Error && error.message) return error.message;
-  return "Network request failed.";
-}
-
-function asRecord(value: unknown): Record<string, unknown> | null {
-  return value !== null && typeof value === "object" ? value as Record<string, unknown> : null;
-}
-
-async function callWorker(
-  path: "/health" | "/narrate",
-  init: RequestInit,
-  options: NarratorCallOptions = {},
-): Promise<{ response: Response } | { error: string }> {
-  const fetchImpl = options.fetchImpl ?? fetch;
-  const base = (options.baseUrl ?? resolveNarratorUrl()).replace(/\/+$/, "");
-  const timeoutMs = options.timeoutMs ?? NARRATOR_TIMEOUT_MS;
+async function callWorker(path: string, init: RequestInit, options: NarratorCallOptions = {}): Promise<{ ok: true; body: Record<string, unknown> } | { ok: false; error: string }> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), options.timeoutMs ?? NARRATOR_TIMEOUT_MS);
   try {
-    const response = await fetchImpl(`${base}${path}`, { ...init, signal: controller.signal });
-    return { response };
+    const response = await (options.fetchImpl ?? fetch)(`${(options.baseUrl ?? resolveNarratorUrl()).replace(/\/+$/, "")}${path}`, { ...init, signal: controller.signal });
+    let body: unknown;
+    try { body = await response.json(); } catch (error) { if (controller.signal.aborted) throw error; body = null; }
+    const record = body && typeof body === "object" && !Array.isArray(body) ? body as Record<string, unknown> : null;
+    if (!response.ok || typeof record?.error === "string") return { ok: false, error: typeof record?.error === "string" ? record.error : `HTTP ${response.status}` };
+    if (!record) return { ok: false, error: "Narrator returned an invalid response." };
+    return { ok: true, body: record };
   } catch (error) {
-    return { error: errorMessage(error) };
-  } finally {
-    clearTimeout(timer);
-  }
+    return { ok: false, error: controller.signal.aborted ? "Request timed out." : error instanceof Error ? error.message : "Network request failed." };
+  } finally { clearTimeout(timer); }
 }
 
-async function readBody(response: Response): Promise<unknown> {
-  const text = await response.text();
-  if (!text.trim()) return null;
-  try {
-    return JSON.parse(text) as unknown;
-  } catch {
-    return null;
-  }
-}
-
-function httpError(response: Response, body: unknown): string {
-  const record = asRecord(body);
-  if (record && typeof record.error === "string" && record.error.trim()) return record.error;
-  return `HTTP ${response.status}`;
-}
-
-/** GET /health. Returns a result; it does not throw. */
 export async function checkNarratorHealth(options?: NarratorCallOptions): Promise<NarratorHealthResult> {
   const result = await callWorker("/health", { method: "GET" }, options);
-  if ("error" in result) return { ok: false, error: result.error };
-  const body = await readBody(result.response);
-  if (!result.response.ok) return { ok: false, error: httpError(result.response, body) };
-  const record = asRecord(body);
-  if (!record || record.ok !== true || typeof record.model !== "string" || !record.model) {
-    return { ok: false, error: "Narrator returned an invalid response." };
-  }
-  return { ok: true, model: record.model };
+  if (!result.ok) return result;
+  const model = result.body.model ?? (Array.isArray(result.body.models) ? result.body.models[0] : null);
+  return result.body.ok === true && typeof model === "string" && model.trim() ? { ok: true, model } : { ok: false, error: "Narrator returned an invalid response." };
 }
 
-/**
- * POST /narrate. `trajectory` is Markdown, at most 20_000 characters.
- * Returns a result; it does not throw.
- */
-export async function requestNarration(
-  request: NarrationRequest,
-  options?: NarratorCallOptions,
-): Promise<NarrationResult> {
-  const player = typeof request.player === "string" ? request.player.trim() : "";
-  if (!player) return { ok: false, error: "Player name is required." };
-  if (typeof request.act !== "string" || !isAct(request.act)) {
-    return { ok: false, error: "Act must be 2, 3, 4, or endgame." };
-  }
-  if (typeof request.trajectory !== "string") return { ok: false, error: "Trajectory must be Markdown text." };
-  if (request.trajectory.length > MAX_TRAJECTORY_CHARS) {
-    return { ok: false, error: "Trajectory exceeds 20000 characters." };
-  }
-
-  const result = await callWorker("/narrate", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ player, act: request.act, trajectory: request.trajectory }),
-  }, options);
-  if ("error" in result) return { ok: false, error: result.error };
-  const body = await readBody(result.response);
-  if (!result.response.ok) return { ok: false, error: httpError(result.response, body) };
-  const record = asRecord(body);
-  if (record && typeof record.error === "string" && record.error.trim()) {
-    return { ok: false, error: record.error };
-  }
-  if (!record || typeof record.narration !== "string" || typeof record.model !== "string") {
-    return { ok: false, error: "Narrator returned an invalid response." };
-  }
-  return { ok: true, narration: record.narration, model: record.model };
+export async function requestNarration(request: NarrationRequest, options?: NarratorCallOptions): Promise<NarrationResult> {
+  if (typeof request.player !== "string" || !request.player.trim()) return { ok: false, error: "Player name is required." };
+  if (!NARRATOR_ACTS.includes(request.act)) return { ok: false, error: "Act must be 2, 3, 4, or endgame." };
+  if (!["pt-BR", "en", "en-US"].includes(request.lang)) return { ok: false, error: "Language must be pt-BR or en." };
+  if (!Array.isArray(request.beats) || !request.beats.length || request.beats.length > 256 || request.beats.some(b => !b || !Number.isInteger(b.id) || b.id < 1 || b.id > 40)) return { ok: false, error: "Narration requires valid landed squares." };
+  const endgame = request.act === "endgame";
+  if ((endgame && request.beats.at(-1)?.id !== 40) || (!endgame && request.beats.some(b => b.id === 40))) return { ok: false, error: "Publication belongs to endgame only." };
+  const chosen = selectNarrationBeats(request.beats, endgame);
+  const result = await callWorker("/narrate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ player: request.player.trim(), act: request.act, lang: request.lang === "en-US" ? "en" : request.lang, endgame, beats: chosen.map(({ id }) => ({ id })) }) }, options);
+  if (!result.ok) return result;
+  const { text, model, fallback, cached } = result.body;
+  if (typeof text !== "string" || !text.trim() || text.length > 2800 || typeof model !== "string" || !model) return { ok: false, error: "Narrator returned an invalid response." };
+  return { ok: true, narration: text, model, fallback: fallback === true, cached: cached === true };
 }

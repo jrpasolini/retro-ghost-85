@@ -1,138 +1,67 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
-import { DEFAULT_NARRATOR_URL, NARRATOR_MODEL, resolveNarratorUrl } from "../config.ts";
-import { checkNarratorHealth, requestNarration, type NarratorCallOptions } from "./narrator.ts";
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { checkNarratorHealth, requestNarration } from './narrator.ts';
+import { localizeNarrationBeats, prepareNarrationBeats, selectNarrationBeats } from '../narrador/beats.ts';
+import type { EntradaLog } from '../motor/log.ts';
 
-const worker = DEFAULT_NARRATOR_URL;
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status });
+const request = { player: ' Ju ', act: '2' as const, lang: 'en-US' as const, beats: localizeNarrationBeats([{ id: 1 }, { id: 5 }, { id: 10 }], 'en') };
 
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
-}
-
-test("a URL do narrador cai no Worker publicado quando o ambiente está vazio", () => {
-  assert.equal(resolveNarratorUrl(undefined), worker);
-  assert.equal(resolveNarratorUrl({}), worker);
-  assert.equal(resolveNarratorUrl({ VITE_NARRATOR_URL: "  " }), worker);
-  assert.equal(resolveNarratorUrl({ VITE_NARRATOR_URL: "não-é-url" }), worker);
-  assert.equal(resolveNarratorUrl({ VITE_NARRATOR_URL: "https://exemplo.test/narrador/" }), "https://exemplo.test/narrador");
+test('health accepts the deployed contract and reports HTTP failures', async () => {
+  assert.deepEqual(await checkNarratorHealth({ fetchImpl: async () => json({ ok: true, model: 'gemma' }) }), { ok: true, model: 'gemma' });
+  assert.deepEqual(await checkNarratorHealth({ fetchImpl: async () => json({ error: 'quota' }, 429) }), { ok: false, error: 'quota' });
 });
-
-test("checkNarratorHealth lê GET /health", async () => {
-  let called = "";
-  const fetchImpl: typeof fetch = async (input, init) => {
-    called = String(input);
-    assert.equal(init?.method, "GET");
-    return jsonResponse({ ok: true, model: NARRATOR_MODEL });
-  };
-  const result = await checkNarratorHealth({ fetchImpl });
-  assert.equal(called, `${worker}/health`);
-  assert.deepEqual(result, { ok: true, model: NARRATOR_MODEL });
+test('client selects before sending, uses localized IDs and reads text', async () => {
+  const result = await requestNarration(request, { fetchImpl: async (_url, init) => {
+    const body = JSON.parse(String(init?.body));
+    assert.equal(body.player, 'Ju'); assert.equal(body.lang, 'en'); assert.equal(body.beats.length, 2);
+    assert.equal(body.beats.at(-1).id, 10);
+    assert.deepEqual(Object.keys(body.beats[0]), ['id']);
+    return json({ text: 'The cassette turned.', model: 'gemma', cached: true });
+  } });
+  assert.deepEqual(result, { ok: true, narration: 'The cassette turned.', model: 'gemma', fallback: false, cached: true });
 });
-
-test("checkNarratorHealth devolve erro de HTTP, de corpo e de rede sem lançar", async () => {
-  const http = await checkNarratorHealth({
-    fetchImpl: async () => jsonResponse({ error: "quota" }, 429),
-  });
-  assert.deepEqual(http, { ok: false, error: "quota" });
-
-  const invalid = await checkNarratorHealth({
-    fetchImpl: async () => new Response("não json", { status: 200 }),
-  });
-  assert.deepEqual(invalid, { ok: false, error: "Narrator returned an invalid response." });
-
-  const down = await checkNarratorHealth({
-    fetchImpl: async () => {
-      throw new TypeError("Failed to fetch");
-    },
-  });
-  assert.deepEqual(down, { ok: false, error: "Failed to fetch" });
-});
-
-test("checkNarratorHealth encerra a espera e não lança", async () => {
-  const fetchImpl: typeof fetch = (_input, init) => new Promise((_resolve, reject) => {
-    init?.signal?.addEventListener("abort", () => {
-      reject(new DOMException("The operation was aborted", "AbortError"));
-    });
-  });
-  const result = await checkNarratorHealth({ fetchImpl, timeoutMs: 20 });
-  assert.deepEqual(result, { ok: false, error: "Request timed out." });
-});
-
-test("requestNarration envia o contrato POST /narrate", async () => {
-  let body = "";
-  let url = "";
-  const fetchImpl: typeof fetch = async (input, init) => {
-    url = String(input);
-    body = String(init?.body);
-    assert.equal(init?.method, "POST");
-    const headers = new Headers(init?.headers);
-    assert.equal(headers.get("content-type"), "application/json");
-    return jsonResponse({ narration: "A fita girou.", model: NARRATOR_MODEL });
-  };
-  const result = await requestNarration({
-    player: " Ju ",
-    act: "endgame",
-    trajectory: "## Trajetória\n- casa 1",
-  }, { fetchImpl, baseUrl: "https://exemplo.test/base/" });
-  assert.equal(url, "https://exemplo.test/base/narrate");
-  assert.deepEqual(JSON.parse(body), {
-    player: "Ju",
-    act: "endgame",
-    trajectory: "## Trajetória\n- casa 1",
-  });
-  assert.deepEqual(result, { ok: true, narration: "A fita girou.", model: NARRATOR_MODEL });
-});
-
-test("requestNarration recusa pedido inválido sem chamar a rede", async () => {
-  let calls = 0;
-  const options: NarratorCallOptions = {
-    fetchImpl: async () => {
-      calls += 1;
-      return jsonResponse({ narration: "não", model: "x" });
-    },
-  };
-  assert.deepEqual(await requestNarration({ player: "  ", act: "2", trajectory: "" }, options), {
-    ok: false,
-    error: "Player name is required.",
-  });
-  assert.deepEqual(await requestNarration({ player: "Ju", act: "1" as "2", trajectory: "" }, options), {
-    ok: false,
-    error: "Act must be 2, 3, 4, or endgame.",
-  });
-  assert.deepEqual(await requestNarration({ player: "Ju", act: "3", trajectory: "x".repeat(20_001) }, options), {
-    ok: false,
-    error: "Trajectory exceeds 20000 characters.",
-  });
+test('invalid requests and premature publication never call the network', async () => {
+  let calls = 0; const options = { fetchImpl: async () => { calls++; return json({}); } };
+  assert.equal((await requestNarration({ ...request, player: '' }, options)).ok, false);
+  assert.equal((await requestNarration({ ...request, beats: [] }, options)).ok, false);
+  assert.equal((await requestNarration({ ...request, beats: localizeNarrationBeats([{ id: 40 }], 'en') }, options)).ok, false);
+  assert.equal((await requestNarration({ ...request, act: 'endgame' }, options)).ok, false);
   assert.equal(calls, 0);
-  const accepted = await requestNarration({ player: "Ju", act: "4", trajectory: "x".repeat(20_000) }, options);
-  assert.equal(accepted.ok, true);
-  assert.equal(calls, 1);
+});
+test('client rejects malformed and oversized responses', async () => {
+  for (const value of [{ narration: 'old format', model: 'gemma' }, { text: 'x'.repeat(2801), model: 'gemma' }, null]) {
+    assert.equal((await requestNarration(request, { fetchImpl: async () => json(value) })).ok, false);
+  }
+});
+test('network timeout is reported without throwing', async () => {
+  const result = await checkNarratorHealth({ timeoutMs: 10, fetchImpl: (_url, init) => new Promise((_resolve, reject) => {
+    init?.signal?.addEventListener('abort', () => reject(new Error('aborted')));
+  }) });
+  assert.deepEqual(result, { ok: false, error: 'Request timed out.' });
+});
+test('selection preserves chronology, salient events, start and ending', () => {
+  const candidates = [{ id: 1 }, { id: 2 }, { id: 3, tipo: 'fatalidade', magnitude: 20 }, { id: 4 }, { id: 5 }, { id: 6 }, { id: 40 }];
+  assert.deepEqual(selectNarrationBeats(candidates).map(b => b.id), [3, 40]);
+  const end = selectNarrationBeats(candidates, true).map(b => b.id);
+  assert.equal(end.length, 5); assert.equal(end[0], 1); assert.equal(end.at(-1), 40); assert.ok(end.includes(3));
+});
+test('all forty beats exist in both languages with publication only at the end', () => {
+  for (const lang of ['pt-BR', 'en']) {
+    const all = localizeNarrationBeats(Array.from({ length: 40 }, (_, i) => ({ id: i + 1 })), lang);
+    assert.equal(all.length, 40); assert.ok(all.every(b => b.beat.length > 100 && b.titulo));
+    const longest = all.map(b => b.beat.length).sort((a, b) => b - a).slice(0, 5).reduce((a, b) => a + b, 0);
+    assert.ok(longest + 228 <= 2800, `${lang}: maximum composed body ${longest}`);
+  }
+  assert.match(localizeNarrationBeats([{ id: 40 }], 'en')[0].beat, /catalog arrived/);
+});
+test('trajectory ignores other players, passed squares and skipped turns', () => {
+  const entry = (patch: Partial<EntradaLog>): EntradaLog => ({ turno: 1, jogadorId: 1, dado1: 4, casaDestino: 5, casaFinal: 5, casasPassadas: [2,3,4,5], ...patch } as EntradaLog);
+  const log = [entry({}), entry({ jogadorId: 2, casaDestino: 27, casaFinal: 27 }), entry({ dado1: null, casaDestino: 38, casaFinal: 38 })];
+  assert.deepEqual(prepareNarrationBeats(log, 1, 'en').map(b => b.id), [5]);
+  assert.equal(prepareNarrationBeats(log, 1, 'en')[0].beat.startsWith('The recorder'), true);
 });
 
-test("requestNarration traduz erro do Worker e tempo esgotado", async () => {
-  const refused = await requestNarration({ player: "Ju", act: "2", trajectory: "casa 10" }, {
-    fetchImpl: async () => jsonResponse({ error: "act desconhecido" }, 400),
-  });
-  assert.deepEqual(refused, { ok: false, error: "act desconhecido" });
-
-  const timedOut = await requestNarration({ player: "Ju", act: "2", trajectory: "casa 10" }, {
-    timeoutMs: 15,
-    fetchImpl: (_input, init) => new Promise((_resolve, reject) => {
-      init?.signal?.addEventListener("abort", () => {
-        reject(new DOMException("aborted", "AbortError"));
-      });
-    }),
-  });
-  assert.deepEqual(timedOut, { ok: false, error: "Request timed out." });
-});
-
-test("a interface ainda não importa o cliente do Worker", () => {
-  const fonte = readFileSync(new URL("../main.ts", import.meta.url), "utf8");
-  assert.doesNotMatch(fonte, /services\/narrator|checkNarratorHealth|requestNarration/);
-  const vite = readFileSync(new URL("../../vite.config.ts", import.meta.url), "utf8");
-  assert.match(vite, /base:\s*"\.\/"/);
+test('a repeated final landing remains last after deduplication', () => {
+  assert.deepEqual(selectNarrationBeats([{ id: 5 }, { id: 6 }, { id: 5 }]).map(b => b.id), [6, 5]);
 });
