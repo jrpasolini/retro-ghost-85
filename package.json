@@ -1,13 +1,14 @@
 {
   "name": "retro-ghost-85",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.6.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && node scripts/check-relative-assets.mjs --dist",
     "test": "node --test src/motor/*.test.ts src/services/*.test.ts workers/narrator/*.test.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check:docs": "node scripts/check-documentation.mjs"
   },
   "devDependencies": {
     "typescript": "^5.7.3",
@@ -16,5 +17,15 @@
   "dependencies": {
     "@fontsource/chakra-petch": "^5.3.0",
     "@fontsource/press-start-2p": "^5.3.0"
+  },
+  "license": "MIT",
+  "author": "Antonio Pasolini (jrpasolini)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jrpasolini/retro-ghost-85.git"
+  },
+  "homepage": "https://jrpasolini.tech/retro-ghost-85/",
+  "engines": {
+    "node": ">=22.18.0"
   }
 }

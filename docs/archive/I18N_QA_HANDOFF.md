@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # EN-US / PT-BR — Localization QA and Handoff
 
 **Branch:** `i18n/en-us` · **Base:** validated `master` (commit `c517ce0`).

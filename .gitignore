@@ -5,3 +5,11 @@ dist/
 !.env.example
 .DS_Store
 *.log
+
+# Generated QA/build/tool state
+qa/output/
+.wrangler/
+coverage/
+test-results/
+playwright-report/
+*.tsbuildinfo

@@ -5,7 +5,6 @@ import { casas } from "../data/casas.ts";
 import { desserializarSave, serializarSave } from "../estado/save.ts";
 import { criarRngComEstado, novoEstadoRng, rolarD6 } from "./dado.ts";
 import { chaveDoPortao, getPlayerTrajectory, NOME_TROFEU, PORTAO_DO_TROFEU } from "./log.ts";
-import { criarNarradorLocal } from "../narrador/narrador.ts";
 import {
   daEstadoSalvo,
   iniciarPartida,
@@ -230,14 +229,6 @@ test("nova partida zera placar, histórico e troféus", () => {
   assert.equal(nova.log.filter((entrada) => entrada.turno > 0).length, 0);
   assert.equal(getPlayerTrajectory(nova.log, 1).length, 1);
   assert.notEqual(nova.rng.semente, estado.rng.semente);
-});
-
-test("o narrador local responde indisponível e não é a narração do tabuleiro", async () => {
-  const narrador = criarNarradorLocal();
-  assert.equal(narrador.disponivel, false);
-  const pedido = { tipo: "endgame" as const, chave: "endgame" as const, jogadorId: 1, trajetoria: [] };
-  assert.deepEqual(await narrador.narrar(pedido), { status: "unavailable", motivo: "narração em breve" });
-  assert.deepEqual(await narrador.baixarTrofeu(pedido), { status: "unavailable", motivo: "narração em breve" });
 });
 
 test("o cursor do RNG retomado produz a mesma sequência", () => {

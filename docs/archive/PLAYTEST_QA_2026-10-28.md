@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # Playtest QA — 28/10/2026
 
 Sessão de teste jogada em produção (`retro-ghost-85.onrender.com`), build **0.6.0**,

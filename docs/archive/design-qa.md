@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # Design QA — Retro-Ghost-85 MVP visual
 
 Data: 26/10/2026  

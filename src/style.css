@@ -971,6 +971,8 @@ button { font: inherit; }
 }
 
 footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7rem .15rem 0; color: #49746c; font-size: .62rem; letter-spacing: .06em; }
+footer > span:first-child { flex-shrink: 0; }
+.footer-credits { max-width: 68rem; text-align: right; line-height: 1.6; }
 
 .intro-dialog {
   width: min(680px, calc(100% - 2rem));
@@ -1020,17 +1022,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
 }
 .narration-slot p, .endgame-path, .endgame-ranking { color: #c5e6dc; font-size: .92rem; line-height: 1.45; }
 .endgame-path, .endgame-ranking { max-height: 9.5rem; overflow: auto; margin: 0; padding-left: 1.1rem; }
-.narration-controls { display: flex; gap: .5rem; margin-top: .7rem; }
-.narration-controls button {
-  border: 1px solid var(--cyan);
-  background: #071311;
-  color: var(--cyan);
-  padding: .55rem .7rem;
-  font: .58rem/1.3 "Press Start 2P", monospace;
-  cursor: pointer;
-}
-.narration-controls button:disabled { border-color: #56726b; color: #79968e; cursor: not-allowed; }
-.narration-controls button:focus-visible, #btn-continuar-trofeu:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+#btn-continuar-trofeu:focus-visible { outline: 3px solid white; outline-offset: 3px; }
 .endgame-reopen { margin-top: .7rem; }
 .intro-terminal[hidden] { display: none; }
 
@@ -1105,6 +1097,7 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .console-note { display: none; }
   .house-heading { align-items: flex-start; }
   footer { flex-direction: column; }
+  .footer-credits { text-align: left; }
   .intro-actions { flex-direction: column; }
   .player-config-row { grid-template-columns: 2rem 1fr; }
   .player-config-row input { grid-column: 2; }

@@ -1,3 +1,4 @@
+import { installOfflineNarrator } from "./offline-narrator.mjs";
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
@@ -26,8 +27,9 @@ try {
     await sleep(150);
   }
   if (!ready) throw new Error("Vite indisponível: " + stderr);
-  browser = await chromium.launch({channel: "chrome", headless: true, args: ["--no-sandbox"]});
+  browser = await chromium.launch({headless: true, args: ["--no-sandbox"]});
   const page = await browser.newPage({viewport:{width:1280,height:800}, deviceScaleFactor:1});
+  await installOfflineNarrator(page);
   // Regression for the original PT-BR scenario: EN is now default, so opt
   // into Portuguese explicitly before the application's first script runs.
   await page.addInitScript(() => localStorage.setItem("retro-ghost-85-language", "pt-BR"));

@@ -37,7 +37,7 @@ export const uiEn: Readonly<Record<string, string>> = {
   "VER ENDGAME": "VIEW ENDGAME",
   "Inicie a jornada para liberar o dado.": "Start your journey to unlock the die.",
   "Clique em qualquer casa ou jogador para inspecionar detalhes.": "Select any square or player to inspect details.",
-  "40 CASAS · 1–4 JOGADORES/CPU · 1D6 · SAVE/LOAD · TRILHA DINÂMICA": "40 SQUARES · 1–4 PLAYERS/CPU · 1D6 · SAVE/LOAD · DYNAMIC TRACK",
+  "CRÉDITOS": "CREDITS",
   "Quem vai programar?": "Who will write the code?",
   "Escolha de um a quatro participantes. Humanos dividem o mesmo dispositivo; a CPU apenas rola o dado automaticamente na própria vez.": "Choose one to four players. Humans share one device; the CPU automatically rolls the die on its turn.",
   "Quantidade de participantes": "Number of players",

@@ -1,3 +1,4 @@
+import { installOfflineNarrator } from "./offline-narrator.mjs";
 /**
  * Auditoria de redimensionamento real: navegador permanece na MESMA página.
  * Compara cada casa com a projeção da arte, não somente peça ↔ hotspot.
@@ -32,8 +33,9 @@ try {
   }
   if (!ready) throw new Error("Vite não iniciou: " + stderr);
 
-  browser = await chromium.launch({ channel: "chrome", headless: true, args: ["--no-sandbox"] });
+  browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+  await installOfflineNarrator(page);
   const pageErrors = [];
   page.on("pageerror", (e) => pageErrors.push(e.message));
   await page.goto(origin, { waitUntil: "domcontentloaded" });

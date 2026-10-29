@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # Retro Ghost 85 — Estrutura do Projeto
 
 > Documento vivo. Toda decisão tomada entra aqui, com data.
@@ -315,7 +317,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 
 **Energia:** 0 = volta 3 casas e recupera 1. Nunca elimina jogador.
 
-**Atualização de 26/10/2026:** a tabela acima permanece como registro da proposta inicial e foi substituída pelas 40 histórias e consequências em [`src/data/casas.ts`](src/data/casas.ts). As regras atuais, as mudanças das casas 2, 25 e 27 e as fontes de época estão em [`HISTORICO_NARRATIVO.md`](HISTORICO_NARRATIVO.md). A implementação atual usa projeto de 0 a 100 e 1d6; a antiga energia desta proposta não é aplicada.
+**Atualização de 26/10/2026:** a tabela acima permanece como registro da proposta inicial e foi substituída pelas 40 histórias e consequências em [`src/data/casas.ts`](../../src/data/casas.ts). As regras atuais, as mudanças das casas 2, 25 e 27 e as fontes de época estão em [`HISTORICO_NARRATIVO.md`](HISTORICO_NARRATIVO.md). A implementação atual usa projeto de 0 a 100 e 1d6; a antiga energia desta proposta não é aplicada.
 
 **Easter egg e partida atual:** os jogadores partem da casa 1, o **prólogo**. O movimento usa normalmente o resultado de 1d6. No tabuleiro, a casa 10 é o **Ato 2**, a 20 o **Ato 3**, a 30 o **Ato 4** e a 40 é exclusivamente **ENDGAME · PUBLICAÇÃO**. O troféu de cada ato vai a quem entra primeiro naquela região; a casa 1 não premia. As visitas musicais e o retrato de Einstein continuam ligados às casas 1, 10, 20 e 30. Quando um mesmo jogador visita as quatro, Einstein sorri no monitor central; o progresso não é compartilhado entre jogadores.
 

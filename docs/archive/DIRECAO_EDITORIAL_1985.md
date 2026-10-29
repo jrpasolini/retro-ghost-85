@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # Retro-Ghost-85 — direção editorial e revisão histórica (1985)
  
 > Revisão de conteúdo aplicada somente na branch `audit/editorial-1985-casas`. Preservar a aparência e a geometria do tabuleiro. Texto ficcional, com vocabulário e tecnologias plausíveis para o período; o clima de suspense é literário, não alegação de sobrenatural. Não fazer merge sem revisão do autor.

@@ -1,105 +1,57 @@
-# Retro Ghost 85
+# Retro-Ghost-85
 
-Um jogo de tabuleiro digital ambientado em **1985**, onde até quatro jogadores percorrem
-a carreira de um desenvolvedor daquela época — da listagem em BASIC arrancada de uma
-revista até o dia em que o próprio projeto aparece no catálogo.
+[English — documentação principal](README.md) · **Português brasileiro**
 
-**40 casas. Quatro atos. Um mestre narrador.**
+Um jogo de tabuleiro digital sobre criar seu primeiro jogo de computador em **1985**: listagens BASIC, backups em cassete, disquetes, sprites, BBS e a publicação no catálogo.
 
----
+**40 casas · 1–4 jogadores locais · Quatro atos · Um Mestre narrador**
 
-## A ideia
+[Jogar no site do projeto](https://jrpasolini.tech/retro-ghost-85/) · [Hospedagem Render](https://retro-ghost-85.onrender.com/)
 
-O tabuleiro não é uma metáfora genérica de "desafios". É a carreira real de quem
-programava em 1985: a revista na banca, o erro de digitação que você não encontra, o
-cassete que não carrega, o drive de disquete, o modem acústico, a BBS, o grupo de
-usuários, o contrato com a revista especializada.
+## O dado decide. A IA narra.
 
-Cada casa é um marco verdadeiro — e carrega o que havia de maravilhoso e de cruel
-naquele mundo.
+O navegador rola um dado de seis faces, move as peças, aplica consequências, controla turnos da CPU local e determina a vitória. O primeiro a chegar à casa 40 vence, independentemente dos pontos de projeto. A Gemma não decide jogadas.
 
-## O princípio que sustenta o jogo
+Os troféus dos atos e o Endgame guardam a trajetória de quem os conquistou naquele momento. A narrativa reúne beats aprovados em português/inglês e um comentário final curto da **Google Gemma 7B**, pela **Cloudflare Workers AI**. São até dois beats por ato e cinco no encerramento.
 
-> **O dado decide. A IA narra.**
+O botão retrô **PLAY/PAUSE** gera e reproduz a jornada usando a voz configurada da **ElevenLabs**. O cassete ao lado habilita o download do MP3 depois da geração. Ouvir novamente e baixar reutilizam o áudio na sessão. A trilha pausa durante a fala e retoma depois, respeitando AUDIO OFF.
 
-O código rola o dado, move a peça e aplica o efeito. O modelo de linguagem recebe o
-resultado **já decidido** e devolve apenas a narração da cena. Ele nunca escolhe o que
-acontece, nunca move peças, nunca decide derrota.
+O jogo continua funcional sem os serviços de narração. Os textos aprovados são o fallback; comentário e voz precisam de rede. Não há cache PWA que garanta um primeiro carregamento offline.
 
-Isso mantém o jogo justo, barato e rápido — e permite que ele funcione **offline**,
-com o texto-base escrito à mão, quando a API não está disponível.
+## Idioma e saves
 
-## O save é um arquivo
+Inglês é o padrão no primeiro acesso. A bandeira do Brasil seleciona português, e a escolha explícita é lembrada sem alterar a partida. REC/SAVE exporta um `.md`; PLAY/LOAD importa o arquivo. O JSON dentro do save é a fonte de verdade e mantém compatibilidade entre os idiomas. O texto narrativo não é executado como instrução.
 
-O estado da partida é um `.md` legível: front matter com o estado, log narrativo
-abaixo. Baixa, guarda, carrega no dia seguinte, continua de onde parou.
+## Executar e verificar
 
-Editar o arquivo à mão é permitido de propósito. Em 1985, quem sabia abrir o arquivo
-sabia mudar o jogo.
+Use Node.js 22.18+ e npm:
 
-## Arquitetura
-
-```
-https://jrpasolini.tech/retro-ghost-85/   → site estático (base do Vite "./")
-Cloudflare Worker + Gemma 4               → cliente de narração configurado, ainda fora da tela
-ElevenLabs                                → voz da narração, etapa seguinte
+```sh
+npm ci
+npm run dev
 ```
 
-Sem banco de dados. Sem login. Sem servidor de estado.
-
-O site público fica em `https://jrpasolini.tech/retro-ghost-85/`. O `vite.config.ts` mantém `base: "./"` para os arquivos resolverem nesse subcaminho.
-
-## Worker de narração
-
-A Gemma 4 é o Mestre narrador na categoria **Best use of Gemma** do Hacktoberfest. Ela não rola o dado e não muda o tabuleiro. As telas continuam no texto local “narração em breve”. Nenhuma tela chama o Worker ainda.
-
-| | |
-| --- | --- |
-| Worker | `https://retro-ghost-85-narrator.antonio-pasolini.workers.dev` |
-| Modelo | `@cf/google/gemma-4-26b-a4b-it` (Cloudflare Workers AI, Gemma 4) |
-| Ambiente | `VITE_NARRATOR_URL` em `.env.example`. `src/config.ts` usa esse valor ou, se faltar, a URL do Worker acima. |
-| Cliente | `checkNarratorHealth()` e `requestNarration({ player, act, trajectory })` em `src/services/narrator.ts`. Eles expiram e devolvem `{ ok: false, error }` em vez de lançar erro na interface. |
-
-`trajectory` é Markdown vindo de `getPlayerTrajectory`, com no máximo 20 000 caracteres. `act` é `"2"`, `"3"`, `"4"` ou `"endgame"`.
-
-```
-GET  /health   → { ok, model }
-POST /narrate  → { player, act, trajectory }
-               ← { narration, model } ou { error }
+```sh
+npm test
+npm run build
+npm audit
 ```
 
-O CORS do Worker só libera `https://jrpasolini.tech`, `https://www.jrpasolini.tech`, `http://localhost:5173` e `http://localhost:4173`.
+O build gera `dist/` e valida caminhos relativos. A configuração `base: "./"` suporta a raiz de um domínio ou o subcaminho `/retro-ghost-85/`.
 
-## Stack
+`VITE_NARRATOR_URL` é apenas uma URL pública opcional; veja [.env.example](.env.example). Chaves de provedores ficam nos secrets do Worker, nunca em variáveis `VITE_`. Uma chamada não cacheada usa no máximo 96 tokens de saída, aceita comentário de até 40 palavras e limita a espera da inferência a 20 segundos; o cliente espera até 25 segundos. O texto completo/entrada TTS tem limite de 2.800 caracteres. Não há quota autenticada por partida nem rate limit global; os limites por pedido não garantem custo zero.
 
-Vite · TypeScript · DOM puro · JSON para o conteúdo das casas · ElevenLabs Music · Cloudflare Workers
+## Documentação e créditos
 
-## Documentação
+A documentação atual é mantida primeiro em inglês:
 
-- [`ESTRUTURA.md`](./ESTRUTURA.md) — documento vivo do projeto: princípios,
-  arquitetura, modelo de dados, contrato do narrador, as 40 casas, roadmap e
-  registro de decisões.
-- [`HISTORICO_NARRATIVO.md`](./HISTORICO_NARRATIVO.md) — base histórica e regras das 40 casas nesta versão.
-- [`estrategia.md`](./estrategia.md) — decisões sobre modos de partida, participantes humanos e CPU local.
+- [Índice](docs/README.md), [arquitetura](docs/ARCHITECTURE.md) e [deploy](docs/DEPLOYMENT.md).
+- [Worker](workers/narrator/README.md) e [contribuição](CONTRIBUTING.md).
+- [Créditos](CREDITS.md), [avisos de terceiros](THIRD_PARTY_NOTICES.md) e [inventário de mídias](docs/ASSETS.md).
+- [Revisão final](docs/RELEASE_REVIEW.md) e [arquivo histórico em português](docs/archive/README.md).
 
-## Status
-
-Protótipo local com abertura cinematográfica, tabuleiro, narrativa das 40 casas, configuração de 1 a 4 participantes humanos/CPU, um dado de seis faces, movimento, consequências determinísticas, save/load em Markdown e trilha dinâmica por ato. A abertura mostra o retrato de Antonio Pasolini, revela o crédito do Hacktoberfest após um segundo, apresenta a arte do jogo aos dois segundos e entrega o controle à preparação da jornada aos quatro segundos. As seis faixas originais — introdução, quatro atos e encerramento — foram criadas com a ElevenLabs. O cliente do Worker da Gemma 4 já está no repositório, mas a interface ainda não o usa.
-
-## Créditos e atribuição
-
-**MSX** é marca registrada de seus respectivos titulares. Este projeto é uma obra
-independente, sem vínculo, patrocínio ou endosso de qualquer detentor da marca.
-
-O projeto **não distribui** BIOS, ROMs, imagens de disco ou qualquer software
-proprietário. É um jogo de tabuleiro em texto e DOM — não emula hardware.
-
-Nomes de empresas, revistas, modems e equipamentos citados na narrativa pertencem a
-seus respectivos donos e aparecem em contexto histórico e descritivo.
-
-Trilha sonora original criada com a **ElevenLabs Music** para o Retro-Ghost-85.
+Criado e mantido por **Antonio Pasolini (jrpasolini)**. Créditos a ElevenLabs Music e TTS, Google Gemma, Cloudflare Workers/Workers AI/KV, Render, .Tech Domains, GitHub/Actions/Copilot Pro, OpenAI Codex, Vite, TypeScript, Playwright, Fontsource e autores das fontes. As seis trilhas foram geradas para o projeto na ferramenta web de criação de música da ElevenLabs, conforme confirmação do autor.
 
 ## Licença
 
-A definir.
-
+Copyright (c) 2026 Antonio Pasolini e colaboradores. Código-fonte original, documentação e textos narrativos autorais sob a [licença MIT](LICENSE). As fontes mantêm SIL OFL 1.1. Artes, retrato, trilha e voz têm escopo e condições separados nos [avisos de terceiros](THIRD_PARTY_NOTICES.md); MIT não substitui termos de provedores ou direitos de marcas e mídias. O projeto não distribui ROMs, BIOS ou imagens de disco proprietárias, e não implica patrocínio ou endosso dos fornecedores citados.

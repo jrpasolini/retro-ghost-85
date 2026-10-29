@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # Narrativa e regras das casas
 
 As 40 histórias de `src/data/casas.ts` são **episódios fictícios** de um desenvolvedor em 1985. Os procedimentos e problemas técnicos foram ancorados em fontes da época; não representam a biografia de uma pessoa real.

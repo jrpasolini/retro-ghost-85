@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # Próxima etapa — tradução integral do Retro-Ghost-85 (English default)
 
 > **PLANEJAMENTO APENAS.** O PR #5 fecha o cânone narrativo em português; não contém tradução nem seletor. Esta lista impede que a etapa posterior traduza somente as 40 casas e deixe mensagens, acessibilidade, logs ou o áudio em português.

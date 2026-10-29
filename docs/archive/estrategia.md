@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # Estratégia de partida — Retro-Ghost-85
 
 > Documento vivo para registrar decisões de produto e evolução dos modos de jogo.

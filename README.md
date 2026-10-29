@@ -1,99 +1,89 @@
 # Retro-Ghost-85
 
-**🇺🇸 English (default)** · [🇧🇷 Português brasileiro](./README.pt-BR.md)
+**English (default)** · [Português brasileiro](README.pt-BR.md)
 
-A digital board game set in **1985**, where up to four players follow the journey of a budding computer game developer—from BASIC listings copied out of a magazine to the day their own game appears in a catalog.
+A retro board game about making your first computer game in **1985**: BASIC listings, cassette backups, floppy disks, stubborn sprites, BBS messages, and finally seeing your name in a catalog.
 
-**40 squares. Four Acts. One Master storyteller.**
+**40 squares · 1–4 local players · Four Acts · One Master storyteller**
 
----
+[Play on the project site](https://jrpasolini.tech/retro-ghost-85/) · [Render deployment](https://retro-ghost-85.onrender.com/)
 
-## The adventure
+## The die decides. The AI narrates.
 
-This is not a generic board of random challenges. It is a trip through the real-world obstacles of writing games in 1985: an obscure typo in a magazine listing, a cassette that will not load, a floppy disk drive, a stubborn sprite, the modem's unmistakable handshake, the BBS, the local user group, and the final publication deadline.
+The browser rolls one six-sided die, moves tokens, applies consequences, controls local CPU turns, and determines the winner. **Gemma never decides gameplay.** The first player to reach square 40 wins; project progress is recorded but is not a condition for winning.
 
-Every square carries a moment of wonder—or a setback hidden in the machine.
+The first player to enter each later Act earns that Act's trophy. The trophy records that player's historical journey at the moment of the achievement. Each journey combines approved story beats with a brief closing comment from **Google Gemma 7B**, served through **Cloudflare Workers AI**. There are at most two selected beats per Act narration and five for Endgame, preserving chronology and the ending.
 
-## The guiding rule
+Optional voice uses the configured **ElevenLabs** voice. The retro **PLAY/PAUSE** key generates and plays the journey; the adjacent cassette downloads the resulting MP3. Replay and download reuse audio within the session. The soundtrack pauses during narration and resumes afterward, respecting AUDIO OFF.
 
-> **The die decides. The AI narrates.**
+Gameplay remains available if narration services fail. Authored beats provide the story fallback. AI commentary and voice require a network connection and configured services; the project does not implement an installable offline/PWA cache.
 
-Local code rolls the die, moves tokens, and applies consequences. In a future integration, the language model will receive an **already-decided outcome** and narrate the scene. It will not roll, choose winners, alter progress, or control the CPU.
+## Play and save
 
-The complete local board remains playable without a model API. Story text is authored in advance in both English and Brazilian Portuguese.
-
-## English / Portuguese localization
-
-- **English (United States)** is the default on first launch, regardless of the browser's language.
-- **Brazilian Portuguese** is available from the **🇺🇸 USA / 🇧🇷 BR** flag switch in the opening setup dialog and the game toolbar.
-- You can switch languages without restarting the match, changing token positions, consuming random values, or losing progress.
-- The prologue, all forty squares, the four Acts, game log, player controls, trophy descriptions, Endgame, and readable Markdown exports follow the selected language.
-- Only an explicit choice is stored as a local preference. Language is not a gameplay property.
-
-## Save your match to Markdown
-
-The REC/PLAY cassette controls export and import a readable `.md` file containing a structured JSON block plus a narrated log. The JSON is the source of truth; its schema and mechanical values stay the same across languages. A save exported in Portuguese can be loaded while playing in English, and vice versa.
+- Choose one to four human/local CPU participants, with at least one human.
+- Advance through the board using **1D6**. Bonuses and penalties are deterministic local rules.
+- **REC / SAVE** downloads a readable Markdown match file. **PLAY / LOAD** resumes it.
+- The embedded JSON block is the save's source of truth; narrative prose is not executed as instructions.
+- English is the default on a fresh visit. Brazilian Portuguese is available through the flag selector. An explicit language choice is remembered without changing match state.
+- Sound starts after a user gesture where required by the browser. The opening uses a single **PRESS SPACE TO START** step.
 
 ## Run locally
 
-```bash
+Use Node.js **22.18 or newer** and npm. CI targets Node.js 22.
+
+```sh
 npm ci
 npm run dev
 ```
 
-Vite runs the development server. To verify a release:
+Vite prints the local URL. To use the port employed during project review:
 
-```bash
+```sh
+npm run dev -- --host 127.0.0.1 --port 4185 --strictPort
+```
+
+Release checks:
+
+```sh
 npm test
 npm run build
+npm audit
 ```
 
-GitHub Actions also checks compilation, unit tests, layout/resize behavior, and English/Portuguese browser acceptance via Playwright.
+`npm run build` runs TypeScript, builds `dist/`, and verifies relative asset paths. `base: "./"` supports hosting beneath `/retro-ghost-85/` as well as at a domain root. No database, login, or server-side match state is needed.
 
-## Architecture
+## Narration and hosting
 
-```
-https://jrpasolini.tech/retro-ghost-85/   → static site (Vite base "./")
-GitHub Actions + Playwright               → automated game and UI checks
-Cloudflare Worker + Gemma 7B              → authored journeys and brief closing comments in trophy/Endgame dialogs
-ElevenLabs                                → planned: narration voice delivery
-```
-
-No account, database, or server-side game state is required for the local multiplayer experience. CPU decisions and die rolls remain local and deterministic with a saved RNG state.
-
-The public site is served at `https://jrpasolini.tech/retro-ghost-85/`. `vite.config.ts` keeps `base: "./"` so scripts and assets resolve on that subpath.
-
-## Narration worker
-
-The Master uses authored Portuguese and English beats for all forty squares. A shared selector keeps at most two beats per act and five at the ending, before inference. Gemma 7B adds a brief closing comment after the authored story; it never changes gameplay. The trophy and Endgame dialogs display these journeys and use a themed PLAY/cassette deck. PLAY requests the configured ElevenLabs voice through the Worker, starts playback, and unlocks an MP3 download. Replay and download reuse the generated audio during the session.
-
-| | |
+| Layer | Role |
 | --- | --- |
-| Worker | `https://retro-ghost-85-narrator.antonio-pasolini.workers.dev` |
-| Default model | `@cf/google/gemma-7b-it-lora`, overridable by `NARRATION_MODEL` |
-| Client | `prepareNarrationRequest(logSnapshot, playerId, act, lang)`, `checkNarratorHealth()`, `requestNarration({ player, act, lang, beats })` |
-| Contract | `POST /narrate → { text, model, fallback, cached, ... }`; `POST /tts → audio/mpeg` |
-| Bounds | One model call per uncached request, 96 output tokens, up to 40 comment words; 20-second inference deadline and 25-second client timeout; composed text and TTS at most 2,800 characters |
+| Vite + TypeScript + DOM/CSS | Game UI, local rules, save/load and localization |
+| Render | Static frontend hosting/deployment |
+| .Tech Domains | The project's `.tech` web identity |
+| Cloudflare Workers | `/health`, `/narrate` and `/tts` API |
+| Cloudflare Workers AI + Google Gemma 7B | Brief Master commentary after approved beats |
+| Cloudflare Workers KV | Versioned text and audio caches |
+| ElevenLabs Music | Six soundtrack tracks generated using the ElevenLabs web music-creation tool |
+| ElevenLabs Text to Speech | Optional voiced journeys and MP3 download |
+| GitHub Actions + Playwright | Build, unit, language and layout checks |
 
-The Worker resolves canonical text by ID and language, validates inputs, and checks its versioned cache before inference. Gemma 7B receives the instructions and full beats in one user message, without a separate system turn. The story remains unchanged and the model only adds its closing comment. On model failure it returns the authored body. TTS uses the configured voice and a separate audio cache. These are per-request bounds, not authenticated per-game quotas or a zero-cost guarantee. See [the Worker documentation](workers/narrator/README.md) for contracts, configuration, and remaining safeguards before enabling narration buttons.
+`VITE_NARRATOR_URL` selects the narration Worker; see [.env.example](.env.example). It is a public URL, never an API key. Provider credentials remain in Worker secrets. The current default model is `@cf/google/gemma-7b-it-lora`.
+
+The Worker makes at most one model call per uncached narration, with 96 output tokens and a 40-word comment limit. The inference wait is bounded to 20 seconds and the client timeout is 25 seconds. Complete narration/TTS text is limited to 2,800 characters. These are **per-request bounds**, not authenticated per-game quotas or a guarantee of zero cost. See the [Worker guide](workers/narrator/README.md) and [deployment guide](docs/DEPLOYMENT.md).
 
 ## Documentation
 
-- [`ESTRUTURA.md`](./ESTRUTURA.md) — living architecture and design notes (Portuguese).
-- [`HISTORICO_NARRATIVO.md`](./HISTORICO_NARRATIVO.md) — historical background and the 40-square canon (Portuguese).
-- [`estrategia.md`](./estrategia.md) — local players and CPU game modes (Portuguese).
-- [`PLANO_I18N_EN_DEFAULT.md`](./PLANO_I18N_EN_DEFAULT.md) — localization checklist and compatibility requirements (Portuguese).
+- [Documentation index](docs/README.md) — current documents and historical archive.
+- [Architecture](docs/ARCHITECTURE.md) — rules, snapshots, narration, audio and failure handling.
+- [Deployment](docs/DEPLOYMENT.md) — frontend, Worker bindings and verification.
+- [Contributing](CONTRIBUTING.md) — setup, checks and preservation of approved artwork.
+- [Credits](CREDITS.md) — creator, technology and development acknowledgements.
+- [Third-party notices](THIRD_PARTY_NOTICES.md) — fonts, external models, services and media scope.
+- [Release review](docs/RELEASE_REVIEW.md) — evidence and remaining operational limitations.
 
-## Credits and legal notes
+## Author and license
 
-**MSX** is a trademark of its respective owners. Retro-Ghost-85 is an independent project, unaffiliated with and neither sponsored nor endorsed by any trademark holder.
+Created and maintained by **Antonio Pasolini (jrpasolini)**.
 
-No proprietary ROMs, BIOS, disk images, or other proprietary software are distributed. This is a text-and-DOM board game; it does not emulate hardware.
+Copyright (c) 2026 Antonio Pasolini and contributors. The project's original source code, documentation and authored narrative text are licensed under the [MIT License](LICENSE).
 
-Historical references to companies, magazines, and equipment are descriptive and remain the property of their respective owners.
-
-The existing original soundtrack was created with **ElevenLabs Music**. AI narration through Cloudflare Worker/Gemma and subsequent voice synthesis are separate development stages.
-
-## License
-
-To be determined.
+Fonts retain their **SIL Open Font License 1.1** notices. Bundled artwork, portrait and music are documented separately in [third-party notices](THIRD_PARTY_NOTICES.md); the MIT software license does not relicense external services, model weights, trademarks or media rights. No proprietary ROMs, BIOS or disk images are included. Historical brand references are descriptive; technology credits do not imply sponsorship or endorsement.

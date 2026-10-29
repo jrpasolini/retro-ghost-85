@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # As 40 casas — revisão histórica e textual para aprovação
 > **Fonte de verdade nesta branch:** código atual em `src/data/casas.ts` + `src/data/atos.ts`. Esta comparação é atualizada automaticamente a partir do código revisado. A coluna “Antes” é da `master`. Não realizar merge sem QA.
 

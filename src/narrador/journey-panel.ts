@@ -30,8 +30,13 @@ export class JourneyPanel {
   private readonly play: HTMLButtonElement;
   private readonly download: HTMLButtonElement;
 
-  constructor(private readonly root: HTMLElement, private readonly story: HTMLElement,
-    private readonly store: JourneyStore, private readonly onPlay: () => void, private readonly onStop: () => void) {
+  private readonly story: HTMLElement;
+  private readonly store: JourneyStore;
+  private readonly onPlay: () => void;
+  private readonly onStop: () => void;
+
+  constructor(root: HTMLElement, story: HTMLElement, store: JourneyStore, onPlay: () => void, onStop: () => void) {
+    this.story = story; this.store = store; this.onPlay = onPlay; this.onStop = onStop;
     this.deck = root.querySelector('.journey-deck')!;
     this.status = root.querySelector('.journey-status')!;
     this.play = root.querySelector('.journey-play')!;
@@ -99,8 +104,8 @@ export class JourneyPanel {
       }
       if (activeRevision !== this.revision) return;
       this.onPlay();
-      try { await this.audio.play(); this.message('Tocando sua jornada. O cassete já está disponível para download.', 'Playing your journey. The cassette is ready to download.'); }
-      catch { this.onStop(); this.message('Áudio pronto. Pressione PLAY para ouvir.', 'Audio ready. Press PLAY to listen.'); }
+      try { await this.audio.play(); if (activeRevision !== this.revision) return; this.message('Tocando sua jornada. O cassete já está disponível para download.', 'Playing your journey. The cassette is ready to download.'); }
+      catch { if (activeRevision !== this.revision) return; this.onStop(); this.message('Áudio pronto. Pressione PLAY para ouvir.', 'Audio ready. Press PLAY to listen.'); }
     } catch {
       if (activeRevision === this.revision) this.message('Não foi possível gerar a voz. Pressione PLAY para tentar novamente.', 'Voice generation failed. Press PLAY to try again.');
     } finally { if (activeRevision === this.revision) { this.busy = false; this.render(); } }

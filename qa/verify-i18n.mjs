@@ -1,3 +1,4 @@
+import { installOfflineNarrator } from "./offline-narrator.mjs";
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
 import { spawn } from "node:child_process";
@@ -44,9 +45,10 @@ try {
     await sleep(160);
   }
   assert.ok(ready,"Vite is not ready: "+JSON.stringify({stderr,stdout,lastHttp,exitCode:server.exitCode}));
-  browser = await chromium.launch({ channel: "chrome", headless: true, args: ["--no-sandbox"] });
+  browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
   const page = await context.newPage();
+  await installOfflineNarrator(page);
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(origin, { waitUntil: "domcontentloaded" });

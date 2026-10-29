@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # AUDITORIA EDITORIAL E HISTÓRICA — RETRO-GHOST-85
 
 > 27/10/2026 · Status: REDAÇÃO IMPLEMENTADA APENAS NA BRANCH, conferência visual pendente e revisão do autor obrigatória. Código narrativo alterado (`src/data/casas.ts`, `src/data/atos.ts`, `src/data/intro.ts`, texto de vitória em `src/main.ts`). Sem mudanças na arte, rótulos, posições, regras ou layout. Não fazer merge antes da validação.

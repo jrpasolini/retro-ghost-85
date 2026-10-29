@@ -1,67 +1,29 @@
-name: Retro-Ghost-85 — build e testes
+name: Retro-Ghost-85 — build and tests
 
 on:
   pull_request:
     branches: [master]
   push:
-    branches:
-      - master
-      - audit/editorial-1985-casas
+    branches: [master]
 
 permissions:
   contents: read
 
 jobs:
-  validar:
+  verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Obter arquivos
-        uses: actions/checkout@v4
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-      - name: Instalar dependências fixadas
+      - name: Install pinned dependencies
         run: npm ci
-      - name: Executar testes
+      - name: Unit tests
         run: npm test
-      - name: Compilar e validar TypeScript
+      - name: Documentation and license checks
+        run: npm run check:docs
+      - name: Build and TypeScript
         run: npm run build
-
-  limpar-branch-editorial:
-    name: Excluir branch de auditoria após merge validado do PR 5
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, '(#5)') }}
-    needs: [validar]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-      pull-requests: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-    steps:
-      - name: Excluir apenas a branch mergeada, sem perder commits não incorporados
-        shell: bash
-        run: |
-          set -euo pipefail
-          repo="$GITHUB_REPOSITORY"
-          pr_merged="$(gh api "repos/$repo/pulls/5" --jq '.merged')"
-          pr_branch="$(gh api "repos/$repo/pulls/5" --jq '.head.ref')"
-          pr_sha="$(gh api "repos/$repo/pulls/5" --jq '.head.sha')"
-          if [[ "$pr_merged" != "true" || "$pr_branch" != "audit/editorial-1985-casas" ]]; then
-            echo "PR 5 não mergeado ou branch divergente; nenhuma exclusão."
-            exit 0
-          fi
-          branch_sha="$(gh api "repos/$repo/git/ref/heads/audit/editorial-1985-casas" --jq '.object.sha' 2>/dev/null || true)"
-          if [[ -z "$branch_sha" ]]; then
-            echo "Branch já não existe."
-            exit 0
-          fi
-          if [[ "$branch_sha" != "$pr_sha" ]]; then
-            echo "::warning::Branch possui commit diferente do PR. Preservando."
-            exit 0
-          fi
-          gh api --method DELETE "repos/$repo/git/refs/heads/audit/editorial-1985-casas"
-          echo "Branch de auditoria removida após merge e validação."

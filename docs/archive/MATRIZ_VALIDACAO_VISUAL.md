@@ -1,3 +1,5 @@
+> **Historical archive.** This document records earlier planning or QA and may describe superseded behavior. Use the [current documentation](../README.md) and [project README](../../README.md) for the implemented version.
+
 # MATRIZ DE VALIDAÇÃO VISUAL — TABULEIRO IMUTÁVEL
 
 > Inspeção realizada em 27/10/2026 sobre os pixels de public/assets/board-reference-edited.webp (1668×939), com ampliação separada das quatro bordas, e de public/assets/casa-40-endgame.webp. Nenhuma imagem, coordenada, regra, título ou efeito foi alterado.
