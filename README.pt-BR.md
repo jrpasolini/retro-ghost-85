@@ -50,7 +50,7 @@ A documentação atual é mantida primeiro em inglês:
 - [Créditos](CREDITS.md), [avisos de terceiros](THIRD_PARTY_NOTICES.md) e [inventário de mídias](docs/ASSETS.md).
 - [Revisão final](docs/RELEASE_REVIEW.md) e [arquivo histórico em português](docs/archive/README.md).
 
-Criado e mantido por **Antonio Pasolini (jrpasolini)**. Créditos a ElevenLabs Music e TTS, Google Gemma, Cloudflare Workers/Workers AI/KV, Render, .Tech Domains, GitHub/Actions/Copilot Pro, OpenAI Codex, Vite, TypeScript, Playwright, Fontsource e autores das fontes. As seis trilhas foram geradas para o projeto na ferramenta web de criação de música da ElevenLabs, conforme confirmação do autor.
+Criado e mantido por **Antonio Pasolini (jrpasolini)**. Créditos a ElevenLabs Music e TTS, Google Gemma, Cloudflare Workers/Workers AI/KV, Render, .Tech Domains, GitHub/Actions/Copilot Pro, Vite, TypeScript, Playwright, Fontsource e autores das fontes. As seis trilhas foram geradas para o projeto na ferramenta web de criação de música da ElevenLabs, conforme confirmação do autor.
 
 ## Licença
 

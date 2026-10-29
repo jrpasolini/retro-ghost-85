@@ -20,7 +20,6 @@ Copyright (c) 2026 Antonio Pasolini and contributors. See [LICENSE](LICENSE) and
 | [.Tech Domains](https://get.tech/) | The project's `.tech` domain identity. |
 | [GitHub](https://github.com/) and [GitHub Actions](https://docs.github.com/en/actions) | Source control, collaboration and automated verification. |
 | [GitHub Copilot Pro](https://docs.github.com/en/copilot/get-started/plans) | AI-assisted coding and development, acknowledged by the project creator. |
-| [OpenAI Codex](https://openai.com/codex/) | AI-assisted implementation, review, documentation and testing. |
 | [Vite](https://vite.dev/) and [TypeScript](https://www.typescriptlang.org/) | Frontend development server, production build and static typing. |
 | [Playwright](https://playwright.dev/) | Browser acceptance and resize checks in CI. |
 | [Fontsource](https://fontsource.org/) | Local delivery of Chakra Petch and Press Start 2P fonts. |
