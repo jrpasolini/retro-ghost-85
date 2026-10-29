@@ -1,6 +1,8 @@
-# EN-US / PT-BR — Localization QA and Handoff
+# EN-US / PT-BR — Localization QA and Handoff (historical)
 
-**Branch:** `i18n/en-us` · **Base:** validated `master` (commit `c517ce0`).
+> **Archived handoff:** describes a past i18n branch and its pre-merge constraints. en-US default / pt-BR switching have since been integrated into `master`, along with later Gemma/TTS work. Treat previous “do not merge” notes and absent-integration claims as history, not current instructions. Current state: [STATUS_ATUAL.md](STATUS_ATUAL.md).
+
+**Historical branch:** `i18n/en-us` · **Historical base:** `master` (commit `c517ce0`).
 
 This localization is independent of Cloudflare Worker/Gemma and ElevenLabs voice delivery. No external AI call has been added.
 
