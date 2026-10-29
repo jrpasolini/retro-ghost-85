@@ -73,3 +73,22 @@ test('TTS provider failures return sanitized errors', async () => {
   const r = await call({ text: 'Hello' }, { ELEVENLABS_VOICE_ID: 'voice', ELEVENLABS_API_KEY: 'test-only', TTS_FETCH: async () => new Response('private provider detail', { status: 429 }) }, '/tts');
   assert.equal(r.status, 502); assert.doesNotMatch(await r.text(), /private provider/);
 });
+
+test('diagnostics distinguish rejected output, provider errors and timeouts without leaking details', async () => {
+  const long = await (await call(body, { AI: { run: async () => ({ response: 'A long narrative. '.repeat(25), usage: { completion_tokens: 96 } }) } })).json();
+  assert.equal(long.generation.status, 'rejected');
+  assert.ok(long.generation.reasons.includes('too_many_words'));
+  assert.ok(long.generation.reasons.includes('too_many_characters'));
+  assert.ok(long.generation.reasons.includes('multiple_sentences'));
+  assert.equal(long.generation.completionTokens, 96);
+  for (const [name, status] of [['TimeoutError', 'timeout'], ['Error', 'model_error']]) {
+    const value = await (await call(body, { AI: { run: async () => {
+      const error = new Error('private provider details'); error.name = name; throw error;
+    } } })).json();
+    assert.equal(value.generation.status, status);
+    assert.equal(value.fallback, true);
+    assert.doesNotMatch(JSON.stringify(value), /private provider details/);
+  }
+  const missing = await (await call(body)).json();
+  assert.equal(missing.generation.status, 'unavailable');
+});

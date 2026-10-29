@@ -57,3 +57,9 @@ Na raiz, `npm test` inclui os testes do Worker com AI, KV e ElevenLabs simulados
 ## Validação real de 28/10/2026
 
 Quatro chamadas sem cache (Ato 2, Ato 3, Ato 4 e Endgame) levaram 8,657 s, 8,725 s, 8,231 s e 7,941 s no total. Os intervalos do binding AI foram 8,308 s, 7,971 s, 8,006 s e 7,692 s. Uma amostra por ato, sem teste de carga. Todas devolveram o corpo autoral por fallback; a frase da Gemma ainda precisa ser calibrada e validada. Uma chamada separada de diagnóstico respondeu com 73 palavras e quatro frases, excedendo o formato. Não considerar o prompt aprovado apenas por HTTP 200. Nenhum áudio foi gerado.
+
+## Diagnóstico do fallback
+
+A resposta inclui generation com status accepted, rejected, timeout, model_error ou unavailable. Uma rejeição informa apenas motivos, contagem de caracteres/palavras/frases e completionTokens/finishReason quando fornecidos pelo provedor. Não exporta o texto recusado, mensagens de erro do provedor ou segredos.
+
+Repetição real dos quatro atos: todos retornaram rejected, com excesso de caracteres e palavras, múltiplas frases e formatação. Ato 2: 505 caracteres/80 palavras/3 frases; Ato 3: 399/73/4; Ato 4: 391/72/4; Endgame: 449/74/3. Todos reportaram 96 tokens de conclusão, o teto configurado. Nenhum foi classificado como timeout ou erro do modelo. O provedor não informou finishReason nessas amostras; atingir o teto sugere limitação da saída, mas não demonstra por si só se a última frase foi cortada. Próximo ajuste: calibrar aderência ao formato; aumentar o timeout não corrige estas rejeições.

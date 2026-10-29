@@ -91,11 +91,28 @@ async function masterLine(env, model, { player, lang, beats, endgame }) {
   try {
     const result = await env.AI.run(model, { messages: [{ role: "system", content: instruction }, { role: "user", content: JSON.stringify({ player, journey: beats.map(b => b.beat) }) }], max_tokens: 96, temperature: .7 });
     const line = extractText(result).replace(/\s+/g, " ").trim();
-    if (line.length < 21 || line.length > 220 || line.split(/\s+/).length > 20 || violates(line) || /[\n*#<>]|(?:^|\s)[\[\]]/.test(line)) return "";
-    // Reject multi-sentence replies instead of silently cutting generated prose.
-    if ((line.match(/[.!?]+(?=\s|$)/g) || []).length > 1) return "";
-    return line;
-  } catch { return ""; }
+    const chars = line.length;
+    const words = line ? line.split(/\s+/).length : 0;
+    const sentences = (line.match(/[.!?]+(?=\s|$)/g) || []).length;
+    const reasons = [];
+    if (chars < 21) reasons.push("too_short");
+    if (chars > 220) reasons.push("too_many_characters");
+    if (words > 20) reasons.push("too_many_words");
+    if (violates(line)) reasons.push("game_terms_or_digits");
+    if (/[\n*#<>]|(?:^|\s)[\[\]]/.test(line)) reasons.push("formatting");
+    if (sentences > 1) reasons.push("multiple_sentences");
+    const usage = result?.usage;
+    const completionTokens = usage?.completion_tokens ?? usage?.output_tokens;
+    const finishReason = result?.choices?.[0]?.finish_reason ?? result?.finish_reason;
+    const diagnostics = { status: reasons.length ? "rejected" : "accepted", reasons, chars, words, sentences,
+      ...(Number.isFinite(completionTokens) ? { completionTokens } : {}),
+      ...(["stop", "length", "max_tokens", "content_filter"].includes(finishReason) ? { finishReason } : {}) };
+    return { line: reasons.length ? "" : line, diagnostics };
+  } catch (error) {
+    const timeout = error?.name === "AbortError" || error?.name === "TimeoutError";
+    return { line: "", diagnostics: { status: timeout ? "timeout" : "model_error", reasons: [timeout ? "inference_timeout" : "inference_failed"],
+      ...(Number.isInteger(error?.code) ? { code: error.code } : {}) } };
+  }
 }
 
 async function narrate(body, env) {
@@ -119,11 +136,12 @@ async function narrate(body, env) {
   if (hit) return json({ ...hit, cached: true, inferenceMs: 0 });
   // A single short model request; no fallback chain that multiplies inference cost.
   const inferenceStart = performance.now();
-  const master = env.AI ? await masterLine(env, model, { player, lang, beats: chosen, endgame }) : "";
+  const generated = env.AI ? await masterLine(env, model, { player, lang, beats: chosen, endgame }) : { line: "", diagnostics: { status: "unavailable", reasons: ["ai_binding_missing"] } };
+  const master = generated.line;
   const inferenceMs = env.AI ? Math.round(performance.now() - inferenceStart) : 0;
   const text = master ? `${master}\n\n${authored}` : authored;
   if (text.length > MAX_NARRATION_CHARS) throw new RequestError("narracao_muito_longa");
-  const result = { inferenceMs, text, body: authored, master: master || null, chars: text.length, lang, model, beats: chosen.length, ids: chosen.map(b => b.id), cached: false, fallback: !master, key };
+  const result = { inferenceMs, generation: generated.diagnostics, text, body: authored, master: master || null, chars: text.length, lang, model, beats: chosen.length, ids: chosen.map(b => b.id), cached: false, fallback: !master, key };
   // Cache successful compositions. A transient model failure should be recoverable.
   if (master) await storeJson(env, key, result);
   return json(result);
