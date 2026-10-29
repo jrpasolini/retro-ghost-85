@@ -1,6 +1,8 @@
-# Retro-Ghost-85 — direção editorial e revisão histórica (1985)
+# Retro-Ghost-85 — direção editorial e revisão histórica (1985) · arquivo histórico
  
-> Revisão de conteúdo aplicada somente na branch `audit/editorial-1985-casas`. Preservar a aparência e a geometria do tabuleiro. Texto ficcional, com vocabulário e tecnologias plausíveis para o período; o clima de suspense é literário, não alegação de sobrenatural. Não fazer merge sem revisão do autor.
+ > **Arquivo de decisões da revisão original.** As instruções de não fazer merge e o plano de implantar Gemma 4/voz "depois" foram superados. Código vigente: [STATUS_ATUAL.md](STATUS_ATUAL.md); preservar observações históricas sobre 1985 e a arte. Nenhuma reedição da geometria do tabuleiro está autorizada por este registro.
+
+> Revisão de conteúdo aplicada originalmente somente na branch `audit/editorial-1985-casas`. Preservar a aparência e a geometria do tabuleiro. Texto ficcional, com vocabulário e tecnologias plausíveis para o período; o clima de suspense é literário, não alegação de sobrenatural. Não fazer merge sem revisão do autor.
 
 ## Identidade do texto
 
