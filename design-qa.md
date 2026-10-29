@@ -1,5 +1,8 @@
 # Design QA — Retro-Ghost-85 MVP visual
 
+> **RELATÓRIO INCREMENTAL/HISTÓRICO.** Algumas linhas descrevem fases em que textos, Gemma e voz ainda estavam pendentes; a implementação vigente no commit-base `a4f7998` é documentada em [STATUS_ATUAL.md](STATUS_ATUAL.md). Os testes e medições mantêm seu valor como evidência pontual.
+
+
 Data: 26/10/2026  
 Referência: `public/assets/board-reference.webp`  
 Viewport verificado: desktop 1365 × 935
