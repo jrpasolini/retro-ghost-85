@@ -379,7 +379,7 @@ O parágrafo antigo desta proposta preliminar pedia vitória só com `projeto �
 - **Junior:** product owner, aprovação das decisões de escopo, gastos, merges e publicação.
 - **Gemini:** ferramenta auxiliar de codificação e revisão, com tarefas incrementais e mudanças rastreadas em branches/PRs quando possível. Não usar GenAI App Builder, créditos promocionais ou runtime no Google Cloud. Antigravity não é dependência ou requisito do projeto.
 - **Bruna:** direção visual, revisão de arquitetura, coerência dos requisitos e auditoria de UX, segurança e entregas antes da aprovação do Junior.
-- **Codex / Grok Bot / Cursor Pro:** apoio opcional em revisão independente, testes e auditoria; evitar agentes sobrescrevendo os mesmos arquivos simultaneamente.
+- **Ferramentas externas de revisão:** apoio opcional em revisão independente, testes e auditoria; evitar agentes sobrescrevendo os mesmos arquivos simultaneamente.
 - **GitHub:** fonte canônica; `master` protegida por revisão humana quando possível; segredos e dados privados fora do código/commits.
 
 ## 15. Decisões pendentes no planejamento inicial (histórico)
