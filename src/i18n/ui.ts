@@ -4,6 +4,10 @@ import type { Idioma } from "./content.ts";
  * Keep HTML, placeholders and file identifiers out of translation data.
  */
 export const uiEn: Readonly<Record<string, string>> = {
+  "A sua jornada…": "Your journey…",
+  "Ouvir sua jornada": "Listen to your journey",
+  "Ver caminho percorrido": "View your journey log",
+  "Download da jornada em voz": "Download your journey audio",
   "Apresentação de RETRO-GHOST-85": "RETRO-GHOST-85 opening presentation",
   "Apresentação do projeto RETRO-GHOST-85.": "Presentation of the RETRO-GHOST-85 project.",
   "Controle da trilha sonora": "Soundtrack controls",

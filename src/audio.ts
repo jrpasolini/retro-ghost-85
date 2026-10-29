@@ -30,6 +30,7 @@ export class ControleDeAudio {
   private idioma: Idioma;
   private desbloqueado = false;
   private ligado = true;
+  private narracaoAtiva = false;
   private trilha: TrilhaId = "intro";
 
   constructor(aoAtualizar: (ligado: boolean, nome: string) => void, idioma: Idioma = "pt-BR") {
@@ -56,7 +57,15 @@ export class ControleDeAudio {
     this.aoAtualizar(this.ligado, this.nomeAtual());
   }
 
+  suspenderParaNarracao(): void { this.narracaoAtiva = true; this.audio.pause(); }
+
+  retomarAposNarracao(): void {
+    this.narracaoAtiva = false;
+    if (this.ligado && this.desbloqueado && !this.audio.ended) void this.reproduzir();
+  }
+
   private async reproduzir(): Promise<boolean> {
+    if (this.narracaoAtiva) return false;
     try {
       await this.audio.play();
       return true;
@@ -67,7 +76,7 @@ export class ControleDeAudio {
   }
 
   async desbloquear(): Promise<boolean> {
-    if (!this.ligado) {
+    if (!this.ligado || this.narracaoAtiva) {
       this.desbloqueado = true;
       return true;
     }

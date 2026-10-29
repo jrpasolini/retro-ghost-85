@@ -45,3 +45,21 @@ test("não repete a faixa curta de congratulations", async () => {
   await Promise.resolve();
   assert.equal(audio.reproducoes, antes);
 });
+
+test("a narração pausa a trilha e retoma da mesma posição respeitando AUDIO OFF", async () => {
+  const controle = new ControleDeAudio(() => undefined);
+  await controle.desbloquear();
+  const audio = AudioFalso.ultimo;
+  audio.currentTime = 37;
+  controle.suspenderParaNarracao();
+  assert.equal(audio.paused, true);
+  controle.retomarAposNarracao();
+  assert.equal(audio.paused, false);
+  assert.equal(audio.currentTime, 37);
+  await controle.alternar();
+  const antes = audio.reproducoes;
+  controle.suspenderParaNarracao();
+  controle.retomarAposNarracao();
+  assert.equal(audio.reproducoes, antes);
+  assert.equal(audio.paused, true);
+});

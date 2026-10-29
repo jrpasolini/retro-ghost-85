@@ -40,14 +40,14 @@ O cache de composição é consultado antes da inferência e inclui versão do p
 
 `POST /tts` recebe `{ "text": "...", "lang": "pt-BR" }`, retorna `audio/mpeg` e aceita até **2.800 caracteres**, mesmo limite da composição. Voz exclusivamente de `ELEVENLABS_VOICE_ID`, modelo `eleven_multilingual_v2`, estabilidade 0,75, similaridade 0,8, estilo 0,15 e speaker boost. A chave fica em `ELEVENLABS_API_KEY`, nunca no código. Falhas são sanitizadas; geração tem timeout de 15 segundos.
 
-O cache de áudio inclui texto, idioma, voz, modelo e parâmetros, com versão separada da versão do prompt do narrador. Atualizar instruções da Gemma não invalida áudios existentes com o mesmo texto. Nenhum teste desta correção gerou áudio no ElevenLabs.
+O cache de áudio inclui texto, idioma, voz, modelo e parâmetros, com versão separada da versão do prompt do narrador. Atualizar instruções da Gemma não invalida áudios existentes com o mesmo texto. A correção do prompt foi testada sem áudio. A integração posterior da interface validou uma geração real e o download do MP3, usando a voz e os parâmetros existentes.
 
 - `GET /health`: modelo efetivo, versão do prompt e presença da configuração de voz, sem inferência.
 - JSON limitado a 32 KiB; pedidos inválidos não chamam provedores.
 - `/probe` e `/selftest` não são rotas públicas.
 - CORS permite apenas origens enumeradas no código; CORS não autentica chamadas diretas.
 - Os limites são por pedido. Não há quota autenticada por partida ou rate limit global. Cache não garante custo zero.
-- A interface ainda usa o narrador local; a ligação dos botões e a etapa ElevenLabs são posteriores.
+- A interface de troféus e Endgame chama o narrador com o snapshot do troféu. PLAY gera voz sob demanda e o cassete baixa o mesmo MP3; replay e download não solicitam nova síntese na sessão.
 
 ## Publicação e verificação
 

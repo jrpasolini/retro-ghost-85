@@ -1116,3 +1116,52 @@ footer { display: flex; justify-content: space-between; gap: 1rem; padding: .7re
   .easter-egg-screen { animation: none !important; }
   .game-log-list li { animation: none !important; }
 }
+
+
+/* Journey cassette deck: the same cyan/amber hardware language as the board. */
+.journey-deck { padding: .65rem; margin: .8rem 0 1.1rem; border: 1px solid #38675c; background: linear-gradient(#132a25, #061310 20%, #020806); box-shadow: inset 0 0 0 3px #06100e, 3px 3px 0 #000; }
+.journey-deck-strip { display: flex; align-items: center; gap: .55rem; margin: 0 .2rem .65rem; color: #80b8a8; font: .5rem/1.5 "Press Start 2P", monospace; letter-spacing: .04em; }
+.journey-deck-strip > :last-child { margin-left: auto; color: var(--amber); }
+.journey-led { display: inline-block; width: 6px; height: 6px; background: #27453b; }
+.is-playing .journey-led { background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.is-busy .journey-led { background: var(--amber); }
+.journey-deck-keys { display: grid; grid-template-columns: 1.15fr 1fr; gap: .65rem; }
+.journey-deck button { min-width: 0; cursor: pointer; border-radius: 0; transition: border-color .15s, background .15s; }
+.journey-play { display: flex; align-items: center; justify-content: flex-start; gap: .85rem; min-height: 112px; padding: 1rem; border: 2px solid var(--cyan); background: linear-gradient(135deg, #0c3b32, #031a15); color: #d9fff4; box-shadow: inset 3px 3px 0 #236053, inset -4px -4px 0 #010a07; text-align: left; }
+.journey-play:hover:not(:disabled) { background: #104638; border-color: #d8fff6; }
+.journey-play-symbol { flex: 0 0 34px; height: 40px; background: var(--cyan); clip-path: polygon(0 0, 25% 0, 25% 8%, 50% 8%, 50% 20%, 75% 20%, 75% 34%, 100% 34%, 100% 66%, 75% 66%, 75% 80%, 50% 80%, 50% 92%, 25% 92%, 25% 100%, 0 100%); }
+.is-playing .journey-play-symbol { clip-path: polygon(0 0, 35% 0, 35% 100%, 0 100%, 0 0, 65% 0, 100% 0, 100% 100%, 65% 100%, 65% 0); }
+.journey-key-copy { display: flex; flex-direction: column; gap: .6rem; }
+.journey-transport { color: var(--cyan); font: .8rem/1.3 "Press Start 2P", monospace; }
+.journey-play-label, .journey-download-label { font: 600 .9rem/1.25 "Chakra Petch", sans-serif; }
+.journey-download { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .5rem; padding: .65rem .4rem; border: 1px solid var(--amber); background: #10140d; color: #ffd378; }
+.journey-download:hover:not(:disabled) { border-color: #fff1c5; background: #282513; }
+.journey-cassette { position: relative; display: block; width: 118px; height: 72px; padding: 6px; border: 2px solid #d8af52; background: #1e3428; box-shadow: inset 2px 2px #648f64, inset -2px -2px #07120c; }
+.journey-cassette::before, .journey-cassette::after { content: ''; position: absolute; bottom: 5px; width: 3px; height: 3px; background: #b6c797; }
+.journey-cassette::before { left: 5px; }.journey-cassette::after { right: 5px; }
+.journey-cassette-label { display: block; padding: 3px 0 4px; background: #e6c16b; color: #182016; font: .5rem/1 "Press Start 2P", monospace; border-bottom: 3px solid #b94b59; }
+.journey-reels { display: flex; align-items: center; justify-content: space-between; width: 78px; height: 24px; padding: 2px 5px; margin: 3px auto 0; background: #07100b; border: 1px solid #6f8661; }
+.journey-reels i { width: 17px; height: 17px; border: 4px dashed #c8d5af; border-radius: 50%; background: #547b63; }
+.journey-tape-base { position: absolute; bottom: 0; left: 23px; right: 23px; height: 9px; border: 1px solid #82966b; background: #213a29; clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%); }
+.journey-deck button:disabled { opacity: .45; cursor: not-allowed; }
+.journey-deck button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.narration-slot .journey-status { margin: .65rem .15rem .1rem; min-height: 2.4em; color: #a4ccbe; font-size: .8rem; line-height: 1.35; }
+#endgame-narration, #trophy-narration { white-space: pre-line; line-height: 1.65; }
+.journey-history { margin-top: 1rem; padding-top: .7rem; border-top: 1px solid #245348; color: #9ac7b9; font-size: .85rem; }
+.journey-history summary { cursor: pointer; padding: .4rem 0; color: var(--cyan); }
+.journey-history .endgame-path { margin-top: .5rem; font-size: .78rem; }
+@media (max-width: 540px) {
+  .endgame-dialog { width: calc(100% - 1rem); max-height: calc(100dvh - 1rem); }
+  .endgame-dialog .intro-terminal { padding: 1rem; }
+  .narration-slot { padding: .6rem; }
+  .journey-deck { padding: .5rem; }
+  .journey-deck-keys { gap: .45rem; grid-template-columns: 1fr 1fr; }
+  .journey-play { padding: .65rem; gap: .5rem; min-height: 118px; }
+  .journey-play-symbol { flex-basis: 24px; height: 30px; }
+  .journey-transport { font-size: .64rem; }
+  .journey-play-label, .journey-download-label { font-size: .78rem; }
+  .journey-cassette { width: 104px; height: 65px; }
+  .journey-cassette-label { font-size: .44rem; }
+  .journey-reels { width: 70px; height: 20px; }
+  .journey-reels i { width: 14px; height: 14px; border-width: 3px; }
+}

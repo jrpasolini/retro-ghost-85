@@ -55,7 +55,7 @@ GitHub Actions also checks compilation, unit tests, layout/resize behavior, and 
 ```
 https://jrpasolini.tech/retro-ghost-85/   → static site (Vite base "./")
 GitHub Actions + Playwright               → automated game and UI checks
-Cloudflare Worker + Gemma 7B              → narration client is configured, not shown in the UI yet
+Cloudflare Worker + Gemma 7B              → authored journeys and brief closing comments in trophy/Endgame dialogs
 ElevenLabs                                → planned: narration voice delivery
 ```
 
@@ -65,7 +65,7 @@ The public site is served at `https://jrpasolini.tech/retro-ghost-85/`. `vite.co
 
 ## Narration worker
 
-The Master uses authored Portuguese and English beats for all forty squares. A shared selector keeps at most two beats per act and five at the ending, before inference. Gemma 7B adds a brief closing comment after the authored story; it never changes gameplay. The UI still uses the local narration stub.
+The Master uses authored Portuguese and English beats for all forty squares. A shared selector keeps at most two beats per act and five at the ending, before inference. Gemma 7B adds a brief closing comment after the authored story; it never changes gameplay. The trophy and Endgame dialogs display these journeys and use a themed PLAY/cassette deck. PLAY requests the configured ElevenLabs voice through the Worker, starts playback, and unlocks an MP3 download. Replay and download reuse the generated audio during the session.
 
 | | |
 | --- | --- |

@@ -15,17 +15,19 @@ import { podeIniciarJogada } from "./motor/turnos";
 import { maiorAtoAlcancado, proximaTrilha } from "./motor/trilha";
 import { criarJogadores, turnoDaCpu, type ConfiguracaoJogador } from "./motor/jogadores";
 import { formatarGamelog } from "./motor/gamelog";
-import { formatarLinhaLog, getPlayerTrajectory, NOME_TROFEU, textoMestre, trofeusVazios, type ChaveTrofeu } from "./motor/log";
+import { formatarLinhaLog, trofeusVazios, type ChaveTrofeu } from "./motor/log";
 import { posicaoDaPeca } from "./motor/posicao";
 import { consumirTurnoPerdidoSolo, daEstadoSalvo, iniciarPartida, montarTelaEndgame, paraEstadoSalvo, registrarJogada, type EstadoPartida } from "./motor/partida";
 import { ajustarQuantidade, clonarAssentos, confirmarAssentos } from "./motor/setup";
 import { ControleDeAudio } from "./audio";
-import { criarNarradorLocal, type PedidoNarracao } from "./narrador/narrador";
+import { prepareNarrationRequest, type NarrationRequest, type NarratorAct } from "./services/narrator";
+import { JourneyStore } from "./services/journey";
+import { JourneyPanel, journeyControls } from "./narrador/journey-panel";
 import { desserializarSave, serializarSave } from "./estado/save";
 
 let idioma: Idioma = idiomaGuardado();
 const u = (texto: string) => ui(texto, idioma);
-const narrador = criarNarradorLocal(idioma);
+const journeyStore = new JourneyStore();
 let rascunho: ConfiguracaoJogador[] = [{ controle: "humano", nome: nomePadrao(1, idioma) }];
 let confirmados: ConfiguracaoJogador[] = [];
 let sessao: EstadoPartida | null = null;
@@ -199,16 +201,13 @@ app.innerHTML = `
         <p id="endgame-winner"></p>
         <p id="endgame-score"></p>
         <section class="narration-slot" aria-labelledby="narration-label">
-          <h3 id="narration-label">O Mestre narra</h3>
+          <h3 id="narration-label">A sua jornada…</h3>
+          ${journeyControls("btn-ouvir-mestre", "btn-baixar-trofeu")}
           <p id="endgame-narration"></p>
-          <div class="narration-controls">
-            <button id="btn-ouvir-mestre" type="button">Ouvir o Mestre</button>
-            <button id="btn-baixar-trofeu" type="button">Baixar troféu (MP3)</button>
-          </div>
         </section>
         <section aria-labelledby="endgame-path-label">
-          <h3 id="endgame-path-label">Trajetória</h3>
-          <ol id="endgame-path" class="endgame-path"></ol>
+          <details class="journey-history"><summary id="endgame-path-label">Ver caminho percorrido</summary>
+          <ol id="endgame-path" class="endgame-path"></ol></details>
         </section>
         <section aria-labelledby="endgame-rank-label">
           <h3 id="endgame-rank-label">Placar</h3>
@@ -228,13 +227,10 @@ app.innerHTML = `
         <span id="trophy-act" class="intro-act">ATO</span>
         <h2 id="trophy-title" tabindex="-1">Chegou ao ato</h2>
         <section class="narration-slot" aria-labelledby="trophy-narration-label">
-          <h3 id="trophy-narration-label">O Mestre narra</h3>
+          <h3 id="trophy-narration-label">A sua jornada…</h3>
+          ${journeyControls("btn-ouvir-trofeu", "btn-baixar-trofeu-ato")}
           <p id="trophy-narration"></p>
-          <ol id="trophy-path" class="endgame-path"></ol>
-          <div class="narration-controls">
-            <button id="btn-ouvir-trofeu" type="button">Ouvir o Mestre</button>
-            <button id="btn-baixar-trofeu-ato" type="button">Baixar troféu (MP3)</button>
-          </div>
+          <details class="journey-history"><summary>Ver caminho percorrido</summary><ol id="trophy-path" class="endgame-path"></ol></details>
         </section>
         <div class="intro-actions">
           <button id="btn-continuar-trofeu" class="intro-primary" type="button">CONTINUAR</button>
@@ -271,10 +267,6 @@ const btnMaisPlayer = document.querySelector<HTMLButtonElement>("#btn-mais-playe
 const btnLoadSetup = document.querySelector<HTMLButtonElement>("#btn-load-setup")!;
 const btnIniciarJornada = document.querySelector<HTMLButtonElement>("#btn-iniciar-jornada")!;
 const btnReabrirEndgame = document.querySelector<HTMLButtonElement>("#btn-reabrir-endgame")!;
-const btnOuvirMestre = document.querySelector<HTMLButtonElement>("#btn-ouvir-mestre")!;
-const btnBaixarTrofeu = document.querySelector<HTMLButtonElement>("#btn-baixar-trofeu")!;
-const btnOuvirTrofeu = document.querySelector<HTMLButtonElement>("#btn-ouvir-trofeu")!;
-const btnBaixarTrofeuAto = document.querySelector<HTMLButtonElement>("#btn-baixar-trofeu-ato")!;
 const trophyDialog = document.querySelector<HTMLDialogElement>("#trophy-dialog")!;
 const trophyTitle = document.querySelector<HTMLElement>("#trophy-title")!;
 const trophyAct = document.querySelector<HTMLElement>("#trophy-act")!;
@@ -300,8 +292,15 @@ function ligarTrilhaNoPrimeiroGesto() {
   document.addEventListener("keydown", tentar);
 }
 ligarTrilhaNoPrimeiroGesto();
-prepararBotoesNarracao(btnOuvirMestre, btnBaixarTrofeu);
-prepararBotoesNarracao(btnOuvirTrofeu, btnBaixarTrofeuAto);
+const endgameJourney = new JourneyPanel(endgameDialog, document.querySelector<HTMLElement>("#endgame-narration")!, journeyStore,
+  () => trilha.suspenderParaNarracao(), () => trilha.retomarAposNarracao());
+const trophyJourney = new JourneyPanel(trophyDialog, trophyNarration, journeyStore,
+  () => trilha.suspenderParaNarracao(), () => trilha.retomarAposNarracao());
+endgameDialog.addEventListener("close", () => endgameJourney.stop());
+trophyDialog.addEventListener("close", () => trophyJourney.stop());
+
+
+
 
 function escaparHtml(valor: string): string {
   return valor.replace(/[&<>'"]/g, (caractere) => ({
@@ -362,8 +361,8 @@ function selecionarIdioma(proximo: Idioma) {
   updateInspector(casas[casaAtiva - 1]);
   renderLog();
   document.querySelectorAll<HTMLElement>(".dice-face").forEach(face => renderDiceFace(face, Number(face.dataset.value || 1)));
-  prepararBotoesNarracao(btnOuvirMestre, btnBaixarTrofeu);
-  prepararBotoesNarracao(btnOuvirTrofeu, btnBaixarTrofeuAto);
+
+
   const penalidadeSolo = Boolean(sessao && sessao.jogadores.length === 1 && sessao.jogadores[0].turnosPerdidos > 0 && !partidaEncerrada);
   btnRolarDado.textContent = penalidadeSolo ? u("PASSAR TURNO") : u("ROLAR DADO");
   document.querySelector<HTMLElement>(".dice-status")!.textContent = textoGamelogAtual();
@@ -434,34 +433,12 @@ function atualizarTrilha(venceu = false) {
   void trilha.tocar(proximaTrilha(atoMusical, maiorAto, venceu));
 }
 
-function prepararBotoesNarracao(ouvir: HTMLButtonElement, baixar: HTMLButtonElement) {
-  const motivo = u("narração em breve");
-  ouvir.disabled = !narrador.disponivel;
-  baixar.disabled = !narrador.disponivel;
-  ouvir.title = motivo;
-  baixar.title = motivo;
-  ouvir.setAttribute("aria-disabled", String(!narrador.disponivel));
-  baixar.setAttribute("aria-disabled", String(!narrador.disponivel));
-}
-
-function pedidoNarracao(chave: ChaveTrofeu): PedidoNarracao | null {
+function pedidoNarracao(chave: ChaveTrofeu): NarrationRequest | null {
   if (!sessao) return null;
   const trofeu = sessao.trofeus[chave];
   if (!trofeu) return null;
-  return {
-    tipo: chave === "endgame" ? "endgame" : "ato",
-    chave,
-    jogadorId: trofeu.jogadorId,
-    idioma,
-    trajetoria: getPlayerTrajectory(sessao.log, trofeu.jogadorId),
-  };
-}
-
-async function acionarNarrador(chave: ChaveTrofeu, acao: "ouvir" | "baixar") {
-  const pedido = pedidoNarracao(chave);
-  if (!pedido || !narrador.disponivel) return;
-  if (acao === "ouvir") await narrador.narrar(pedido);
-  else await narrador.baixarTrofeu(pedido);
+  const act: NarratorAct = chave === "endgame" ? "endgame" : chave === "act10" ? "2" : chave === "act20" ? "3" : "4";
+  return prepareNarrationRequest(trofeu.caminho, trofeu.jogadorId, act, idioma);
 }
 
 function mostrarFeedbackCassete(mensagem: string, erro = false) {
@@ -538,17 +515,19 @@ function apresentarTrofeu(chave: ChaveTrofeu, nome: string) {
   trofeuEmExibicao = chave;
   const trofeu = sessao.trofeus[chave];
   const dono = trofeu ? sessao.jogadores.find((jogador) => jogador.id === trofeu.jogadorId)?.nome ?? nome : nome;
-  const trajetoria = getPlayerTrajectory(sessao.log, trofeu?.jogadorId ?? 0);
+  const trajetoria = trofeu?.caminho ?? [];
   trophyAct.textContent = tituloTrofeu(chave, idioma).toUpperCase();
   trophyTitle.textContent = idioma === "pt-BR"
     ? `${dono} chegou ao ${tituloTrofeu(chave, idioma)}`
     : `${dono} reached ${tituloTrofeu(chave, idioma)}`;
-  trophyNarration.textContent = textoMestre(trajetoria, dono, idioma);
+  const pedido = pedidoNarracao(chave);
+  if (pedido) void trophyJourney.show(pedido);
   document.querySelector<HTMLElement>("#trophy-path")!.innerHTML = trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada, idioma))}</li>`).join("");
   if (timerCpu !== undefined) window.clearTimeout(timerCpu);
   btnRolarDado.disabled = true;
   if (!trophyDialog.open) trophyDialog.showModal();
-  trophyTitle.focus();
+  trophyTitle.focus({ preventScroll: true });
+  trophyDialog.scrollTop = 0;
 }
 
 function enfileirarTrofeus(chaves: ChaveTrofeu[], nome: string): boolean {
@@ -589,18 +568,21 @@ function abrirEndgame() {
   if (!tela) return;
   document.querySelector<HTMLElement>("#endgame-winner")!.textContent = textoVitoria(tela.vencedorNome, idioma);
   document.querySelector<HTMLElement>("#endgame-score")!.textContent = nomeScore(idioma, tela.vencedorNome, tela.projeto, tela.rolamentosVencedor, tela.rolamentosMesa);
-  document.querySelector<HTMLElement>("#endgame-narration")!.textContent = tela.narracao;
+  const pedido = pedidoNarracao("endgame");
+  if (pedido) void endgameJourney.show(pedido);
   document.querySelector<HTMLElement>("#endgame-path")!.innerHTML = tela.trajetoria.map((entrada) => `<li>${escaparHtml(formatarLinhaLog(entrada, idioma))}</li>`).join("");
   document.querySelector<HTMLElement>("#endgame-ranking")!.innerHTML = tela.ranking.map((linha) => {
     const trofeus = linha.trofeus.length ? linha.trofeus.map((chave) => tituloTrofeu(chave, idioma)).join(", ") : u("sem troféu de ato");
     return `<li><b>${escaparHtml(linha.nome)}</b> · ${idioma === "pt-BR" ? "casa" : "square"} ${linha.casa} · ${linha.projeto}/100 · ${escaparHtml(trofeus)}</li>`;
   }).join("");
   if (!endgameDialog.open) endgameDialog.showModal();
-  document.querySelector<HTMLElement>("#endgame-title")!.focus();
+  document.querySelector<HTMLElement>("#endgame-title")!.focus({ preventScroll: true });
+  endgameDialog.scrollTop = 0;
   btnReabrirEndgame.hidden = true;
 }
 
 function assumirSessao(partida: EstadoPartida) {
+  endgameJourney.reset(); trophyJourney.reset(); journeyStore.clear();
   fecharTrofeuSemRetomar();
   sessao = partida;
   confirmados = clonarAssentos(partida.assentos);
@@ -908,6 +890,7 @@ function iniciarJornada() {
 }
 
 function novaPartida() {
+  endgameJourney.reset(); trophyJourney.reset(); journeyStore.clear();
   const assentos = confirmados.length ? clonarAssentos(confirmados) : clonarAssentos(rascunho);
   sessao = null;
   confirmados = [];
@@ -1013,10 +996,6 @@ trophyDialog.addEventListener("cancel", (evento) => {
   continuarTrofeu();
 });
 trophyDialog.addEventListener("close", retomarDepoisDoTrofeu);
-btnOuvirMestre.addEventListener("click", () => { void acionarNarrador("endgame", "ouvir"); });
-btnBaixarTrofeu.addEventListener("click", () => { void acionarNarrador("endgame", "baixar"); });
-btnOuvirTrofeu.addEventListener("click", () => { if (trofeuEmExibicao) void acionarNarrador(trofeuEmExibicao, "ouvir"); });
-btnBaixarTrofeuAto.addEventListener("click", () => { if (trofeuEmExibicao) void acionarNarrador(trofeuEmExibicao, "baixar"); });
 btnMenosPlayer.addEventListener("click", () => {
   const atuais = lerAssentosDoFormulario();
   rascunho = ajustarQuantidade(atuais, atuais.length - 1);
