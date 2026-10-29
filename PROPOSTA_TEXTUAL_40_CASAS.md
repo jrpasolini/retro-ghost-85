@@ -1,5 +1,7 @@
-# As 40 casas — revisão histórica e textual para aprovação
+# As 40 casas — comparativo histórico da revisão narrativa (arquivado)
 > **Fonte de verdade nesta branch:** código atual em `src/data/casas.ts` + `src/data/atos.ts`. Esta comparação é atualizada automaticamente a partir do código revisado. A coluna “Antes” é da `master`. Não realizar merge sem QA.
+
+**Nota em 29/10/2026:** o comparativo "antes/depois" abaixo foi escrito durante a revisão editorial; não é uma proposta de alteração pendente na `master`. Para o texto efetivo das casas, consultar `src/data/casas.ts` e `src/data/atos.ts`; para a versão atual, [STATUS_ATUAL.md](STATUS_ATUAL.md).
 
 A arte original foi **preservada sem sobreposições, retoques ou novos pictogramas**. Títulos, efeitos, tipos, consequências e posições permanecem idênticos aos da `master`. Os três marcos das casas 10/20/30 recebem a narrativa de `atos.ts`. A revisão se concentra em contexto histórico, ritmo, suspense e ligação entre cada história e o símbolo existente.
 
