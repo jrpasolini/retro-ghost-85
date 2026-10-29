@@ -1,4 +1,4 @@
-# Playtest QA — 28/10/2026
+# Playtest QA — 28/10/2026 (achados históricos e fechamento de regressão)
 
 Sessão de teste jogada em produção (`retro-ghost-85.onrender.com`), build **0.6.0**,
 com duas partidas: uma solo e uma de dois jogadores humanos em pass-and-play
@@ -159,8 +159,8 @@ Registrado porque é o desenho da etapa 2 e vale confirmar que está de pé:
 
 | # | Item | Status | Impacto |
 |---|------|--------|---------|
-| 1 | Numeração dupla no placar do endgame | Confirmado | Visível na tela de vitória |
-| 2 | "Perca 1 jogada" inerte em partida solo | Confirmado | Regra inconsistente |
+| 1 | Numeração dupla no placar do endgame | **Corrigido posteriormente** (ver fechamento e CI) | Era visível na tela de vitória |
+| 2 | "Perca 1 jogada" inerte em partida solo | **Corrigido posteriormente** (ver fechamento e CI) | Era uma inconsistência da regra |
 | 3 | Vitória por posição (casa 40) | Confirmado, correto | Nenhum |
 | 4 | Peça desalinhada em tela menor | Não reproduzido | Precisa de print + resolução |
 
