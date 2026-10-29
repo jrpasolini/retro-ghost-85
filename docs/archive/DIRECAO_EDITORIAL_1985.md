@@ -35,7 +35,7 @@ O leitor acompanha uma pessoa que tenta criar e publicar um jogo em 1985. A aven
 4. Não atribuir ao personagem conhecimento ou equipamentos modernos. `save .md`, Gemma 4, MP3 e ElevenLabs são recursos **da interface atual**, não do universo da história.
 5. A casa 13 usa o ícone e a frase `C:\>` já presentes na arte; **não** substituí-la por uma tela minúscula com `A>DIR`.
 6. Para fatalidades, dar corpo ao obstáculo técnico e ao custo emocional; para eventos positivos, mostrar descoberta concreta e sensação de progresso.
-7. Quanto à casa 19, o Codex não encontrou seu número/ícone discernível, mas o hotspot existe e a narrativa permanece válida. Não mover a 19 nem a 20.
+7. Quanto à casa 19, a auditoria visual externa não encontrou seu número/ícone discernível, mas o hotspot existe e a narrativa permanece válida. Não mover a 19 nem a 20.
 8. Evitar reescrever o passado: MS-DOS 1 já existia desde 1981, MS-DOS 2 desde 1983 e MSX-DOS 1 tornou-se disponível em 1985, cada qual em contexto de máquina diferente.
 
 ## Escopo atual: tabuleiro original congelado
@@ -49,7 +49,7 @@ O leitor acompanha uma pessoa que tenta criar e publicar um jogo em 1985. A aven
 - Ambiguidades dos símbolos (inclusive casa 19) são limitações gráficas aceitas e **não bloqueiam o fechamento editorial**.
 - O `C:\\>` da casa 13 permanece exatamente como está; sua narrativa indica um PC com MS-DOS da época, sem precisar redesenhar o terminal.
 - `src/motor/editorial-1985.test.ts` verifica a geometria original e o blob da arte, além de posições de até quatro personagens. Reexecutar `npm test` e `npm run build` antes do merge.
-- Conservar a análise histórica do Codex em `MATRIZ_VALIDACAO_VISUAL.md` como evidência editorial; ela **não** é autorização para voltar a editar os ícones.
+- Conservar a análise histórica da auditoria visual externa em `MATRIZ_VALIDACAO_VISUAL.md` como evidência editorial; ela **não** é autorização para voltar a editar os ícones.
 
 ## Etapas posteriores (fora deste PR)
 

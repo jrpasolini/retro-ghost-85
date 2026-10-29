@@ -69,13 +69,13 @@ Nota: O **MS-DOS do IBM PC** também já existia, mas a coexistência temporal *
 
 ## Situação
 
-**Branch com conteúdo narrativo atualizado**, sem alterações de funcionalidade ou arte. Comparação dos textos em `PROPOSTA_TEXTUAL_40_CASAS.md`, prompt externo em `PROMPT_CODEX_VALIDACAO_VISUAL.md`. Não efetuar merge sem aprovação editorial e checagem visual final.
+**Branch com conteúdo narrativo atualizado**, sem alterações de funcionalidade ou arte. Comparação dos textos em `PROPOSTA_TEXTUAL_40_CASAS.md`; o prompt externo de validação visual foi arquivado fora do repositório. Não efetuar merge sem aprovação editorial e checagem visual final.
 
 ## Decisão do autor: abandonar experimentação gráfica nesta etapa
 
 Após comparar as propostas gráficas, o autor optou por **preservar inteiramente a arte atual**, por risco desnecessário de desalinhamento e por não ser prioridade do desafio. A camada v2 foi retirada e não consta mais na versão executada; a imagem WebP original permanece intacta.
 
-A auditoria visual do Codex foi útil para orientar **apenas a contextualização dos textos** das 40 casas. As 15 narrativas previamente apontadas como divergentes foram harmonizadas com seus símbolos, sem alterar títulos, efeitos ou mecânicas. A casa 19 permanece como exceção visual conhecida, aceita sem modificação de layout. O prompt antigo de validação visual é histórico e não deve ser reexecutado como tarefa de desenho.
+A auditoria visual externa foi útil para orientar **apenas a contextualização dos textos** das 40 casas. As 15 narrativas previamente apontadas como divergentes foram harmonizadas com seus símbolos, sem alterar títulos, efeitos ou mecânicas. A casa 19 permanece como exceção visual conhecida, aceita sem modificação de layout. O prompt antigo de validação visual é histórico e não deve ser reexecutado como tarefa de desenho.
 
 **Escopo para a aprovação do PR #5:** precisão e plausibilidade histórica de 1985, unidade de voz, suspense divertido nas fatalidades, variedade e continuidade da narrativa, legibilidade, compatibilidade com efeitos e testes. A sequência futura segue inglês → seletor de idioma → Gemma 4 → áudio ElevenLabs.
 

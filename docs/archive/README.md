@@ -10,7 +10,6 @@ These original Portuguese/English documents are retained for traceability. They 
 - [MATRIZ_VALIDACAO_VISUAL.md](MATRIZ_VALIDACAO_VISUAL.md)
 - [PLANO_I18N_EN_DEFAULT.md](PLANO_I18N_EN_DEFAULT.md)
 - [PLAYTEST_QA_2026-10-28.md](PLAYTEST_QA_2026-10-28.md)
-- [PROMPT_CODEX_VALIDACAO_VISUAL.md](PROMPT_CODEX_VALIDACAO_VISUAL.md)
 - [PROPOSTA_TEXTUAL_40_CASAS.md](PROPOSTA_TEXTUAL_40_CASAS.md)
 - [design-qa.md](design-qa.md)
 - [estrategia.md](estrategia.md)
