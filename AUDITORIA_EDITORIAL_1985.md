@@ -1,6 +1,8 @@
-# AUDITORIA EDITORIAL E HISTÓRICA — RETRO-GHOST-85
+# AUDITORIA EDITORIAL E HISTÓRICA — RETRO-GHOST-85 (arquivo histórico)
 
-> 27/10/2026 · Status: REDAÇÃO IMPLEMENTADA APENAS NA BRANCH, conferência visual pendente e revisão do autor obrigatória. Código narrativo alterado (`src/data/casas.ts`, `src/data/atos.ts`, `src/data/intro.ts`, texto de vitória em `src/main.ts`). Sem mudanças na arte, rótulos, posições, regras ou layout. Não fazer merge antes da validação.
+> **Situação posterior (29/10/2026):** este é um registro da auditoria editorial realizada antes da integração das narrativas. Referências a "somente na branch", "não fazer merge", texto ainda não aprovado e IA/TTS futura **não descrevem a `master` atual**. Para o estado vigente consulte [STATUS_ATUAL.md](STATUS_ATUAL.md).
+
+> 27/10/2026 · Status HISTÓRICO: REDAÇÃO IMPLEMENTADA APENAS NA BRANCH, conferência visual pendente e revisão do autor obrigatória. Código narrativo alterado (`src/data/casas.ts`, `src/data/atos.ts`, `src/data/intro.ts`, texto de vitória em `src/main.ts`). Sem mudanças na arte, rótulos, posições, regras ou layout. Não fazer merge antes da validação.
 
 ## Regra de ouro: tabuleiro congelado
 
